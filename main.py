@@ -8,6 +8,7 @@ class App:
 		self.stdscr = None
 		self.rows, self.cols = 0, 0
 		self.lines = 1
+		self.current_index = 0
 
 
 	def main(self, stdscr):
@@ -39,11 +40,25 @@ class App:
 				self.stdscr.clear()
 
 				# If the key is NOT a backspace character, we add the new character to the text
-				if key not in ("\b", "KEY_UP", "KEY_DOWN", "KEY_LEFT", "KEY_RIGHT"):
-					self.current_text += key
+				if key == "\b" or key.startswith("KEY_"):
+					if key == "\b":
+						if self.current_index > 0:
+							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
+							self.current_index -= 1
+					elif key == "KEY_UP":
+						pass
+					elif key == "KEY_DOWN":
+						pass
+					elif key == "KEY_LEFT":
+						self.current_index -= 1
+					elif key == "KEY_DOWN":
+						self.current_index += 1
+					# Clamping the index
+					self.current_index = max(min(self.current_index, len(self.current_text)), 0)
 				# If the key IS a backspace character, we remove the last character from the text
 				else:
-					self.current_text = self.current_text[:-1]
+					self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
+					self.current_index += 1
 
 			# Displays the current text
 			for i, line in enumerate(self.current_text.split("\n")):
