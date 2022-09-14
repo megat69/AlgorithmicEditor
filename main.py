@@ -32,8 +32,9 @@ class App:
 				if self.stdscr.getkey() == "q":
 					self.stdscr.addstr(self.rows - 1, 1, "q")
 					self.stdscr.refresh()
-					self.stdscr.getch()
-					self.quit()
+					key = self.stdscr.getkey()
+					if key == "\n":
+						self.quit()
 			# If it is a regular key
 			else:
 				# Screen clearing
@@ -83,7 +84,8 @@ class App:
 		Apply all the stylings to the screen.
 		"""
 		# Applies the bar at the bottom of the screen
-		self.stdscr.addstr(self.rows - 2, 0, "▓" * self.cols)
+		self.stdscr.addstr(self.rows - 3, 0, "▓" * self.cols)
+		self.stdscr.addstr(self.rows - 2, 0, ":q - Quit", curses.A_REVERSE | curses.A_BOLD)
 
 		# Gets the amount of lines in the text
 		self.calculate_line_numbers()
