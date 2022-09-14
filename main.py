@@ -29,12 +29,14 @@ class App:
 			# If system key is pressed
 			if key == ":":
 				self.stdscr.addstr(self.rows - 1, 0, ":")
-				if self.stdscr.getkey() == "q":
-					self.stdscr.addstr(self.rows - 1, 1, "q")
-					self.stdscr.refresh()
-					key = self.stdscr.getkey()
-					if key == "\n":
-						self.quit()
+				key = self.stdscr.getkey()
+				for key_name, function in (("q", self.quit), ("c", self.compile)):
+					if key == key_name:
+						self.stdscr.addstr(self.rows - 1, 1, key_name)
+						self.stdscr.refresh()
+						key = self.stdscr.getkey()
+						if key == "\n":
+							function()
 			# If it is a regular key
 			else:
 				# Screen clearing
@@ -101,6 +103,13 @@ class App:
 		"""
 		self.lines = self.current_text.count("\n") + 1
 		return self.lines
+
+
+	def compile(self) -> None:
+		"""
+		Compiles the inputted text into algorithmic code.
+		"""
+		pass
 
 
 if __name__ == "__main__":
