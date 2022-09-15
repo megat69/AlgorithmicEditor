@@ -10,8 +10,13 @@ class App:
 		self.rows, self.cols = 0, 0
 		self.lines = 1
 		self.current_index = 0
-		self.commands = (("q", self.quit, "Quit"), ("c", self.compile, "Compile"))
+		self.commands = (
+			("q", self.quit, "Quit"),
+			("c", self.compile, "Compile"),
+			("t", self.modify_tab_char, "Modify tab char")
+		)
 		self.instructions_list = []
+		self.tab_char = "\t"
 
 
 	def main(self, stdscr):
@@ -45,8 +50,6 @@ class App:
 				# Screen clearing
 				self.stdscr.clear()
 
-				# TODO : Cursor placement
-
 				# If the key is NOT a backspace character, we add the new character to the text
 				if key == "\b" or key.startswith("KEY_"):
 					if key == "\b":
@@ -71,6 +74,7 @@ class App:
 
 			# Displays the current text
 			for i, line in enumerate(self.current_text.split("\n")):
+				# TODO : Cursor placement
 				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 
 			# Visual stylings, e.g. adds a full line over the input
@@ -118,12 +122,27 @@ class App:
 		return self.lines
 
 
+	def modify_tab_char(self):
+		"""
+		Modifies the tab character.
+		"""
+		key = self.stdscr.getkey()
+		final_str = ""
+		while key != "\n":
+			final_str += key
+			self.stdscr.addstr(self.rows - 1, 3, final_str)
+			key = self.stdscr.getkey()
+		self.tab_char = final_str
+
+
 	def compile(self) -> None:
 		"""
 		Compiles the inputted text into algorithmic code.
 		"""
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
+		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
+		         "case": "Cas", "default": "Autrement"}
 		for i, line in enumerate(self.instructions_list):
 			line = line.split(" ")
 			instruction_name = line[0]
@@ -151,7 +170,6 @@ class App:
 				                            f"{1 if len(instruction_params) < 4 else instruction_params[3]}"
 
 			elif instruction_name == "end":
-				names = {'for': "Pour", 'if': "Si", "while": "Tant Que"}
 				last_elem = instructions_stack.pop()
 				self.instructions_list[i] = f"Fin {names[last_elem]}"
 
@@ -163,21 +181,34 @@ class App:
 				instructions_stack.append("if")
 				self.instructions_list[i] = f"Si {' '.join(instruction_params)}"
 
+			elif instruction_name == "switch":
+				instructions_stack.append("switch")
+				self.instructions_list[i] = f"SELON {' '.join(instruction_params)}"
+
+			elif instruction_name == "case":
+				instructions_stack.append("case")
+				self.instructions_list[i] = f"Cas {' '.join(instruction_params)}"
+
+			elif instruction_name == "default":
+				instructions_stack.append("default")
+				self.instructions_list[i] = f"Autrement : {' '.join(instruction_params)}"
+
 			elif instruction_name == "print":
 				self.instructions_list[i] = f"Afficher({' '.join(instruction_params)})"
 
 			elif instruction_name == "input":
 				self.instructions_list[i] = f"Saisir({' '.join(instruction_params)})"
 
-			elif instruction_params[0] == "=":
-				self.instructions_list[i] = f"{instruction_name} ← {' '.join(instruction_params[1:])}"
+			elif len(instruction_params) != 0:
+				if instruction_params[0] == "=":
+					self.instructions_list[i] = f"{instruction_name} ← {' '.join(instruction_params[1:])}"
 
-			elif instruction_params[0].endswith("="):
-				self.instructions_list[i] = f"{instruction_name} ← {instruction_name} {instruction_params[0][:-1]} {' '.join(instruction_params[1:])}"
+				elif instruction_params[0].endswith("="):
+					self.instructions_list[i] = f"{instruction_name} ← {instruction_name} {instruction_params[0][:-1]} {' '.join(instruction_params[1:])}"
 
-			self.instructions_list[i] = "\t" * (len(instructions_stack) - (1 if instruction_name in ("if", "while", "for") else 0)) + self.instructions_list[i]
+			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in names.keys() else 0)) + self.instructions_list[i]
 
-		final_compiled_code = "Début\n" + "".join("\t" + instruction + "\n" for instruction in self.instructions_list) + "Fin"
+		final_compiled_code = "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
 		pyperclip.copy(final_compiled_code)
 		self.stdscr.clear()
 		self.stdscr.addstr(final_compiled_code)
