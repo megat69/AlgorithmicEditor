@@ -4,7 +4,7 @@ import pyperclip
 
 
 class App:
-	def __init__(self):
+	def __init__(self, command_symbol: str = ":"):
 		self.current_text = ""
 		self.stdscr = None
 		self.rows, self.cols = 0, 0
@@ -20,6 +20,7 @@ class App:
 		)
 		self.instructions_list = []
 		self.tab_char = "\t"
+		self.command_symbol = command_symbol
 
 
 	def main(self, stdscr):
@@ -38,8 +39,8 @@ class App:
 			key = self.stdscr.getkey()
 
 			# If system key is pressed
-			if key == ":":
-				self.stdscr.addstr(self.rows - 1, 0, ":")
+			if key == self.command_symbol:
+				self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
 				key = self.stdscr.getkey()
 				for key_name, function, name in self.commands:
 					if key == key_name:
@@ -54,7 +55,7 @@ class App:
 				self.stdscr.clear()
 
 				# If the key IS a backspace character, we remove the last character from the text
-				if key == "\b" or key.startswith("KEY_"):
+				if key in ("\b", "\0") or key.startswith("KEY_"):
 					if key == "\b":
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
@@ -116,7 +117,7 @@ class App:
 		self.stdscr.addstr(self.rows - 3, 0, "▓" * self.cols)
 		cols = 0
 		for key_name, function, name in self.commands:
-			generated_str = f":{key_name} - {name}"
+			generated_str = f"{self.command_symbol}{key_name} - {name}"
 			self.stdscr.addstr(self.rows - 2, cols, generated_str, curses.A_REVERSE | curses.A_BOLD)
 			cols += len(generated_str)
 			self.stdscr.addstr(self.rows - 2, cols, " ")
@@ -280,7 +281,7 @@ class App:
 				elif instruction_name == "float":
 					var_type = "float"
 				elif instruction_name == "string":
-					var_type = "char[]"
+					var_type = "std::string"
 				elif instruction_name == "bool":
 					var_type = "bool"
 				elif instruction_name == "char":
@@ -352,5 +353,5 @@ class App:
 # TODO : Addstr the text up to the index, get the cursor position, keep using addstr, and then move the cursor back to the saved position
 
 if __name__ == "__main__":
-	app = App()
+	app = App(command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("-command_symbol") + 1])
 	curses.wrapper(app.main)
