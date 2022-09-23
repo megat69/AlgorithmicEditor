@@ -49,6 +49,7 @@ class App:
 						key = self.stdscr.getkey()
 						if key == "\n":
 							function()
+				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
 				# Screen clearing
@@ -173,7 +174,7 @@ class App:
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
 		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
-		         "case": "Cas", "default": "Autrement", "fx": "Fonction"}
+		         "case": "Cas", "default": "Autrement", "fx": "Fonction", "proc": "Procédure"}
 		var_types = {"int": "Entier", "float": "Réel", "string": "Chaîne de caractères", "bool": "Booléen",
 		             "char": "Caractère"}
 		for i, line in enumerate(self.instructions_list):
@@ -229,11 +230,20 @@ class App:
 				self.instructions_list[i] = f"Saisir({' '.join(instruction_params)})"
 
 			elif instruction_name == "fx":
-				instructions_stack.append("fx")
-				params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
-				params = ", ".join(params)
-				self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
-				del params
+				if instruction_params[0] != "void":
+					instructions_stack.append("fx")
+					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+					params = ", ".join(params)
+					self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
+					del params
+				else:
+					instructions_stack.append("proc")
+					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i + 1]}" for i in
+					               range(2, len(instruction_params), 2))
+					params = ", ".join(params)
+					self.instructions_list[i] = f"Procédure {instruction_params[1]} ({params})"
+					del params
+
 
 			elif instruction_name == "precond": self.instructions_list[i] = f"Préconditions : {' '.join(instruction_params)}"
 			elif instruction_name == "data": self.instructions_list[i] = f"Données : {' '.join(instruction_params)}"
@@ -250,6 +260,7 @@ class App:
 				elif instruction_params[0].endswith("="):
 					self.instructions_list[i] = f"{instruction_name} ← {instruction_name} {instruction_params[0][:-1]} {' '.join(instruction_params[1:])}"
 
+			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "(FIN DE LIGNE)")
 			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names.keys(), "else", "elif", "fx_start") else 0)) + self.instructions_list[i]
 
 		final_compiled_code = "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
@@ -337,7 +348,10 @@ class App:
 				instructions_stack.append("fx")
 				params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
 				params = ", ".join(params)
-				self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
+				if instruction_params[0] != "void":
+					self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
+				else:
+					self.instructions_list[i] = f"void {instruction_params[1]}({params}) " + "{"
 				del params
 
 			elif instruction_name == "precond": self.instructions_list[i] = f"// Préconditions : {' '.join(instruction_params)}"
@@ -354,12 +368,15 @@ class App:
 
 			self.instructions_list[i] = self.instructions_list[i].replace("puissance(", "pow(").replace("racine(", "sqrt(")
 			self.instructions_list[i] = self.instructions_list[i].replace("aleatoire(", "srand(time(NULL))")
+			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "\\n")
 			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
 			                            + self.instructions_list[i] + (";" if instruction_name not in
-			                                (*names, "end", "fx", "fx_start", "precond", "data", "result", "desc", "vars") else "")
+			                                (*names, "end", "fx", "fx_start", "precond", "data", "result", "desc", "vars", "//") else "")
 
 			if "fx" in instructions_stack or (instruction_name == "end" and last_elem == "fx"):
 				fxtext.append(self.instructions_list[i])
+				if instruction_name == "end":
+					fxtext[-1] += "\n"
 				self.instructions_list[i] = ""
 
 		final_compiled_code = "#include <iostream>\n" + \
