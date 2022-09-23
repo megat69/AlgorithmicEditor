@@ -78,18 +78,17 @@ class App:
 				self.current_index = max(min(self.current_index, len(self.current_text)), 0)
 
 			# Displays the current text
+			# TODO Longer lines
+			# TODO Syntax highlighting
 			idx = 0
 			cur = tuple()
 			for i, line in enumerate(self.current_text.split("\n")):
 				if idx + len(line) > self.current_index and idx <= self.current_index:
 					# The cursor must be on this line
-					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
 				elif idx + len(line) == self.current_index:
-					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
-				else:
-					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
+				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 				idx += len(line) + 1
 			# Placing cursor
 			if cur != tuple():
