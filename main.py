@@ -80,7 +80,6 @@ class App:
 			idx = 0
 			cur = tuple()
 			for i, line in enumerate(self.current_text.split("\n")):
-				# TODO : Cursor placement
 				if idx + len(line) > self.current_index and idx <= self.current_index:
 					# The cursor must be on this line
 					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
@@ -154,7 +153,7 @@ class App:
 
 
 	def save(self):
-		#compiled_str = self.compile(True)
+		# compiled_str = self.compile(True)
 		pyperclip.copy(self.current_text)
 		# TODO : Save
 
@@ -174,24 +173,16 @@ class App:
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
 		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
-		         "case": "Cas", "default": "Autrement"}
+		         "case": "Cas", "default": "Autrement", "fx": "Fonction"}
+		var_types = {"int": "Entier", "float": "Réel", "string": "Chaîne de caractères", "bool": "Booléen",
+		             "char": "Caractère"}
 		for i, line in enumerate(self.instructions_list):
 			line = line.split(" ")
 			instruction_name = line[0]
 			instruction_params = line[1:]
 
-			if instruction_name in ("int", "float", "string", "bool", "char"):
-				var_type = ""
-				if instruction_name == "int":
-					var_type = "Entier"
-				elif instruction_name == "float":
-					var_type = "Réel"
-				elif instruction_name == "string":
-					var_type = "Chaîne de caractères"
-				elif instruction_name == "bool":
-					var_type = "Booléen"
-				elif instruction_name == "char":
-					var_type = "Caractère"
+			if instruction_name in var_types.keys():
+				var_type = var_types[instruction_name]
 				self.instructions_list[i] = ", ".join(instruction_params) + " : " + var_type + \
 				                            ("s" if len(instruction_params) != 1 and instruction_name != "string" else "")
 
@@ -237,6 +228,21 @@ class App:
 			elif instruction_name == "input":
 				self.instructions_list[i] = f"Saisir({' '.join(instruction_params)})"
 
+			elif instruction_name == "fx":
+				instructions_stack.append("fx")
+				params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+				params = ", ".join(params)
+				self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
+				del params
+
+			elif instruction_name == "precond": self.instructions_list[i] = f"Préconditions : {' '.join(instruction_params)}"
+			elif instruction_name == "data": self.instructions_list[i] = f"Données : {' '.join(instruction_params)}"
+			elif instruction_name == "result": self.instructions_list[i] = f"Résultats : {' '.join(instruction_params)}"
+			elif instruction_name == "desc": self.instructions_list[i] = f"Description : {' '.join(instruction_params)}"
+			elif instruction_name == "vars": self.instructions_list[i] = f"Variables locales : {' '.join(instruction_params)}"
+			elif instruction_name == "fx_start": self.instructions_list[i] = f"Début : {' '.join(instruction_params)}"
+			elif instruction_name == "return": self.instructions_list[i] = f"Retourner {' '.join(instruction_params)}"
+
 			elif len(instruction_params) != 0:
 				if instruction_params[0] == "=":
 					self.instructions_list[i] = f"{instruction_name} ← {' '.join(instruction_params[1:])}"
@@ -244,7 +250,7 @@ class App:
 				elif instruction_params[0].endswith("="):
 					self.instructions_list[i] = f"{instruction_name} ← {instruction_name} {instruction_params[0][:-1]} {' '.join(instruction_params[1:])}"
 
-			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names.keys(), "else", "elif") else 0)) + self.instructions_list[i]
+			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names.keys(), "else", "elif", "fx_start") else 0)) + self.instructions_list[i]
 
 		final_compiled_code = "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
 		if noshow is False:
@@ -268,24 +274,18 @@ class App:
 		instructions_stack = []
 		names = ('for', 'if', 'while', 'switch', 'case', 'default', 'else', 'elif')
 		ifsanitize = lambda s: s.replace('ET', '&&').replace('OU', '||').replace('NON', '!')
+		var_types = {"int": "int", "float": "float", "string": "std::string", "bool": "bool",
+		             "char": "char"}
+		fxtext = []
+		last_elem = None
 
 		for i, line in enumerate(self.instructions_list):
 			line = line.split(" ")
 			instruction_name = line[0]
 			instruction_params = line[1:]
 
-			if instruction_name in ("int", "float", "string", "bool", "char"):
-				var_type = ""
-				if instruction_name == "int":
-					var_type = "int"
-				elif instruction_name == "float":
-					var_type = "float"
-				elif instruction_name == "string":
-					var_type = "std::string"
-				elif instruction_name == "bool":
-					var_type = "bool"
-				elif instruction_name == "char":
-					var_type = "char"
+			if instruction_name in var_types.keys():
+				var_type = var_types[instruction_name]
 				self.instructions_list[i] = var_type + " " + ", ".join(instruction_params)
 
 			elif instruction_name == "for":
@@ -328,19 +328,47 @@ class App:
 				self.instructions_list[i] = "default:"
 
 			elif instruction_name == "print":
-				self.instructions_list[i] = f"std::cout << {' '.join(instruction_params)}"
+				self.instructions_list[i] = f"std::cout << {' '.join(instruction_params).replace(' & ', ' << ')}"
 
 			elif instruction_name == "input":
 				self.instructions_list[i] = f"std::cout << std::endl;\n{self.tab_char * (len(instructions_stack) + 1)}std::cin >> {' '.join(instruction_params)}"
+
+			elif instruction_name == "fx":
+				instructions_stack.append("fx")
+				params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+				params = ", ".join(params)
+				self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
+				del params
+
+			elif instruction_name == "precond": self.instructions_list[i] = f"// Préconditions : {' '.join(instruction_params)}"
+			elif instruction_name == "data": self.instructions_list[i] = f"// Données : {' '.join(instruction_params)}"
+			elif instruction_name == "result": self.instructions_list[i] = f"// Résultats : {' '.join(instruction_params)}"
+			elif instruction_name == "desc": self.instructions_list[i] = f"// Description : {' '.join(instruction_params)}"
+			elif instruction_name == "vars": self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
+			elif instruction_name == "fx_start": self.instructions_list[i] = ""
+			elif instruction_name == "return": self.instructions_list[i] = f"return {' '.join(instruction_params)}"
 
 			elif len(instruction_params) != 0:
 				if instruction_params[0].endswith("="):
 					self.instructions_list[i] = f"{instruction_name} {' '.join(instruction_params)}"
 
-			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in names else 0)) + self.instructions_list[i] + (";" if instruction_name not in (*names, "end") else "")
+			self.instructions_list[i] = self.instructions_list[i].replace("puissance(", "pow(").replace("racine(", "sqrt(")
+			self.instructions_list[i] = self.instructions_list[i].replace("aleatoire(", "srand(time(NULL))")
+			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
+			                            + self.instructions_list[i] + (";" if instruction_name not in
+			                                (*names, "end", "fx", "fx_start", "precond", "data", "result", "desc", "vars") else "")
 
-		final_compiled_code = "#include <iostream>\n\nint main() {\n" + "".join(
-			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";") + self.tab_char + "return 0;\n}"
+			if "fx" in instructions_stack or (instruction_name == "end" and last_elem == "fx"):
+				fxtext.append(self.instructions_list[i])
+				self.instructions_list[i] = ""
+
+		final_compiled_code = "#include <iostream>\n" + \
+		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
+		                                                'racine(' in self.current_text else '')  \
+		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
+							  "\n".join(fxtext) + "\n\nint main() {\n" + "".join(
+			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";" and instruction != "")\
+		                      + self.tab_char + "return 0;\n}"
 		pyperclip.copy(final_compiled_code)
 		self.stdscr.clear()
 		self.stdscr.addstr(final_compiled_code)
@@ -350,8 +378,9 @@ class App:
 		self.apply_stylings()
 		self.stdscr.refresh()
 
-# TODO : Addstr the text up to the index, get the cursor position, keep using addstr, and then move the cursor back to the saved position
 
 if __name__ == "__main__":
-	app = App(command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("-command_symbol") + 1])
+	app = App(
+		command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("-command_symbol") + 1]
+	)
 	curses.wrapper(app.main)
