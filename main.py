@@ -172,6 +172,24 @@ class App:
 						curses.color_pair(color_pairs["statement"])
 					)
 
+				# If the instruction is a function declaration, we highlight each types in the declaration
+				if splitted_line[0] == "fx" and len(splitted_line) > 1:
+					# Highlighting the function's return type; as statement if void or variable otherwise
+					if splitted_line[1] in (*color_control_flow["variable"], "void"):
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 4,
+							splitted_line[1],
+							curses.color_pair(color_pairs["variable" if splitted_line[1] != "void" else "statement"])
+						)
+
+					# Highlighting each argument's type
+					for j in range(3, len(splitted_line), 2):
+						if splitted_line[j] in (*color_control_flow["variable"], "void"):
+							self.stdscr.addstr(
+								i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+								splitted_line[j], curses.color_pair(color_pairs["variable"])
+							)
+
 			# Placing cursor
 			if cur != tuple():
 				self.stdscr.addstr(*cur, curses.A_REVERSE)
