@@ -84,10 +84,18 @@ class App:
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
 							self.current_index -= 1
-					elif key == "KEY_UP":
-						pass
-					elif key == "KEY_DOWN":
-						pass
+					elif key in ("KEY_UP", "KEY_DOWN"):
+						text = self.current_text + "\n"
+						indexes = tuple(index for index in range(len(text)) if text.startswith('\n', index))
+						closest_index = min(indexes, key=lambda x:abs(x-self.current_index))
+						closest_index = indexes.index(closest_index)
+						closest_index = closest_index + (-1)**(key == "KEY_UP")
+						try:
+							if closest_index <= 0:
+								self.current_index = 0
+							else:
+								self.current_index = indexes[closest_index]
+						except IndexError: pass
 					elif key == "KEY_LEFT":
 						self.current_index -= 1
 					elif key == "KEY_RIGHT":
