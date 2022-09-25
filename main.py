@@ -1,6 +1,7 @@
 import curses
 import sys
 import pyperclip
+from functools import partial
 
 
 class App:
@@ -16,7 +17,8 @@ class App:
 			("t", self.modify_tab_char, "Modify tab char"),
 			("s", self.save, "Save"),
 			("o", self.open, "Open"),
-			("p", self.compile_to_cpp, "Compile to C++")
+			("p", self.compile_to_cpp, "Compile to C++"),
+			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
 		)
 		self.instructions_list = []
 		self.tab_char = "\t"
@@ -30,16 +32,20 @@ class App:
 		self.apply_stylings()
 		self.stdscr.refresh()
 
+		# Declaring color pairs, then saving them
+		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 		color_pairs = {
-			"statement": curses.init_pair(0, curses.COLOR_RED, curses.COLOR_BLACK),
-			"function": curses.init_pair(0, curses.COLOR_BLUE, curses.COLOR_BLACK),
-			"variable": curses.init_pair(0, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+			"statement": 1,
+			"function": 2,
+			"variable": 3
 		}
 
 		color_control_flow = {
-			("if", "else", "end", "elif", "for", "while"): "statement",
-			("fx",): "function",
-			('int', 'float', 'string', 'bool', 'char'): "variable"
+			"statement": ("if", "else", "end", "elif", "for", "while"),
+			"function": ("fx", "fx_start", "print", "input"),
+			"variable": ('int', 'float', 'string', 'bool', 'char')
 		}
 		# App main loop
 		while True:
@@ -82,8 +88,7 @@ class App:
 						self.current_index += 1
 				else:
 					# If the key is NOT a backspace character, we add the new character to the text
-					self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
-					self.current_index += 1
+					self.add_char_to_text(key)
 
 				# Clamping the index
 				self.current_index = max(min(self.current_index, len(self.current_text)), 0)
@@ -102,7 +107,16 @@ class App:
 				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 				idx += len(line) + 1
 				# Tests the beginning of the line to add a color
-				pass
+				start_statement = line.split(" ")[0]
+				if start_statement in tuple(sum(color_control_flow.values(), tuple())):
+					if start_statement in color_control_flow["statement"]:
+						c_pair = "statement"
+					elif start_statement in color_control_flow["function"]:
+						c_pair = "function"
+					else:
+						c_pair = "variable"
+					self.stdscr.addstr(i, len(str(self.lines)) + 1, start_statement, curses.color_pair(color_pairs[c_pair]))
+
 			# Placing cursor
 			if cur != tuple():
 				self.stdscr.addstr(*cur, curses.A_REVERSE)
@@ -127,13 +141,16 @@ class App:
 		"""
 		# Applies the bar at the bottom of the screen
 		self.stdscr.addstr(self.rows - 3, 0, "▓" * self.cols)
+
+		# Adds the commands list at the bottom of the screen
 		cols = 0
 		for key_name, function, name in self.commands:
-			generated_str = f"{self.command_symbol}{key_name} - {name}"
-			self.stdscr.addstr(self.rows - 2, cols, generated_str, curses.A_REVERSE | curses.A_BOLD)
-			cols += len(generated_str)
-			self.stdscr.addstr(self.rows - 2, cols, " ")
-			cols += 1
+			if key_name != self.command_symbol:
+				generated_str = f"{self.command_symbol}{key_name} - {name}"
+				self.stdscr.addstr(self.rows - 2, cols, generated_str, curses.A_REVERSE | curses.A_BOLD)
+				cols += len(generated_str)
+				self.stdscr.addstr(self.rows - 2, cols, " ")
+				cols += 1
 		self.stdscr.refresh()
 
 		# Gets the amount of lines in the text
@@ -163,6 +180,15 @@ class App:
 			self.stdscr.addstr(self.rows - 1, 3, final_str)
 			key = self.stdscr.getkey()
 		self.tab_char = final_str
+
+
+	def add_char_to_text(self, key: str):
+		"""
+		Adds the given character at the end of the text.
+		:param key: A character to add to the text.
+		"""
+		self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
+		self.current_index += 1
 
 
 	def save(self):
