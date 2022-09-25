@@ -48,7 +48,7 @@ class App:
 		}
 		color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while"),
-			"function": ("fx", "fx_start"),
+			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
 		}
