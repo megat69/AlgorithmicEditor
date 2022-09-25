@@ -5,7 +5,7 @@ from functools import partial
 
 
 class App:
-	def __init__(self, command_symbol: str = ":"):
+	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False):
 		self.current_text = ""
 		self.stdscr = None
 		self.rows, self.cols = 0, 0
@@ -23,6 +23,7 @@ class App:
 		self.instructions_list = []
 		self.tab_char = "\t"
 		self.command_symbol = command_symbol
+		self.using_namespace_std = using_namespace_std
 
 
 	def main(self, stdscr):
@@ -464,6 +465,8 @@ class App:
 			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
 			                            + self.instructions_list[i] + (";" if instruction_name not in
 			                                (*names, "end", "fx", "fx_start", "precond", "data", "result", "desc", "vars", "//") else "")
+			if self.using_namespace_std:
+				self.instructions_list[i] = self.instructions_list[i].replace("std::", "")
 
 			if "fx" in instructions_stack or (instruction_name == "end" and last_elem == "fx"):
 				fxtext.append(self.instructions_list[i])
@@ -471,7 +474,7 @@ class App:
 					fxtext[-1] += "\n"
 				self.instructions_list[i] = ""
 
-		final_compiled_code = "#include <iostream>\n" + \
+		final_compiled_code = "#include <iostream>\n" + ("using namespace std;" if self.using_namespace_std else "") + \
 		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
 		                                                'racine(' in self.current_text else '')  \
 		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
@@ -490,6 +493,7 @@ class App:
 
 if __name__ == "__main__":
 	app = App(
-		command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("-command_symbol") + 1]
+		command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
+		using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1]
 	)
 	curses.wrapper(app.main)
