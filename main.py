@@ -36,17 +36,20 @@ class App:
 		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
 		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-		curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+		curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+		curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
 		color_pairs = {
 			"statement": 1,
 			"function": 2,
 			"variable": 3,
-			"strings": 4
+			"instruction": 4,
+			"strings": 3
 		}
 		color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while"),
-			"function": ("fx", "fx_start", "print", "input"),
-			"variable": ('int', 'float', 'string', 'bool', 'char')
+			"function": ("fx", "fx_start"),
+			"variable": ('int', 'float', 'string', 'bool', 'char'),
+			"instruction": ("print", "input")
 		}
 
 		# App main loop
@@ -97,7 +100,6 @@ class App:
 
 			# Displays the current text
 			# TODO Longer lines
-			# TODO Syntax highlighting
 			idx = 0
 			cur = tuple()
 			for i, line in enumerate(self.current_text.split("\n")):
@@ -123,6 +125,8 @@ class App:
 						c_pair = "statement"
 					elif start_statement in color_control_flow["function"]:
 						c_pair = "function"
+					elif start_statement in color_control_flow["instruction"]:
+						c_pair = "instruction"
 					else:
 						c_pair = "variable"
 					# Overwrites the beginning of the line with the given color if possible
@@ -136,20 +140,20 @@ class App:
 							self.stdscr.addstr(
 								i,
 								len(str(self.lines)) + 1 + index, line[index:quotes_indexes[j + 1] + 1],
-								curses.color_pair(color_pairs["strings"])
+								curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
 							)
 						except IndexError:
 							self.stdscr.addstr(
 								i,
 								len(str(self.lines)) + 1 + index, line[index:],
-								curses.color_pair(color_pairs["strings"])
+								curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
 							)
 
 				# Finds all equal signs to highlight them in statement color
 				try:
 					if "=" in splitted_line[1]:
 						self.stdscr.addstr(
-							i, len(str(self.lines)) + 2 + splitted_line[0],
+							i, len(str(self.lines)) + 2 + len(splitted_line[0]),
 							splitted_line[1],
 							curses.color_pair(color_pairs["statement"])
 						)
