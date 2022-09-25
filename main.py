@@ -30,6 +30,17 @@ class App:
 		self.apply_stylings()
 		self.stdscr.refresh()
 
+		color_pairs = {
+			"statement": curses.init_pair(0, curses.COLOR_RED, curses.COLOR_BLACK),
+			"function": curses.init_pair(0, curses.COLOR_BLUE, curses.COLOR_BLACK),
+			"variable": curses.init_pair(0, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+		}
+
+		color_control_flow = {
+			("if", "else", "end", "elif", "for", "while"): "statement",
+			("fx",): "function",
+			('int', 'float', 'string', 'bool', 'char'): "variable"
+		}
 		# App main loop
 		while True:
 			# Gets the current screen size
@@ -90,6 +101,8 @@ class App:
 					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
 				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 				idx += len(line) + 1
+				# Tests the beginning of the line to add a color
+				pass
 			# Placing cursor
 			if cur != tuple():
 				self.stdscr.addstr(*cur, curses.A_REVERSE)
