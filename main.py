@@ -113,7 +113,10 @@ class App:
 					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
 
 				# Writing the line to the screen
-				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
+				if len(str(self.lines)) + 1 + len(line) < self.cols:
+					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
+				else:
+					self.stdscr.addstr(i, len(str(self.lines)) + 1, line[:self.cols - (len(str(self.lines)) + 1)])
 
 				# Updating the amount of characters in the line
 				idx += len(line) + 1
@@ -158,6 +161,15 @@ class App:
 							curses.color_pair(color_pairs["statement"])
 						)
 				except IndexError: pass  # If there is no space in the line
+
+				# Finds all '&' signs and gives them the statement color
+				symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "&")
+				for index in symbol_indexes:
+					self.stdscr.addstr(
+						i,
+						len(str(self.lines)) + 1 + index, line[index],
+						curses.color_pair(color_pairs["statement"])
+					)
 
 			# Placing cursor
 			if cur != tuple():
