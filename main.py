@@ -474,7 +474,7 @@ class App:
 					fxtext[-1] += "\n"
 				self.instructions_list[i] = ""
 
-		final_compiled_code = "#include <iostream>\n" + ("using namespace std;" if self.using_namespace_std else "") + \
+		final_compiled_code = "#include <iostream>\n" + ("using namespace std;\n" if self.using_namespace_std else "") + \
 		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
 		                                                'racine(' in self.current_text else '')  \
 		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
