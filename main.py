@@ -36,17 +36,19 @@ class App:
 		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
 		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+		curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
 		color_pairs = {
 			"statement": 1,
 			"function": 2,
-			"variable": 3
+			"variable": 3,
+			"strings": 4
 		}
-
 		color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while"),
 			"function": ("fx", "fx_start", "print", "input"),
 			"variable": ('int', 'float', 'string', 'bool', 'char')
 		}
+
 		# App main loop
 		while True:
 			# Gets the current screen size
@@ -99,15 +101,23 @@ class App:
 			idx = 0
 			cur = tuple()
 			for i, line in enumerate(self.current_text.split("\n")):
+				# Getting the splitted line for syntax highlighting
+				splitted_line = line.split(" ")
+
+				# Getting the cursor position
 				if idx + len(line) > self.current_index and idx <= self.current_index:
-					# The cursor must be on this line
 					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
 				elif idx + len(line) == self.current_index:
 					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
+
+				# Writing the line to the screen
 				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
+
+				# Updating the amount of characters in the line
 				idx += len(line) + 1
-				# Tests the beginning of the line to add a color
-				start_statement = line.split(" ")[0]
+
+				# Tests the beginning of the line to add a color, syntax highlighting
+				start_statement = splitted_line[0]
 				if start_statement in tuple(sum(color_control_flow.values(), tuple())):
 					if start_statement in color_control_flow["statement"]:
 						c_pair = "statement"
@@ -115,7 +125,35 @@ class App:
 						c_pair = "function"
 					else:
 						c_pair = "variable"
+					# Overwrites the beginning of the line with the given color if possible
 					self.stdscr.addstr(i, len(str(self.lines)) + 1, start_statement, curses.color_pair(color_pairs[c_pair]))
+
+				# Finds all strings between quotes (single or double) and highlights them green
+				quotes_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "\"")
+				for j, index in enumerate(quotes_indexes):
+					if j % 2 == 0:
+						try:
+							self.stdscr.addstr(
+								i,
+								len(str(self.lines)) + 1 + index, line[index:quotes_indexes[j + 1] + 1],
+								curses.color_pair(color_pairs["strings"])
+							)
+						except IndexError:
+							self.stdscr.addstr(
+								i,
+								len(str(self.lines)) + 1 + index, line[index:],
+								curses.color_pair(color_pairs["strings"])
+							)
+
+				# Finds all equal signs to highlight them in statement color
+				try:
+					if "=" in splitted_line[1]:
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + splitted_line[0],
+							splitted_line[1],
+							curses.color_pair(color_pairs["statement"])
+						)
+				except IndexError: pass  # If there is no space in the line
 
 			# Placing cursor
 			if cur != tuple():
