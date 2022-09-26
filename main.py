@@ -224,7 +224,7 @@ class App:
 			# Importing the plugin and storing it in the variable
 			plugins[plugin] = [importlib.import_module(f"plugins.{plugin}")]
 
-			# Initializes the plugins main function
+			# Initializes the plugins init function
 			try:
 				plugins[plugin].append(plugins[plugin][0].init(self))
 			except Exception as e:
@@ -362,6 +362,7 @@ class App:
 		Compiles the inputted text into algorithmic code.
 		:param noshow: Whether not to show the compiled code.
 		"""
+		# TODO : Spaces causing crash
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
 		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
