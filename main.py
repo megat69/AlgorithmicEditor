@@ -2,6 +2,8 @@ import curses
 import sys
 import pyperclip
 from functools import partial
+import os
+import importlib
 
 
 class App:
@@ -11,7 +13,7 @@ class App:
 		self.rows, self.cols = 0, 0
 		self.lines = 1
 		self.current_index = 0
-		self.commands = (
+		self.commands = [
 			("q", self.quit, "Quit"),
 			("c", self.compile, "Compile"),
 			("t", self.modify_tab_char, "Modify tab char"),
@@ -20,8 +22,10 @@ class App:
 			("p", self.compile_to_cpp, "Compile to C++"),
 			("h", self.toggle_std_use, "Toggle namespace std"),
 			("d", partial(self.add_char_to_text, " \n".join(("precond", "data", "result", "desc", "vars"))), "Docstring"),
+			# To add the command symbol to the text
 			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
-		)
+		]
+		self.plugins = self.load_plugins()
 		self.instructions_list = []
 		self.tab_char = "\t"
 		self.command_symbol = command_symbol
@@ -29,6 +33,7 @@ class App:
 
 
 	def main(self, stdscr):
+		# Curses initialization
 		self.stdscr = stdscr
 		self.stdscr.clear()
 		self.rows, self.cols = self.stdscr.getmaxyx()
@@ -54,6 +59,11 @@ class App:
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
 		}
+
+		# Initializes each plugin, if they have an init function
+		for plugin in self.plugins.values():
+			if hasattr(plugin[1], "init"):
+				plugin[1].init()
 
 		# App main loop
 		while True:
@@ -184,6 +194,34 @@ class App:
 		# Puts the line numbers at the edge of the screen
 		for i in range(min(self.lines, self.rows-3)):
 			self.stdscr.addstr(i, 0, str(i + 1).zfill(len(str(self.lines))), curses.A_REVERSE)
+
+
+	def load_plugins(self):
+		# Creating the plugins folder if it does not exist
+		if not os.path.exists(os.path.join(os.path.dirname(__file__), "plugins")):
+			os.mkdir(os.path.join(os.path.dirname(__file__), "plugins"))
+
+		# Initializing the plugins var
+		plugins = {}
+
+		# Lists all the plugin files inside the plugins folder
+		for plugin in os.listdir(os.path.join(os.path.dirname(__file__), "plugins")):
+			if plugin.startswith("__"): continue  # Python folders/files
+
+			# Cleaning the name
+			plugin = plugin.replace(".py", "")
+
+			# Importing the plugin and storing it in the variable
+			plugins[plugin] = [importlib.import_module(f"plugins.{plugin}")]
+
+			# Initializes the plugins main function
+			try:
+				plugins[plugin].append(plugins[plugin][0].init(self))
+			except Exception as e:
+				print(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
+
+		# Returning the dict of plugins
+		return plugins
 
 
 	def calculate_line_numbers(self) -> int:
