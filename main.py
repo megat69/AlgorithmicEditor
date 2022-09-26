@@ -19,6 +19,7 @@ class App:
 			("o", self.open, "Open"),
 			("p", self.compile_to_cpp, "Compile to C++"),
 			("h", self.toggle_std_use, "Toggle namespace std"),
+			("d", partial(self.add_char_to_text, " \n".join(("precond", "data", "result", "desc", "vars"))), "Docstring"),
 			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
 		)
 		self.instructions_list = []
