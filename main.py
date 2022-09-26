@@ -292,6 +292,7 @@ class App:
 
 	def open(self):
 		self.current_text = pyperclip.paste()
+		self.current_index = 0
 		self.stdscr.clear()
 		self.stdscr.refresh()
 		self.apply_stylings()
