@@ -120,6 +120,11 @@ class App:
 					# If the key is NOT a backspace character, we add the new character to the text
 					self.add_char_to_text(key)
 
+				# Calls the plugins update_on_keypress function
+				for plugin in self.plugins.values():
+					if hasattr(plugin[1], "update_on_keypress"):
+						plugin[1].update_on_keypress(key)
+
 				# Clamping the index
 				self.current_index = max(min(self.current_index, len(self.current_text)), 0)
 
@@ -150,6 +155,11 @@ class App:
 
 				# Tests the beginning of the line to add a color, syntax highlighting
 				self.syntax_highlighting(line, splitted_line, i)
+
+				# Calls the plugins update_on_syntax_highlight function
+				for plugin in self.plugins.values():
+					if hasattr(plugin[1], "update_on_syntax_highlight"):
+						plugin[1].update_on_syntax_highlight(line, splitted_line, i)
 
 			# Placing cursor
 			if cur != tuple() and cur[1] < self.cols:
