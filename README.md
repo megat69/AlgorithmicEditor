@@ -242,3 +242,132 @@ int age
 print "Entrez votre age"
 input age
 ```
+
+
+### Switch / Selon
+***ENGLISH***<br>
+The `switch` statement allows to have a simpler algorithm than a bunch of if/elif/else statements.<br>
+It takes as argument one character or integer, and then triggers the corresponding `case` block. If there is no corresponding `case` block, it defaults to the optional `default` block. You can have as many `case` blocks as you want.
+
+Syntax :<br>
+```
+switch <char|int>
+case <char|int>
+<instructions>
+end
+case <char|int>
+<instructions>
+end
+default
+<instructions>
+end
+end
+```
+
+Example :<br>
+```
+int color_nbr
+input color_nbr
+string color
+
+switch color_nbr
+case 0
+color = "black"
+end
+case 1
+color = "red"
+end
+case 2
+color = "green"
+end
+case 3
+color = "blue"
+end
+default
+color = "white"
+end
+
+print color
+```
+
+***FRANÇAIS***<br>
+L'instruction `switch` permet d'avoir un algorithme plus simple qu'un tas de if/elif/else imbriqués.<br>
+Elle prend comme argument un caractère ou un entier, et déclenche le bloc `case` correspondant. Si aucun bloc `case` ne correspond, elle se tourne vers le bloc optionnel par défaut `default`. Vous pouvez avoir autant de blocs `case` que vous voulez.
+
+Syntaxe :<br>
+```
+switch <char|int>
+case <char|int>
+<instructions>
+end
+case <char|int>
+<instructions>
+end
+default
+<instructions>
+end
+end
+```
+
+Exemple :<br>
+```
+int nombre_couleur
+input nombre_couleur
+string couleur
+
+switch nombre_couleur
+case 0
+couleur = "black"
+end
+case 1
+couleur = "red"
+end
+case 2
+couleur = "green"
+end
+case 3
+couleur = "blue"
+end
+default
+couleur = "white"
+end
+
+print color
+```
+
+### Functions & Procedures / Fonctions et Procédures
+***ENGLISH***
+Functions are pieces of code returning a specific value that are reusable anywhere in your code.<br>
+Procedures are special functions which simply do an action, but return nothing.<br>
+Functions and Procedures can have any number of arguments passed to them.
+
+A function starts with the keyword `fx`, and its body begins after the `fx_start` keyword.<br>
+In-between those two are some comments indicating the function's inner workings for any developper who might try to understand it.
+A function uses the `return` keyword to return a value.
+
+Syntax :<br>
+```
+fx <return_type> <name> [arg1_type] [arg1_name] [arg2_type] [arg2_name] [...]
+[precond <text> -> What is necessary for the function to work]
+[data <text> -> Which arguments are required for the function and why]
+[result <text> -> What the function returns]
+[desc <text> -> How the function works]
+[vars -> below this instruction is the declaration of all the local variables used in the function]
+fx_start
+<instructions>
+return <value|expression|variable> -> Can be placed anywhere within the instructions
+end
+```
+A procedure works the exact same way, except it doesn't define a `result` comment, has `void` as a return_type (indicated in red instead of yellow in the editor) and doesn't use the `return` keyword.
+```
+fx void <name> [arg1_type] [arg1_name] [arg2_type] [arg2_name] [...]
+[precond <text> -> What is necessary for the function to work]
+[data <text> -> Which arguments are required for the function and why]
+[desc <text> -> How the function works]
+[vars -> below this instruction is the declaration of all the local variables used in the function]
+fx_start
+<instructions>
+end
+```
+
+Examples :
