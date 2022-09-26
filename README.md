@@ -371,3 +371,121 @@ end
 ```
 
 Examples :
+```
+fx bool isMultiple int n int x
+data Two integers (n and x)
+results Returns whether x is a divider of n
+fx_start
+return n % x == 0
+end
+
+fx void drawLine int n char c
+data A integer (n) indicating the length of the line ; a character (c) indicating which character is used to fill the line.
+desc Draws a line of c with length n
+vars
+int i
+fx_start
+for i 0 n
+print c
+end
+print "(ENDL)"
+end
+```
+
+***FRANÇAIS***
+Les fonctions sont des bouts de code retournant une valeur spécifique qui sont réutilisables partout dans le code.<br>
+Les procédures sont des fonctions particulières qui effectuent simplement une action, mais ne retourne rien.<br>
+Les fonctions et procédures peuvent avoir autant de paramètres que voulu.
+
+Une fonction commence avec le mot-clé `fx`, et son corps commence après le mot-clé `fx_start`.<br>
+Entre ces deux sont des commentaires qui indiquent le fonctionnement de la fonction pour tout développeur qui voudrait essayer de la comprendre.
+Une fonction utilise le mot-clé `return` pour retourner une valeur.
+
+Syntaxe :<br>
+```
+fx <type_de_retour> <nom> [arg1_type] [arg1_nom] [arg2_type] [arg2_nom] [...]
+[precond <text> -> Les conditions nécessaires au fonctionnement de la fonction]
+[data <text> -> Quels paramètres sont nécessaires à la fonction et pourquoi]
+[result <text> -> Ce que la fonction retourne]
+[desc <text> -> Comment la fonction fonctionne]
+[vars -> En-dessous de ceci se trouve toutes les déclarations de variables locales utilisées par la fonction]
+fx_start
+<instructions>
+return <valeur|expression|variable> -> Peut être placé n'importe où parmi les instructions
+end
+```
+Une procédure fonctionne de la même manière, mais elle n'utilise pas de commentaire `result`, a un type de retour de `void` (indiqué en rouge au lieu de jaune dans l'éditeur) et n'utuilise pas le mot-clé `return`.
+```
+fx void <nom> [arg1_type] [arg1_nom] [arg2_type] [arg2_nom] [...]
+[precond <text> -> Les conditions nécessaires au fonctionnement de la fonction]
+[data <text> -> Quels paramètres sont nécessaires à la fonction et pourquoi]
+[desc <text> -> Comment la fonction fonctionne]
+[vars -> En-dessous de ceci se trouve toutes les déclarations de variables locales utilisées par la fonction]
+fx_start
+<instructions>
+end
+```
+
+Examples :
+```
+fx bool estMultiple int n int x
+data Deux entiers n et x
+results Renvoie si x est un diviseur de n
+fx_start
+return n % x == 0
+end
+
+fx void dessineLigne int n char c
+data Un entier positif n qui indique la longueur de la ligne ; un caractère c indiquant quel caractère utiliser dans le remplissage de la ligne.
+desc Dessine une ligne de c de longueur n
+vars
+int i
+fx_start
+for i 0 n
+print c
+end
+print "(ENDL)"
+end
+```
+
+### Available Functions / Fonctions Disponibles
+***ENGLISH***
+Three functions are available and can be used all throughout the code.
+- `aleatoire()`, which is the equivalent of C's *rand()* function
+- `puissance(x, n)`, which is the equivalent of C's *pow()* function
+- `racine(x)`, which is the equivalent of C's *sqrt()* function
+
+***FRANÇAIS***
+Trois fonctions sont disponibles et utilisables à travers votre code.
+- `aleatoire()`, l'équivalent de la fonction *rand()* de C. Renvoie un nombre aléatoire.
+- `puissance(x, n)`, l'équivalent de la fonction *pow()* de C. Renvoie la puissance de x par n.
+- `racine(x)`, l'équivalent de la fonction *sqrt()* de C. Renvoie la racine de x.
+
+## Commands / Commandes
+***ENGLISH***
+You can use commands to have an effect on your code. These commands are triggered by using the command symbol key (`:` by default), followed by the key assigned to it, then hitting Enter.<br>
+The commands are, but not limited to (plugins can add some) :
+- `:q` - Quit : Exits the editor **without saving**.
+- `:c` - Compile : Compiles your code into algorithmic code. **Copies the program to the clipboard, overriding what may be inside.**
+- `:t` - Modify tab char : Allows you to type in a new string to replace the default tab character (`\t`) for the transpilations.
+- `:s` - Save : Saves the program **to your clipboard**. This will be changed in the future.
+- `:o` - Open : Opens a program **from your clipboard**, ***and overwrites the old one without saving***. This will be changed in the future.
+- `:p` - Compile to C++ : Transpiles your code into C++. **Copies the program to the clipboard, overriding what may be inside.** *Note that the transpilation isn't perfect, it is more of a means to test your algorithm quickly than having to rewrite it entirely in another language.*
+- `:h` - Toggle namespace std : Toggles whether to use the `std` namespace in the C++ code. If true, all `std::` calls will be replaced by a `using namespace std;` at the top of the program. False by default.
+- `:d` - Docstring : Quickly adds all the functions comments at the end of the current line to improve function creation efficiency.
+
+***FRANÇAIS***
+Vous pouvez utiliser des commandes qui auront un effet syr votre code. Ces commandes sont déclenchées par l'appui sur la touche du symbole de commande (`:` par défaut), suivi de la touche assignée, puis par l'appui sur la touche Entrée.<br>
+Les commades sont, mais pas limitées à (les plugins peuvent en ajouter) :
+- `:q` - Quitter : Ferme l'éditeur **sans sauvegarder**.
+- `:c` - Compiler : Transcrire le code en algorithmique. **Copie le programme dans le presse-papiers, réécrivant ce qui pourrait être dedans.**
+- `:t` - Modifier le caractère de tabulation : Permet de taper un nouveau texte pour remplacer le caractère de tabulation par défaut (`\t`) pour les transcription.
+- `:s` - Sauvegarder : Sauvegarde le programme **dans le presse-papiers**. Cela sera changé dans le futur.
+- `:o` - Ouvrir : Ouvre le programme **depuis le presse-papiers**, ***et réécris par-dessus l'ancien sans le sauvegarder***. Cela sera changé dans le futur.
+- `:p` - Compiler vers C++ : Transcrit votre code en C++. **Copie le programme dans le presse-papiers, réécrivant ce qui pourrait être dedans.** *Notez que la transcription n'est pas parfaite, il s'agit plus de tester votre algorithme rapidement plutôt que d'avoir à le réécrire entièrement dans un autre langage.*
+- `:h` - Basculer namespace std : Bascule l'utilisation du namespace `std`dans le code C++. Si vrai, tous les appels à `std::` seront replacés par un `using namespace std;` au sommet du programme. Faux par défaut.
+- `:d` - Docstring : Ajoute rapidement tous les commentaires de fonction à la fin de la ligne courante pour améliorer l'efficacité dans la création de foncions.
+
+## Plugins
+WIP
+
