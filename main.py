@@ -159,11 +159,12 @@ class App:
 								curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
 							)
 						except IndexError:
-							self.stdscr.addstr(
-								i,
-								len(str(self.lines)) + 1 + index, line[index:],
-								curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
-							)
+							if len(splitted_line) > 0:
+								self.stdscr.addstr(
+									i,
+									len(str(self.lines)) + 1 + index, line[index:],
+									curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
+								)
 
 				# Finds all equal signs to highlight them in statement color
 				try:
