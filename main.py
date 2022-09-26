@@ -83,6 +83,7 @@ class App:
 				self.stdscr.clear()
 
 				# If the key IS a backspace character, we remove the last character from the text
+				# TODO Ctrl + V
 				if key in ("\b", "\0") or key.startswith("KEY_"):
 					if key == "\b":
 						if self.current_index > 0:
@@ -115,7 +116,7 @@ class App:
 			# TODO Longer lines
 			idx = 0
 			cur = tuple()
-			for i, line in enumerate(self.current_text.split("\n")):
+			for i, line in enumerate(self.current_text.split("\n")[:self.rows-3]):
 				# Getting the splitted line for syntax highlighting
 				splitted_line = line.split(" ")
 
@@ -127,8 +128,10 @@ class App:
 
 				# Writing the line to the screen
 				if len(str(self.lines)) + 1 + len(line) < self.cols:
+					# If the line's length does not overflow off the screen, we write it entirely
 					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
 				else:
+					# If the line's length overflows off the screen, we write only the part that stays in the screen
 					self.stdscr.addstr(i, len(str(self.lines)) + 1, line[:self.cols - (len(str(self.lines)) + 1)])
 
 				# Updating the amount of characters in the line
@@ -138,7 +141,7 @@ class App:
 				self.syntax_highlighting(line, splitted_line, i)
 
 			# Placing cursor
-			if cur != tuple():
+			if cur != tuple() and cur[1] < self.cols:
 				self.stdscr.addstr(*cur, curses.A_REVERSE)
 
 			# Visual stylings, e.g. adds a full line over the input
@@ -178,7 +181,7 @@ class App:
 		# Gets the amount of lines in the text
 		self.calculate_line_numbers()
 		# Puts the line numbers at the edge of the screen
-		for i in range(self.lines):
+		for i in range(min(self.lines, self.rows-3)):
 			self.stdscr.addstr(i, 0, str(i + 1).zfill(len(str(self.lines))), curses.A_REVERSE)
 
 
