@@ -159,7 +159,7 @@ class App:
 								curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
 							)
 						except IndexError:
-							if len(splitted_line) > 0:
+							if len(splitted_line) > 1:
 								self.stdscr.addstr(
 									i,
 									len(str(self.lines)) + 1 + index, line[index:],
