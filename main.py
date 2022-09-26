@@ -18,6 +18,7 @@ class App:
 			("s", self.save, "Save"),
 			("o", self.open, "Open"),
 			("p", self.compile_to_cpp, "Compile to C++"),
+			("h", self.toggle_std_use, "Toggle namespace std"),
 			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
 		)
 		self.instructions_list = []
@@ -71,7 +72,10 @@ class App:
 						self.stdscr.refresh()
 						key = self.stdscr.getkey()
 						if key == "\n":
-							function()
+							try:
+								function()
+							except curses.error:
+								self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
@@ -272,6 +276,14 @@ class App:
 		self.current_index += 1
 
 
+	def toggle_std_use(self):
+		"""
+		Toggles the use of the std namespace.in the C++ compilation.
+		"""
+		self.using_namespace_std = not self.using_namespace_std
+		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std}")
+
+
 	def save(self):
 		# compiled_str = self.compile(True)
 		pyperclip.copy(self.current_text)
@@ -314,7 +326,8 @@ class App:
 
 			elif instruction_name == "end":
 				last_elem = instructions_stack.pop()
-				self.instructions_list[i] = f"Fin {names[last_elem]}"
+				if last_elem != "vars":
+					self.instructions_list[i] = f"Fin {names[last_elem]}"
 
 			elif instruction_name == "while":
 				instructions_stack.append("while")
@@ -368,9 +381,20 @@ class App:
 			elif instruction_name == "data": self.instructions_list[i] = f"Données : {' '.join(instruction_params)}"
 			elif instruction_name == "result": self.instructions_list[i] = f"Résultats : {' '.join(instruction_params)}"
 			elif instruction_name == "desc": self.instructions_list[i] = f"Description : {' '.join(instruction_params)}"
-			elif instruction_name == "vars": self.instructions_list[i] = f"Variables locales : {' '.join(instruction_params)}"
-			elif instruction_name == "fx_start": self.instructions_list[i] = f"Début : {' '.join(instruction_params)}"
-			elif instruction_name == "return": self.instructions_list[i] = f"Retourner {' '.join(instruction_params)}"
+			elif instruction_name == "return":
+				# Checks we're not in a procedure
+				if "proc" in instructions_stack:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i+1} : 'return' statement in a procedure.")
+					self.stdscr.getch()
+					return None
+				self.instructions_list[i] = f"Retourner {' '.join(instruction_params)}"
+			elif instruction_name == "fx_start":
+				if instructions_stack[-1] == "vars": instructions_stack.pop()
+				self.instructions_list[i] = f"Début : {' '.join(instruction_params)}"
+			elif instruction_name == "vars":
+				self.instructions_list[i] = f"Variables locales : {' '.join(instruction_params)}"
+				instructions_stack.append("vars")
 
 			elif len(instruction_params) != 0:
 				if instruction_params[0] == "=":
@@ -380,7 +404,7 @@ class App:
 					self.instructions_list[i] = f"{instruction_name} ← {instruction_name} {instruction_params[0][:-1]} {' '.join(instruction_params[1:])}"
 
 			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "(FIN DE LIGNE)")
-			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names.keys(), "else", "elif", "fx_start") else 0)) + self.instructions_list[i]
+			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names.keys(), "else", "elif", "fx_start", "vars") else 0)) + self.instructions_list[i]
 
 		final_compiled_code = "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
 		if noshow is False:
@@ -461,7 +485,7 @@ class App:
 				self.instructions_list[i] = f"std::cout << {' '.join(instruction_params).replace(' & ', ' << ')}"
 
 			elif instruction_name == "input":
-				self.instructions_list[i] = f"std::cout << std::endl;\n{self.tab_char * (len(instructions_stack) + 1)}std::cin >> {' '.join(instruction_params)}"
+				self.instructions_list[i] = f"std::cout << std::endl;\n{self.tab_char * ((len(instructions_stack) + ('fx' not in instructions_stack)))}std::cin >> {' '.join(instruction_params)}"
 
 			elif instruction_name == "fx":
 				instructions_stack.append("fx")
@@ -477,9 +501,20 @@ class App:
 			elif instruction_name == "data": self.instructions_list[i] = f"// Données : {' '.join(instruction_params)}"
 			elif instruction_name == "result": self.instructions_list[i] = f"// Résultats : {' '.join(instruction_params)}"
 			elif instruction_name == "desc": self.instructions_list[i] = f"// Description : {' '.join(instruction_params)}"
-			elif instruction_name == "vars": self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
-			elif instruction_name == "fx_start": self.instructions_list[i] = ""
-			elif instruction_name == "return": self.instructions_list[i] = f"return {' '.join(instruction_params)}"
+			elif instruction_name == "vars":
+				self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
+				instructions_stack.append("vars")
+			elif instruction_name == "fx_start":
+				if instructions_stack[-1] == "vars": instructions_stack.pop()
+				self.instructions_list[i] = ""
+			elif instruction_name == "return":
+				# Checks we're not in a procedure
+				if "proc" in instructions_stack:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'return' statement in a procedure.")
+					self.stdscr.getch()
+					return None
+				self.instructions_list[i] = f"return {' '.join(instruction_params)}"
 
 			elif len(instruction_params) != 0:
 				if instruction_params[0].endswith("="):
