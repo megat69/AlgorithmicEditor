@@ -493,13 +493,15 @@ class App:
 
 			elif instruction_name == "fx":
 				instructions_stack.append("fx")
-				params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
-				params = ", ".join(params)
-				if instruction_params[0] != "void":
-					self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
-				else:
-					self.instructions_list[i] = f"void {instruction_params[1]}({params}) " + "{"
-				del params
+				try:
+					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+					params = ", ".join(params)
+					if instruction_params[0] != "void":
+						self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
+					else:
+						self.instructions_list[i] = f"void {instruction_params[1]}({params}) " + "{"
+					del params
+				except KeyError: pass
 
 			elif instruction_name == "precond": self.instructions_list[i] = f"// Préconditions : {' '.join(instruction_params)}"
 			elif instruction_name == "data": self.instructions_list[i] = f"// Données : {' '.join(instruction_params)}"
