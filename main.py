@@ -351,7 +351,7 @@ class App:
 			elif instruction_name == "fx":
 				if instruction_params[0] != "void":
 					instructions_stack.append("fx")
-					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+					params = tuple(f"{instruction_params[i+1]} : {var_types[instruction_params[i]]}" for i in range(2, len(instruction_params), 2))
 					params = ", ".join(params)
 					self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
 					del params
