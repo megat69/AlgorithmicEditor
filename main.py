@@ -360,6 +360,11 @@ class App:
 				self.instructions_list[i] = f"SELON {' '.join(instruction_params)}"
 
 			elif instruction_name == "case":
+				if "switch" not in instructions_stack:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'case' statement outside of a 'switch'.")
+					self.stdscr.getch()
+					return None
 				instructions_stack.append("case")
 				self.instructions_list[i] = f"Cas {' '.join(instruction_params)}"
 
@@ -400,7 +405,14 @@ class App:
 					self.stdscr.addstr(0, 0, f"Error on line {i+1} : 'return' statement in a procedure.")
 					self.stdscr.getch()
 					return None
-				self.instructions_list[i] = f"Retourner {' '.join(instruction_params)}"
+				# Checks we're inside a function
+				elif "fx" not in instructions_stack:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i+1} : 'return' statement outside of a function.")
+					self.stdscr.getch()
+					return None
+				else:
+					self.instructions_list[i] = f"Retourner {' '.join(instruction_params)}"
 			elif instruction_name == "fx_start":
 				if instructions_stack[-1] == "vars": instructions_stack.pop()
 				self.instructions_list[i] = f"Début : {' '.join(instruction_params)}"
@@ -486,6 +498,11 @@ class App:
 				self.instructions_list[i] = f"switch ({' '.join(instruction_params)}) " + "{"
 
 			elif instruction_name == "case":
+				if "switch" not in instructions_stack:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'case' statement outside of a 'switch'.")
+					self.stdscr.getch()
+					return None
 				instructions_stack.append("case")
 				self.instructions_list[i] = f"case {' '.join(instruction_params)}:"
 
@@ -524,7 +541,14 @@ class App:
 					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'return' statement in a procedure.")
 					self.stdscr.getch()
 					return None
-				self.instructions_list[i] = f"return {' '.join(instruction_params)}"
+				# Checks we're inside a function
+				elif "fx" not in instructions_stack:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i+1} : 'return' statement outside of a function.")
+					self.stdscr.getch()
+					return None
+				else:
+					self.instructions_list[i] = f"return {' '.join(instruction_params)}"
 
 			elif len(instruction_params) != 0:
 				if instruction_params[0].endswith("="):
