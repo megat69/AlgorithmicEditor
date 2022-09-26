@@ -225,7 +225,9 @@ class App:
 		Apply all the stylings to the screen.
 		"""
 		# Applies the bar at the bottom of the screen
-		self.stdscr.addstr(self.rows - 3, 0, "▓" * self.cols)
+		try:
+			self.stdscr.addstr(self.rows - 3, 0, "▓" * self.cols)
+		except curses.error: pass
 
 		# Adds the commands list at the bottom of the screen
 		cols = 0
@@ -502,12 +504,8 @@ class App:
 			elif instruction_name == "data": self.instructions_list[i] = f"// Données : {' '.join(instruction_params)}"
 			elif instruction_name == "result": self.instructions_list[i] = f"// Résultats : {' '.join(instruction_params)}"
 			elif instruction_name == "desc": self.instructions_list[i] = f"// Description : {' '.join(instruction_params)}"
-			elif instruction_name == "vars":
-				self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
-				instructions_stack.append("vars")
-			elif instruction_name == "fx_start":
-				if instructions_stack[-1] == "vars": instructions_stack.pop()
-				self.instructions_list[i] = ""
+			elif instruction_name == "vars": self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
+			elif instruction_name == "fx_start": self.instructions_list[i] = ""
 			elif instruction_name == "return":
 				# Checks we're not in a procedure
 				if "proc" in instructions_stack:
@@ -522,7 +520,7 @@ class App:
 					self.instructions_list[i] = f"{instruction_name} {' '.join(instruction_params)}"
 
 			self.instructions_list[i] = self.instructions_list[i].replace("puissance(", "pow(").replace("racine(", "sqrt(")
-			self.instructions_list[i] = self.instructions_list[i].replace("aleatoire(", "srand(time(NULL))")
+			self.instructions_list[i] = self.instructions_list[i].replace("aleatoire(", "rand(")
 			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "\\n")
 			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
 			                            + self.instructions_list[i] + (";" if instruction_name not in
@@ -540,7 +538,8 @@ class App:
 		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
 		                                                'racine(' in self.current_text else '')  \
 		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
-							  "\n".join(fxtext) + "\n\nint main() {\n" + "".join(
+							  "\n".join(fxtext) + "\n\nint main() {\n" + (self.tab_char + "srand(time(NULL));\n" if 'aleatoire(' in self.current_text else '') \
+							  + "".join(
 			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";" and instruction != "")\
 		                      + self.tab_char + "return 0;\n}"
 		pyperclip.copy(final_compiled_code)
