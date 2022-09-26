@@ -40,14 +40,14 @@ class App:
 		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 		curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
 		curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
-		color_pairs = {
+		self.color_pairs = {
 			"statement": 1,
 			"function": 2,
 			"variable": 3,
 			"instruction": 4,
 			"strings": 3
 		}
-		color_control_flow = {
+		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while"),
 			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
@@ -135,73 +135,7 @@ class App:
 				idx += len(line) + 1
 
 				# Tests the beginning of the line to add a color, syntax highlighting
-				start_statement = splitted_line[0]
-				if start_statement in tuple(sum(color_control_flow.values(), tuple())):
-					if start_statement in color_control_flow["statement"]:
-						c_pair = "statement"
-					elif start_statement in color_control_flow["function"]:
-						c_pair = "function"
-					elif start_statement in color_control_flow["instruction"]:
-						c_pair = "instruction"
-					else:
-						c_pair = "variable"
-					# Overwrites the beginning of the line with the given color if possible
-					self.stdscr.addstr(i, len(str(self.lines)) + 1, start_statement, curses.color_pair(color_pairs[c_pair]))
-
-				# Finds all strings between quotes (single or double) and highlights them green
-				quotes_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "\"")
-				for j, index in enumerate(quotes_indexes):
-					if j % 2 == 0:
-						try:
-							self.stdscr.addstr(
-								i,
-								len(str(self.lines)) + 1 + index, line[index:quotes_indexes[j + 1] + 1],
-								curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
-							)
-						except IndexError:
-							if len(splitted_line) > 1:
-								self.stdscr.addstr(
-									i,
-									len(str(self.lines)) + 1 + index, line[index:],
-									curses.color_pair(color_pairs["strings"] if not "=" in splitted_line[1] else 5)
-								)
-
-				# Finds all equal signs to highlight them in statement color
-				try:
-					if "=" in splitted_line[1]:
-						self.stdscr.addstr(
-							i, len(str(self.lines)) + 2 + len(splitted_line[0]),
-							splitted_line[1],
-							curses.color_pair(color_pairs["statement"])
-						)
-				except IndexError: pass  # If there is no space in the line
-
-				# Finds all '&' signs and gives them the statement color
-				symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "&")
-				for index in symbol_indexes:
-					self.stdscr.addstr(
-						i,
-						len(str(self.lines)) + 1 + index, line[index],
-						curses.color_pair(color_pairs["statement"])
-					)
-
-				# If the instruction is a function declaration, we highlight each types in the declaration
-				if splitted_line[0] == "fx" and len(splitted_line) > 1:
-					# Highlighting the function's return type; as statement if void or variable otherwise
-					if splitted_line[1] in (*color_control_flow["variable"], "void"):
-						self.stdscr.addstr(
-							i, len(str(self.lines)) + 4,
-							splitted_line[1],
-							curses.color_pair(color_pairs["variable" if splitted_line[1] != "void" else "statement"])
-						)
-
-					# Highlighting each argument's type
-					for j in range(3, len(splitted_line), 2):
-						if splitted_line[j] in (*color_control_flow["variable"], "void"):
-							self.stdscr.addstr(
-								i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
-								splitted_line[j], curses.color_pair(color_pairs["variable"])
-							)
+				self.syntax_highlighting(line, splitted_line, i)
 
 			# Placing cursor
 			if cur != tuple():
@@ -278,6 +212,76 @@ class App:
 		self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
 		self.current_index += 1
 
+
+	def syntax_highlighting(self, line, splitted_line, i):
+		start_statement = splitted_line[0]
+		if start_statement in tuple(sum(self.color_control_flow.values(), tuple())):
+			if start_statement in self.color_control_flow["statement"]:
+				c_pair = "statement"
+			elif start_statement in self.color_control_flow["function"]:
+				c_pair = "function"
+			elif start_statement in self.color_control_flow["instruction"]:
+				c_pair = "instruction"
+			else:
+				c_pair = "variable"
+			# Overwrites the beginning of the line with the given color if possible
+			self.stdscr.addstr(i, len(str(self.lines)) + 1, start_statement, curses.color_pair(self.color_pairs[c_pair]))
+
+		# Finds all strings between quotes (single or double) and highlights them green
+		quotes_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "\"")
+		for j, index in enumerate(quotes_indexes):
+			if j % 2 == 0:
+				try:
+					self.stdscr.addstr(
+						i,
+						len(str(self.lines)) + 1 + index, line[index:quotes_indexes[j + 1] + 1],
+						curses.color_pair(self.color_pairs["strings"] if not "=" in splitted_line[1] else 5)
+					)
+				except IndexError:
+					if len(splitted_line) > 1:
+						self.stdscr.addstr(
+							i,
+							len(str(self.lines)) + 1 + index, line[index:],
+							curses.color_pair(self.color_pairs["strings"] if not "=" in splitted_line[1] else 5)
+						)
+
+		# Finds all equal signs to highlight them in statement color
+		try:
+			if "=" in splitted_line[1]:
+				self.stdscr.addstr(
+					i, len(str(self.lines)) + 2 + len(splitted_line[0]),
+					splitted_line[1],
+					curses.color_pair(self.color_pairs["statement"])
+				)
+		except IndexError:
+			pass  # If there is no space in the line
+
+		# Finds all '&' signs and gives them the statement color
+		symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "&")
+		for index in symbol_indexes:
+			self.stdscr.addstr(
+				i,
+				len(str(self.lines)) + 1 + index, line[index],
+				curses.color_pair(self.color_pairs["statement"])
+			)
+
+		# If the instruction is a function declaration, we highlight each types in the declaration
+		if splitted_line[0] == "fx" and len(splitted_line) > 1:
+			# Highlighting the function's return type; as statement if void or variable otherwise
+			if splitted_line[1] in (*self.color_control_flow["variable"], "void"):
+				self.stdscr.addstr(
+					i, len(str(self.lines)) + 4,
+					splitted_line[1],
+					curses.color_pair(self.color_pairs["variable" if splitted_line[1] != "void" else "statement"])
+				)
+
+			# Highlighting each argument's type
+			for j in range(3, len(splitted_line), 2):
+				if splitted_line[j] in (*self.color_control_flow["variable"], "void"):
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
+					)
 
 	def toggle_std_use(self):
 		"""
