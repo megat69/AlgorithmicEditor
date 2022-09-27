@@ -9,7 +9,8 @@ translations = {
 		"install_plugin_repo": "Voulez-vous installer le plugin 'plugin_repo' et ses dépendances ? "
 		                       "Il s'agit d'un excellent plugin pour vous aider à gérer et installer des plugins,"
 		                       " en plus d'être un très bonne exemple pour apprendre à créer le vôtre. (o/n)",
-		"setup_finished": "C'est tout bon ! Setup terminé."
+		"setup_finished": "C'est tout bon ! Setup terminé.",
+		"error_occured": "Une erreur s'est produite durant le téléchargement du plugin_repo."
 	},
 	'en': {
 		"pip_prefix": "Please enter your PIP prefix (pip, pip3, python -m pip, py -p pip...). Leave blank for 'pip'.",
@@ -17,7 +18,8 @@ translations = {
 		"install_plugin_repo": "Do you want to install the 'plugin_repo' plugin and its requirements ? "
 		                       "It is a great plugin to help you manage and install plugins, as well as being a great "
 		                       "example on how to create your own. (y/n)",
-		"setup_finished": "All done ! Setup complete."
+		"setup_finished": "All done ! Setup complete.",
+		"error_occured": "An error occurred while trying to download the plugin_repo."
 	}
 }
 
@@ -37,6 +39,10 @@ if install_plugin_repo:
 	os.system(f"{pip_prefix} install -r plugin_repo-requirements.txt")
 	import requests
 	r = requests.get("https://raw.githubusercontent.com/megat69/AlgorithmicEditor_Plugins/main/plugin_repo.py")
-	if r.status_code != 200:
+	if r.status_code == 200:
 		with open(os.path.join(os.path.dirname(__file__), "plugins", "plugin_repo.py"), "w", encoding="utf-8") as f:
 			f.write(r.text)
+	else:
+		print(translations[language]["error_occured"])
+
+print(translations[language]["setup_finished"])
