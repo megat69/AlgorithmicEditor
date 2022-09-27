@@ -400,7 +400,6 @@ class App:
 		Compiles the inputted text into algorithmic code.
 		:param noshow: Whether not to show the compiled code.
 		"""
-		# TODO : Spaces causing crash
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
 		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
