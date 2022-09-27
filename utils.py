@@ -4,13 +4,14 @@ A collection of utility functions for the editor.
 import curses
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0) -> None:
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None) -> None:
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
 	:param commands: A tuple of commands.
 	:param default_selected_element: The menu element selected by default. 0 by default.
 	It is composed of tuples of 2 elements : the command name, and the function to call upon selection.
+	:param label: Displays a title above the menu. None by default.
 	"""
 	# Gets the middle of the screen coordinates
 	screen_middle_y, screen_middle_x = get_screen_middle_coords(stdscr)
@@ -30,11 +31,12 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0) -> 
 	# Looping until the user selects an item
 	while key not in ("\n", "\t"):
 		# Displays the menu title
-		stdscr.addstr(
-			screen_middle_y - cmd_len // 2 - 2,
-			screen_middle_x - len(" -- MENU --") // 2,
-			"-- MENU --"
-		)
+		if label is not None:
+			stdscr.addstr(
+				screen_middle_y - cmd_len // 2 - 2,
+				screen_middle_x - len(label) // 2,
+				label
+			)
 
 		# Displays the menu
 		for i, command in enumerate(commands):

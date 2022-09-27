@@ -209,7 +209,7 @@ class App:
 				("Save and Quit", save_and_quit),
 				("Cancel", cancel)
 			),
-			1
+			1, "-- QUIT --"
 		)
 
 
