@@ -174,9 +174,12 @@ class App:
 				self.syntax_highlighting(line, splitted_line, i)
 
 				# Calls the plugins update_on_syntax_highlight function
-				for plugin in self.plugins.values():
-					if hasattr(plugin[1], "update_on_syntax_highlight"):
-						plugin[1].update_on_syntax_highlight(line, splitted_line, i)
+				for plugin_name, plugin in tuple(self.plugins.items()):
+					if len(plugin) > 1:
+						if hasattr(plugin[1], "update_on_syntax_highlight"):
+							plugin[1].update_on_syntax_highlight(line, splitted_line, i)
+					else:
+						del self.plugins[plugin_name]
 
 			# Placing cursor
 			if cur != tuple() and cur[1] < self.cols:
@@ -266,6 +269,7 @@ class App:
 			try:
 				plugins[plugin].append(plugins[plugin][0].init(self))
 			except Exception as e:
+				del plugins[plugin]
 				print(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
 
 		# Returning the dict of plugins
