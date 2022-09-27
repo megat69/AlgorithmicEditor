@@ -2,10 +2,9 @@
 A collection of utility functions for the editor.
 """
 import curses
-from typing import Tuple, Callable
 
 
-def display_menu(stdscr, commands: Tuple[Tuple[str, Callable]], default_selected_element: int = 0) -> None:
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0) -> None:
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
@@ -77,3 +76,46 @@ def get_screen_middle_coords(stdscr) -> tuple[int, int]:
 	"""
 	screen_y_size, screen_x_size = stdscr.getmaxyx()
 	return screen_y_size // 2, screen_x_size // 2
+
+
+def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
+	"""
+	Asks the user for input and then returns the given text.
+	:param stdscr: The standard screen.
+	:param position_x: The x coordinates of the input. Default is to the left of the screen.
+	:param position_y: The y coordinates of the input. Default is to the bottom of the screen.
+	:return: Returns the string inputted by the user.
+	"""
+	# Initializing vars
+	key = ""
+	final_text = ""
+	if position_y is None: position_y = stdscr.getmaxyx()[0] - 1
+
+	# Loops until the user presses Enter
+	while key != "\n":
+		# Awaits for a keypress
+		key = stdscr.getkey()
+
+		# Sanitizes the input
+		if key == "\b":
+			# If the character is a backspace, we remove the last character from the final text
+			final_text = final_text[:-1]
+			# Removes the character from the screen
+			stdscr.addstr(position_y + len(final_text), position_x, " ")
+
+		elif key.startswith("KEY_") or (key.startswith("^") and key != "^") or key == "\n":
+			# Does nothing if it is a special key
+			pass
+
+		else:
+			# Adds the key to the input
+			final_text += key
+
+		# Shows the final text at the bottom
+		stdscr.addstr(position_y, position_x, final_text)
+
+	# Writes the full length of the final text as spaces where it was written
+	stdscr.addstr(position_y, position_x, " " * len(final_text))
+
+	# Returns the final text
+	return final_text

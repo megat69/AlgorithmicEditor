@@ -5,7 +5,7 @@ from functools import partial
 import os
 import importlib
 
-from utils import display_menu
+from utils import display_menu, input_text
 
 
 class App:
@@ -101,8 +101,9 @@ class App:
 						if key == "\n":
 							try:
 								function()
-							except curses.error:
+							except curses.error as e:
 								self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
+								print(e)
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
@@ -255,7 +256,11 @@ class App:
 			plugin = plugin.replace(".py", "")
 
 			# Importing the plugin and storing it in the variable
-			plugins[plugin] = [importlib.import_module(f"plugins.{plugin}")]
+			try:
+				plugins[plugin] = [importlib.import_module(f"plugins.{plugin}")]
+			except Exception as e:
+				print(f"Failed to load plugin {plugin} :\n{e}")
+				continue
 
 			# Initializes the plugins init function
 			try:
@@ -280,13 +285,7 @@ class App:
 		"""
 		Modifies the tab character.
 		"""
-		key = self.stdscr.getkey()
-		final_str = ""
-		while key != "\n":
-			final_str += key
-			self.stdscr.addstr(self.rows - 1, 3, final_str)
-			key = self.stdscr.getkey()
-		self.tab_char = final_str
+		self.tab_char = input_text(self.stdscr, position_x=3)
 
 
 	def add_char_to_text(self, key: str):
