@@ -253,7 +253,8 @@ class App:
 
 		# Lists all the plugin files inside the plugins folder
 		for plugin in os.listdir(os.path.join(os.path.dirname(__file__), "plugins")):
-			if plugin.startswith("__") or os.path.isdir(os.path.join(os.path.dirname(__file__), "plugins", plugin)):
+			if plugin.startswith("__") or os.path.isdir(os.path.join(os.path.dirname(__file__), "plugins", plugin)) \
+					or not plugin.endswith(".py"):
 				continue  # Python folders/files
 
 			# Cleaning the name
