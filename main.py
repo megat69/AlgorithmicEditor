@@ -466,6 +466,7 @@ class App:
 				self.instructions_list[i] = f"Saisir({' '.join(instruction_params)})"
 
 			elif instruction_name == "fx":
+				while instruction_params[-1] == "": instruction_params.pop()
 				if instruction_params[0] != "void":
 					instructions_stack.append("fx")
 					params = tuple(f"{instruction_params[i+1]} : {var_types[instruction_params[i]]}" for i in range(2, len(instruction_params), 2))
@@ -604,6 +605,7 @@ class App:
 				self.instructions_list[i] = f"std::cout << std::endl;\n{self.tab_char * ((len(instructions_stack) + ('fx' not in instructions_stack)))}std::cin >> {' '.join(instruction_params)}"
 
 			elif instruction_name == "fx":
+				while instruction_params[-1] == "": instruction_params.pop()
 				instructions_stack.append("fx")
 				try:
 					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
