@@ -65,7 +65,7 @@ def display_menu(stdscr, commands: Tuple[Tuple[str, Callable]], default_selected
 	stdscr.clear()
 
 	# Calls the function from the appropriate item
-	commands[selected_element][1](stdscr)
+	commands[selected_element][1]()
 
 
 

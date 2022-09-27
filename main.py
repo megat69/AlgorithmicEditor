@@ -178,12 +178,12 @@ class App:
 		"""
 		Exits the app.
 		"""
-		def quit(*args):
+		def quit():
 			sys.exit(0)
-		def save_and_quit(*args):
+		def save_and_quit():
 			self.save()
 			quit()
-		def cancel(*args):
+		def cancel():
 			pass
 
 		# Provides the option to save and quit, quit without saving, or cancel quitting.
