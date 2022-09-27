@@ -5,6 +5,8 @@ from functools import partial
 import os
 import importlib
 
+from utils import display_menu
+
 
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False):
@@ -176,7 +178,24 @@ class App:
 		"""
 		Exits the app.
 		"""
-		sys.exit(0)
+		def quit(*args):
+			sys.exit(0)
+		def save_and_quit(*args):
+			self.save()
+			quit()
+		def cancel(*args):
+			pass
+
+		# Provides the option to save and quit, quit without saving, or cancel quitting.
+		display_menu(
+			self.stdscr,
+			(
+				("Quit without Saving", quit),
+				("Save and Quit", save_and_quit),
+				("Cancel", cancel)
+			),
+			1
+		)
 
 
 	def apply_stylings(self) -> None:
