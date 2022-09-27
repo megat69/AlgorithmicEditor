@@ -63,9 +63,23 @@ class App:
 		}
 
 		# Initializes each plugin, if they have an init function
-		for plugin in self.plugins.values():
+		msg_string = "Loaded plugin {}"
+		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
 			if hasattr(plugin[1], "init"):
 				plugin[1].init()
+			# Writes a message to the screen showing all imported plugins
+			self.stdscr.addstr(
+				self.rows - 4 - i,
+				self.cols - (len(msg_string.format(plugin_name)) + 2),
+				msg_string.format(plugin_name)
+			)
+		msg_string = "Loaded {} plugins"
+		self.stdscr.addstr(
+			self.rows - 4 - len(self.plugins.keys()),
+			self.cols - (len(msg_string.format(len(self.plugins.keys()))) + 2),
+			msg_string.format(len(self.plugins.keys()))
+		)
+		del msg_string
 
 		# App main loop
 		while True:
