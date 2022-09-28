@@ -5,7 +5,7 @@ from functools import partial
 import os
 import importlib
 
-from utils import display_menu, input_text
+from utils import display_menu, input_text, get_screen_middle_coords
 
 
 class App:
@@ -22,7 +22,8 @@ class App:
 			("s", self.save, "Save"),
 			("o", self.open, "Open"),
 			("p", self.compile_to_cpp, "Compile to C++"),
-			("h", self.toggle_std_use, "Toggle namespace std"),
+			("j", self.toggle_std_use, "Toggle namespace std"),
+			("h", self.display_commands, "Commands list"),
 			("d", partial(self.add_char_to_text, " \n".join(("precond", "data", "result", "desc", "vars"))), "Docstring"),
 			# To add the command symbol to the text
 			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
@@ -230,10 +231,19 @@ class App:
 		for key_name, function, name in self.commands:
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
-				# TODO : Command to display all available commands, probably ':h'
+
+				# If printing this text would overflow off the screen, we break out of the loop
+				if cols + len(generated_str) >= self.cols:
+					self.stdscr.addstr(self.rows - 2, cols, "...", curses.A_REVERSE)
+					# We also display "..." beforehand.
+					break
+
 				try:
+					# Adds the generated string at the right place of the screen
 					self.stdscr.addstr(self.rows - 2, cols, generated_str, curses.A_REVERSE)
+					# Keeping in mind the x coordinates of the next generated string
 					cols += len(generated_str)
+					# Followed by a space
 					self.stdscr.addstr(self.rows - 2, cols, " ")
 				except curses.error:
 					print(f"Could not display command {self.command_symbol}{key_name} - {name}")
@@ -305,6 +315,26 @@ class App:
 		"""
 		self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
 		self.current_index += 1
+
+
+	def display_commands(self):
+		"""
+		Displays all the commands at the center of the screen.
+		"""
+		middle_y, middle_x = get_screen_middle_coords(self.stdscr)
+		for i, (key_name, function, name) in enumerate(self.commands):
+			if key_name != self.command_symbol:
+				generated_str = f"{self.command_symbol}{key_name} - {name}"
+			else:
+				generated_str = f"---- Plugin commands : ----"
+			self.stdscr.addstr(
+				middle_y - len(self.commands) // 2 + i,
+				middle_x - len(generated_str) // 2,
+				generated_str, curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL
+			)
+		self.stdscr.getch()
+		self.stdscr.clear()
+
 
 
 	def syntax_highlighting(self, line, splitted_line, i):
