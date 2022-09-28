@@ -458,16 +458,104 @@ class App:
 
 
 	def save(self):
-		pyperclip.copy(self.current_text)
-		# TODO : Save
+		def save_to_clipboard():
+			"""
+			Saves the code to the clipboard.
+			"""
+			pyperclip.copy(self.current_text)
+
+		def save_to_file():
+			"""
+			Saves the code to a file.
+			"""
+			msg = (
+				"Enter the absolute path to the file you want to",
+				"save the code to, including the filename and extension.",
+				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard."
+			)
+			for i in range(len(msg)):
+				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
+			filename = input_text(self.stdscr, self.cols // 10, self.rows // 2 + len(msg))
+			if filename != "":
+				if filename == self.command_symbol + "v":
+					filename = pyperclip.paste()
+				if os.path.exists(filename):
+					confirm = None
+					def set_confirm(b:bool):
+						"""
+						Sets the value of confirm.
+						"""
+						nonlocal confirm
+						confirm = b
+					display_menu(self.stdscr, (
+						("Yes", partial(set_confirm, True)),
+						("No", partial(set_confirm, False))
+					), label = "This file already exists. Do you want to overwrite it ?")
+					if confirm is not True:
+						return
+				with open(filename, "w", encoding="utf-8") as f:
+					f.write(self.current_text)
+
+		display_menu(
+			self.stdscr,
+			(
+				("Save to clipboard", save_to_clipboard),
+				("Save to file", save_to_file)
+			), label = "-- SAVE --"
+		)
+		self.stdscr.clear()
 
 
 	def open(self):
-		self.current_text = pyperclip.paste()
-		self.current_index = 0
+		"""
+		Opens a code session.
+		"""
+		opened_code = False
+		def open_from_clipboard():
+			"""
+			Saves the code to the clipboard.
+			"""
+			self.current_text = pyperclip.paste()
+			nonlocal opened_code
+			opened_code = True
+
+		def open_from_file():
+			"""
+			Saves the code to a file.
+			"""
+			msg = (
+				"Enter the absolute path to the file you want to",
+				"open the code from, including the filename and extension.",
+				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard."
+			)
+			for i in range(len(msg)):
+				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
+			filename = input_text(self.stdscr, self.cols // 10, self.rows // 2 + len(msg))
+			if filename != "":
+				if filename == self.command_symbol + "v":
+					filename = pyperclip.paste()
+				if os.path.exists(filename):
+					with open(filename, "r", encoding="utf-8") as f:
+						self.current_text = f.read()
+						nonlocal opened_code
+						opened_code = True
+				else:
+					msg = "This file doesn't seem to exist."
+					self.stdscr.addstr(self.rows // 2, self.cols // 2 - len(msg), msg)
+
+		display_menu(
+			self.stdscr,
+			(
+				("Open from clipboard", open_from_clipboard),
+				("Open from file", open_from_file)
+			), label = "-- OPEN --"
+		)
+
 		self.stdscr.clear()
-		self.stdscr.refresh()
-		self.apply_stylings()
+		if opened_code:
+			self.current_index = 0
+			self.stdscr.refresh()
+			self.apply_stylings()
 
 
 	def compile(self, noshow:bool=False) -> None | str:
