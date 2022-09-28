@@ -63,6 +63,9 @@ class App:
 		self.apply_stylings()
 		self.stdscr.refresh()
 
+		# TODO : Autocomplete
+		# TODO : File explorer
+
 		# Declaring the color pairs
 		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
@@ -260,7 +263,9 @@ class App:
 
 				# If printing this text would overflow off the screen, we break out of the loop
 				if cols + len(generated_str) >= self.cols + 4:
-					self.stdscr.addstr(self.rows - 2, cols, "...", curses.A_REVERSE)
+					try:
+						self.stdscr.addstr(self.rows - 2, cols, "...", curses.A_REVERSE)
+					except curses.error: pass
 					# We also display "..." beforehand.
 					break
 
@@ -464,6 +469,7 @@ class App:
 		"""
 		if self.logs: print(*args, **kwargs)
 
+	# TODO Cancel
 	def save(self):
 		def save_to_clipboard():
 			"""
