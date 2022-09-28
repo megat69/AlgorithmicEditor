@@ -469,7 +469,6 @@ class App:
 		"""
 		if self.logs: print(*args, **kwargs)
 
-	# TODO Cancel
 	def save(self):
 		def save_to_clipboard():
 			"""
@@ -513,7 +512,8 @@ class App:
 			self.stdscr,
 			(
 				("Save to clipboard", save_to_clipboard),
-				("Save to file", save_to_file)
+				("Save to file", save_to_file),
+				("Cancel", lambda: None)
 			), label = "-- SAVE --"
 		)
 		self.stdscr.clear()
@@ -560,7 +560,8 @@ class App:
 			self.stdscr,
 			(
 				("Open from clipboard", open_from_clipboard),
-				("Open from file", open_from_file)
+				("Open from file", open_from_file),
+				("Cancel", lambda: None)
 			), label = "-- OPEN --"
 		)
 
