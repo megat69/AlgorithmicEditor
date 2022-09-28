@@ -32,6 +32,7 @@ class App:
 		self.tab_char = "\t"
 		self.command_symbol = command_symbol
 		self.using_namespace_std = using_namespace_std
+		self.min_display_line = 0
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -121,6 +122,9 @@ class App:
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
 							self.current_index -= 1
+					elif key == "KEY_DC":
+						if self.current_index < len(self.current_text):
+							self.current_text = self.current_text[:self.current_index] + self.current_text[self.current_index+1:]
 					elif key in ("KEY_UP", "KEY_DOWN"):
 						text = self.current_text + "\n"
 						indexes = tuple(index for index in range(len(text)) if text.startswith('\n', index))
@@ -137,6 +141,14 @@ class App:
 						self.current_index -= 1
 					elif key == "KEY_RIGHT":
 						self.current_index += 1
+					elif key == "KEY_NPAGE":
+						self.min_display_line -= 1
+						if self.min_display_line < 0:
+							self.min_display_line = 0
+					elif key == "KEY_PPAGE":
+						self.min_display_line += 1
+						if self.min_display_line > self.lines - 1:
+							self.min_display_line = self.lines - 1
 				else:
 					# If the key is NOT a backspace character, we add the new character to the text
 					self.add_char_to_text(key)
@@ -153,7 +165,7 @@ class App:
 			# TODO Longer lines
 			idx = 0
 			cur = tuple()
-			for i, line in enumerate(self.current_text.split("\n")[:self.rows-3]):
+			for i, line in enumerate(self.current_text.split("\n")[self.min_display_line:self.min_display_line+(self.rows-3)]):
 				# Getting the splitted line for syntax highlighting
 				splitted_line = line.split(" ")
 
@@ -256,8 +268,8 @@ class App:
 		# Gets the amount of lines in the text
 		self.calculate_line_numbers()
 		# Puts the line numbers at the edge of the screen
-		for i in range(min(self.lines, self.rows-3)):
-			self.stdscr.addstr(i, 0, str(i + 1).zfill(len(str(self.lines))), curses.A_REVERSE)
+		for i in range(self.min_display_line, min(self.lines, self.min_display_line+(self.rows-3))):
+			self.stdscr.addstr(i - self.min_display_line, 0, str(i + 1).zfill(len(str(self.lines))), curses.A_REVERSE)
 
 
 	def load_plugins(self):
