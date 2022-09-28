@@ -33,7 +33,7 @@ class App:
 		self.command_symbol = command_symbol
 		self.using_namespace_std = using_namespace_std
 		self.min_display_line = 0
-		#self.min_display_char = 0
+		self.min_display_char = 0
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -173,6 +173,7 @@ class App:
 			idx = 0
 			cur = tuple()
 			for i, line in enumerate(self.current_text.split("\n")[self.min_display_line:self.min_display_line+(self.rows-3)]):
+				line = line[self.min_display_char:]
 				# Getting the splitted line for syntax highlighting
 				splitted_line = line.split(" ")
 
@@ -191,7 +192,7 @@ class App:
 					self.stdscr.addstr(i, len(str(self.lines)) + 1, line[:self.cols - (len(str(self.lines)) + 1)])
 
 				# Updating the amount of characters in the line
-				idx += len(line) + 1
+				idx += len(line) + 1 + self.min_display_char
 
 				# Tests the beginning of the line to add a color, syntax highlighting
 				self.syntax_highlighting(line, splitted_line, i)
@@ -206,7 +207,9 @@ class App:
 
 			# Placing cursor
 			if cur != tuple() and cur[1] < self.cols:
-				self.stdscr.addstr(*cur, curses.A_REVERSE)
+				try:
+					self.stdscr.addstr(*cur, curses.A_REVERSE)
+				except curses.error: pass
 
 			# Visual stylings, e.g. adds a full line over the input
 			self.apply_stylings()
