@@ -35,9 +35,8 @@ class Plugin:
 			raise Exception(f"Command character length must be one character, not {len(character)} ('{character}').")
 		else:
 			# Checks if a command with the same prefix exists, and if so, replaces it
-			prefixes = tuple(e[0] for e in self.app.commands)
+			prefixes = tuple(self.app.commands.keys())
 			if character in prefixes:
-				index = prefixes.index(character)
-				self.app.commands[index] = (character, function, description)
+				self.app.commands[character] = (function, description)
 			else:
-				self.app.commands.append((character, function, description))
+				self.app.commands[character] = (function, description)
