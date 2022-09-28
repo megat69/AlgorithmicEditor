@@ -1,1 +1,2 @@
 pyperclip
+fast_autocomplete[levenshtein]

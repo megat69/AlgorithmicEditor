@@ -62,7 +62,7 @@ class App:
 		self.apply_stylings()
 		self.stdscr.refresh()
 
-		# TODO : Autocomplete
+		# TODO : Autocomplete -- https://github.com/seperman/fast-autocomplete
 		# TODO : File explorer
 
 		# Declaring the color pairs
