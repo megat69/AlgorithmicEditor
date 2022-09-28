@@ -10,7 +10,7 @@ from utils import display_menu, input_text, get_screen_middle_coords
 
 
 class App:
-	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False):
+	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""
 		self.stdscr : _curses.window = None
 		self.rows, self.cols = 0, 0
@@ -32,6 +32,7 @@ class App:
 		self.tab_char = "\t"
 		self.command_symbol = command_symbol
 		self.using_namespace_std = using_namespace_std
+		self.logs = logs
 		self.min_display_line = 0
 		self.min_display_char = 0
 
@@ -110,7 +111,7 @@ class App:
 							function()
 						except curses.error as e:
 							self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
-							print(e)
+							self.log(e)
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
@@ -271,7 +272,7 @@ class App:
 					# Followed by a space
 					self.stdscr.addstr(self.rows - 2, cols, " ")
 				except curses.error:
-					print(f"Could not display command {self.command_symbol}{key_name} - {name}")
+					self.log(f"Could not display command {self.command_symbol}{key_name} - {name}")
 				cols += 1
 		self.stdscr.refresh()
 
@@ -303,7 +304,7 @@ class App:
 			try:
 				plugins[plugin] = [importlib.import_module(f"plugins.{plugin}")]
 			except Exception as e:
-				print(f"Failed to load plugin {plugin} :\n{e}")
+				self.log(f"Failed to load plugin {plugin} :\n{e}")
 				continue
 
 			# Initializes the plugins init function
@@ -311,7 +312,7 @@ class App:
 				plugins[plugin].append(plugins[plugin][0].init(self))
 			except Exception as e:
 				del plugins[plugin]
-				print(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
+				self.log(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
 
 		# Returning the dict of plugins
 		return plugins
@@ -456,6 +457,12 @@ class App:
 		self.using_namespace_std = not self.using_namespace_std
 		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std}")
 
+
+	def log(self, *args, **kwargs):
+		"""
+		Prints the given arguments if logs are enabled.
+		"""
+		if self.logs: print(*args, **kwargs)
 
 	def save(self):
 		def save_to_clipboard():
@@ -841,6 +848,7 @@ class App:
 if __name__ == "__main__":
 	app = App(
 		command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
-		using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1]
+		using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
+		logs="--nologs" not in sys.argv
 	)
 	curses.wrapper(app.main)
