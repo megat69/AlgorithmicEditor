@@ -103,7 +103,7 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 			# If the character is a backspace, we remove the last character from the final text
 			final_text = final_text[:-1]
 			# Removes the character from the screen
-			stdscr.addstr(position_y + len(final_text), position_x, " ")
+			stdscr.addstr(position_y, position_x + len(final_text), " ")
 
 		elif key.startswith("KEY_") or (key.startswith("^") and key != "^") or key == "\n":
 			# Does nothing if it is a special key
