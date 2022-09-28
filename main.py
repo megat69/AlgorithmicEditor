@@ -33,6 +33,7 @@ class App:
 		self.command_symbol = command_symbol
 		self.using_namespace_std = using_namespace_std
 		self.min_display_line = 0
+		#self.min_display_char = 0
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -149,6 +150,12 @@ class App:
 						self.min_display_line += 1
 						if self.min_display_line > self.lines - 1:
 							self.min_display_line = self.lines - 1
+					"""elif key == "KEY_HOME":
+						self.min_display_char -= 1
+						if self.min_display_char < 0:
+							self.min_display_char = 0
+					elif key == "KEY_END":
+						self.min_display_char += 1"""
 				else:
 					# If the key is NOT a backspace character, we add the new character to the text
 					self.add_char_to_text(key)
