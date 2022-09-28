@@ -85,7 +85,7 @@ class App:
 		self.stdscr.addstr(
 			self.rows - 4 - len(self.plugins.keys()),
 			self.cols - (len(msg_string.format(len(self.plugins.keys()))) + 2),
-			msg_string.format(len(self.plugins.keys()))
+			msg_string.format(len(self.plugins.keys())), curses.color_pair(3)
 		)
 		del msg_string
 
