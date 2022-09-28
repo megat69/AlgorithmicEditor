@@ -1,5 +1,4 @@
-import _curses
-import curses
+import curses, _curses
 import sys
 import pyperclip
 from functools import partial
@@ -384,7 +383,6 @@ class App:
 		self.stdscr.clear()
 
 
-
 	def syntax_highlighting(self, line, splitted_line, i):
 		start_statement = splitted_line[0]
 		if start_statement in tuple(sum(self.color_control_flow.values(), tuple())):
@@ -455,6 +453,7 @@ class App:
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
 					)
 
+
 	def toggle_std_use(self):
 		"""
 		Toggles the use of the std namespace.in the C++ compilation.
@@ -468,6 +467,7 @@ class App:
 		Prints the given arguments if logs are enabled.
 		"""
 		if self.logs: print(*args, **kwargs)
+
 
 	def save(self):
 		def save_to_clipboard():
