@@ -236,7 +236,7 @@ class App:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 
 				# If printing this text would overflow off the screen, we break out of the loop
-				if cols + len(generated_str) >= self.cols:
+				if cols + len(generated_str) >= self.cols + 4:
 					self.stdscr.addstr(self.rows - 2, cols, "...", curses.A_REVERSE)
 					# We also display "..." beforehand.
 					break
@@ -420,7 +420,6 @@ class App:
 
 
 	def save(self):
-		# compiled_str = self.compile(True)
 		pyperclip.copy(self.current_text)
 		# TODO : Save
 
