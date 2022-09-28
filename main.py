@@ -324,14 +324,30 @@ class App:
 		"""
 		Displays all the commands at the center of the screen.
 		"""
+		# Gets the middle screen coordinates
 		middle_y, middle_x = get_screen_middle_coords(self.stdscr)
+
+		# Creates the label
+		generated_str = "----- Commands list -----"
+		self.stdscr.addstr(
+			middle_y - len(self.commands) // 2 - 2,
+			middle_x - len(generated_str) // 2,
+			generated_str, curses.color_pair(1) | curses.A_REVERSE
+		)
+
+		# Remembering whether we're into the plugins section
+		in_plugins_section = False
+
+		# Displays each command
 		for i, (key_name, function, name) in enumerate(self.commands):
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 			else:
 				generated_str = f"---- Plugin commands : ----"
+				in_plugins_section = True
+
 			self.stdscr.addstr(
-				middle_y - len(self.commands) // 2 + i,
+				middle_y - len(self.commands) // 2 + i + in_plugins_section,
 				middle_x - len(generated_str) // 2,
 				generated_str, (curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL) \
 					if key_name != self.command_symbol else curses.color_pair(1) | curses.A_REVERSE
