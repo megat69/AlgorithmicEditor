@@ -2,8 +2,8 @@ from typing import Callable
 
 
 class Plugin:
-	def __init__(self, cls):
-		self.cls = cls
+	def __init__(self, app):
+		self.app = app
 
 	def init(self):
 		"""
@@ -34,4 +34,10 @@ class Plugin:
 		if len(character) != 1:
 			raise Exception(f"Command character length must be one character, not {len(character)} ('{character}').")
 		else:
-			self.cls.commands.append((character, function, description))
+			# Checks if a command with the same prefix exists, and if so, replaces it
+			prefixes = tuple(e[0] for e in self.app.commands)
+			if character in prefixes:
+				index = prefixes.index(character)
+				self.app.commands[index] = (character, function, description)
+			else:
+				self.app.commands.append((character, function, description))
