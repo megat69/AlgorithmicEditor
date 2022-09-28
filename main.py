@@ -15,18 +15,18 @@ class App:
 		self.rows, self.cols = 0, 0
 		self.lines = 1
 		self.current_index = 0
-		self.commands = [
-			("q", self.quit, "Quit"),
-			("c", self.compile, "Compile"),
-			("t", self.modify_tab_char, "Modify tab char"),
-			("s", self.save, "Save"),
-			("o", self.open, "Open"),
-			("p", self.compile_to_cpp, "Compile to C++"),
-			("j", self.toggle_std_use, "Toggle namespace std"),
-			("h", self.display_commands, "Commands list"),
+		self.commands = {
+			"q": (self.quit, "Quit"),
+			"c": (self.compile, "Compile"),
+			"t": (self.modify_tab_char, "Modify tab char"),
+			"s": (self.save, "Save"),
+			"o": (self.open, "Open"),
+			"p": (self.compile_to_cpp, "Compile to C++"),
+			"j": (self.toggle_std_use, "Toggle namespace std"),
+			"h": (self.display_commands, "Commands list"),
 			# To add the command symbol to the text
-			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
-		]
+			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol)
+		}
 		self.instructions_list = []
 		self.tab_char = "\t"
 		self.command_symbol = command_symbol
@@ -97,17 +97,17 @@ class App:
 			if key == self.command_symbol:
 				self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
 				key = self.stdscr.getkey()
-				for key_name, function, name in self.commands:
-					if key == key_name:
-						self.stdscr.addstr(self.rows - 1, 1, key_name)
-						self.stdscr.refresh()
-						key = self.stdscr.getkey()
-						if key == "\n":
-							try:
-								function()
-							except curses.error as e:
-								self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
-								print(e)
+				if key in self.commands.keys():
+					key_name, (function, name) = key, self.commands[key]
+					self.stdscr.addstr(self.rows - 1, 1, key_name)
+					self.stdscr.refresh()
+					key = self.stdscr.getkey()
+					if key == "\n":
+						try:
+							function()
+						except curses.error as e:
+							self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
+							print(e)
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
@@ -115,7 +115,6 @@ class App:
 				self.stdscr.clear()
 
 				# If the key IS a backspace character, we remove the last character from the text
-				# TODO Ctrl + V
 				if key in ("\b", "\0") or key.startswith("KEY_"):
 					if key == "\b":
 						if self.current_index > 0:
@@ -231,7 +230,7 @@ class App:
 
 		# Adds the commands list at the bottom of the screen
 		cols = 0
-		for key_name, function, name in self.commands:
+		for key_name, (function, name) in self.commands.items():
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 
@@ -339,7 +338,7 @@ class App:
 		in_plugins_section = False
 
 		# Displays each command
-		for i, (key_name, function, name) in enumerate(self.commands):
+		for i, (key_name, (function, name)) in enumerate(self.commands.items()):
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 			else:
