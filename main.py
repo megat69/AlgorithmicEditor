@@ -230,9 +230,13 @@ class App:
 		for key_name, function, name in self.commands:
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
-				self.stdscr.addstr(self.rows - 2, cols, generated_str, curses.A_REVERSE | curses.A_BOLD)
-				cols += len(generated_str)
-				self.stdscr.addstr(self.rows - 2, cols, " ")
+				# TODO : Command to display all available commands, probably ':h'
+				try:
+					self.stdscr.addstr(self.rows - 2, cols, generated_str, curses.A_REVERSE)
+					cols += len(generated_str)
+					self.stdscr.addstr(self.rows - 2, cols, " ")
+				except curses.error:
+					print(f"Could not display command {self.command_symbol}{key_name} - {name}")
 				cols += 1
 		self.stdscr.refresh()
 
