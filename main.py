@@ -27,27 +27,12 @@ class App:
 			# To add the command symbol to the text
 			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
 		]
-		self.plugins = self.load_plugins()
 		self.instructions_list = []
 		self.tab_char = "\t"
 		self.command_symbol = command_symbol
 		self.using_namespace_std = using_namespace_std
 
-
-	def main(self, stdscr):
-		# Curses initialization
-		self.stdscr = stdscr
-		self.stdscr.clear()
-		self.rows, self.cols = self.stdscr.getmaxyx()
-		self.apply_stylings()
-		self.stdscr.refresh()
-
-		# Declaring color pairs, then saving them
-		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
-		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-		curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
-		curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
+		# Preparing the color pairs
 		self.color_pairs = {
 			"statement": 1,
 			"function": 2,
@@ -61,6 +46,25 @@ class App:
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
 		}
+
+		# Loads all the plugins
+		self.plugins = self.load_plugins()
+
+
+	def main(self, stdscr):
+		# Curses initialization
+		self.stdscr = stdscr
+		self.stdscr.clear()
+		self.rows, self.cols = self.stdscr.getmaxyx()
+		self.apply_stylings()
+		self.stdscr.refresh()
+
+		# Declaring the color pairs
+		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+		curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
+		curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
 		# Initializes each plugin, if they have an init function
 		msg_string = "Loaded plugin {}"
