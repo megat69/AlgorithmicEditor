@@ -1,3 +1,4 @@
+import _curses
 import curses
 import sys
 import pyperclip
@@ -11,7 +12,7 @@ from utils import display_menu, input_text, get_screen_middle_coords
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False):
 		self.current_text = ""
-		self.stdscr = None
+		self.stdscr : _curses.window = None
 		self.rows, self.cols = 0, 0
 		self.lines = 1
 		self.current_index = 0
@@ -51,9 +52,9 @@ class App:
 		self.plugins = self.load_plugins()
 
 
-	def main(self, stdscr):
+	def main(self, stdscr: _curses.window):
 		# Curses initialization
-		self.stdscr = stdscr
+		self.stdscr : _curses.window = stdscr
 		self.stdscr.clear()
 		self.rows, self.cols = self.stdscr.getmaxyx()
 		self.apply_stylings()
