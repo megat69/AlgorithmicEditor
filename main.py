@@ -329,7 +329,8 @@ class App:
 			self.stdscr.addstr(
 				middle_y - len(self.commands) // 2 + i,
 				middle_x - len(generated_str) // 2,
-				generated_str, curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL
+				generated_str, (curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL) \
+					if key_name != self.command_symbol else curses.color_pair(1) | curses.A_REVERSE
 			)
 		self.stdscr.getch()
 		self.stdscr.clear()
