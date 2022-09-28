@@ -24,7 +24,6 @@ class App:
 			("p", self.compile_to_cpp, "Compile to C++"),
 			("j", self.toggle_std_use, "Toggle namespace std"),
 			("h", self.display_commands, "Commands list"),
-			("d", partial(self.add_char_to_text, " \n".join(("precond", "data", "result", "desc", "vars"))), "Docstring"),
 			# To add the command symbol to the text
 			(command_symbol, partial(self.add_char_to_text, command_symbol), command_symbol)
 		]
