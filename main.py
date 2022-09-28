@@ -353,7 +353,7 @@ class App:
 		# Creates the label
 		generated_str = "----- Commands list -----"
 		self.stdscr.addstr(
-			middle_y - len(self.commands) // 2 - 2,
+			middle_y - len(self.commands) // 2 - 1,
 			middle_x - len(generated_str) // 2,
 			generated_str, curses.color_pair(1) | curses.A_REVERSE
 		)
