@@ -5,7 +5,7 @@ from functools import partial
 import os
 import importlib
 
-from utils import display_menu, input_text, get_screen_middle_coords
+from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
 
 class App:
@@ -62,9 +62,6 @@ class App:
 		self.rows, self.cols = self.stdscr.getmaxyx()
 		self.apply_stylings()
 		self.stdscr.refresh()
-
-		# TODO : Autocomplete -- https://github.com/seperman/fast-autocomplete
-		# TODO : File explorer
 
 		# Declaring the color pairs
 		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -484,7 +481,8 @@ class App:
 			msg = (
 				"Enter the absolute path to the file you want to",
 				"save the code to, including the filename and extension.",
-				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard."
+				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard",
+				f"or type {self.command_symbol}b open the file browser."
 			)
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
@@ -492,6 +490,8 @@ class App:
 			if filename != "":
 				if filename == self.command_symbol + "v":
 					filename = pyperclip.paste()
+				if filename == self.command_symbol + "b":
+					filename = browse_files(self.stdscr, can_create_files=True)()
 				if os.path.exists(filename):
 					confirm = None
 					def set_confirm(b:bool):
@@ -540,7 +540,8 @@ class App:
 			msg = (
 				"Enter the absolute path to the file you want to",
 				"open the code from, including the filename and extension.",
-				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard."
+				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard.",
+				f"or type {self.command_symbol}b to open the file browser."
 			)
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
@@ -548,6 +549,8 @@ class App:
 			if filename != "":
 				if filename == self.command_symbol + "v":
 					filename = pyperclip.paste()
+				if filename == self.command_symbol + "b":
+					filename = browse_files(self.stdscr, can_create_files=False)()
 				if os.path.exists(filename):
 					with open(filename, "r", encoding="utf-8") as f:
 						self.current_text = f.read()

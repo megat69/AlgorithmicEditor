@@ -2,9 +2,11 @@
 A collection of utility functions for the editor.
 """
 import curses
+import os
+from functools import partial
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None) -> None:
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
@@ -66,7 +68,7 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	stdscr.clear()
 
 	# Calls the function from the appropriate item
-	commands[selected_element][1]()
+	return commands[selected_element][1]()
 
 
 
@@ -121,3 +123,70 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 
 	# Returns the final text
 	return final_text
+
+
+last_browsed_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
+class browse_files:
+	def __init__(self, stdscr, given_path:str=None, can_create_files:bool=True):
+		"""
+		Browse files to find one, returns a path to this file.
+		:param stdscr: The standard screen.
+		:return: A path to the selected file.
+		"""
+		self.path = last_browsed_path if given_path is None else os.path.normpath(given_path)
+		self.stdscr = stdscr
+		self.can_create_files = can_create_files
+
+
+	def __call__(self, stdscr=None, given_path:str=None) -> str:
+		global last_browsed_path
+		self.path = last_browsed_path if given_path is None else os.path.normpath(given_path)
+		if stdscr is not None:
+			self.stdscr = stdscr
+		folders_list = []
+		files_list = []
+		for element in os.listdir(self.path):
+			if os.path.isdir(os.path.join(self.path, element)):
+				folders_list.append(element)
+			else:
+				files_list.append(element)
+
+
+		def set_new_path(new_path:str):
+			self.path = new_path
+
+
+		menu_items = [(f"📁 ../", partial(self, self.stdscr, os.path.join(self.path, "../")))]
+		menu_items.extend([
+			(f"📁 {name}", partial(self, self.stdscr, os.path.join(self.path, name))) \
+			for name in folders_list
+		])
+		menu_items.extend([
+			(f"📄 {name}", partial(set_new_path, os.path.normpath(os.path.join(self.path, name)))) \
+			for name in files_list
+		])
+		menu_items.extend([
+			("Cancel", partial(set_new_path, ""))
+		])
+		if self.can_create_files:
+			menu_items.extend([
+				("New file :", partial(self.create_new_file, len(menu_items) + 1))
+			])
+		menu_items = tuple(menu_items)
+
+		display_menu(
+			self.stdscr,
+			menu_items,
+			label=self.path
+		)
+
+		last_browsed_path = os.path.dirname(self.path)
+		return self.path
+
+
+	def create_new_file(self, position_y:int):
+		"""
+		Asks the user to input a name for a file and creates it, then sets the path to this file.
+		"""
+		filename = input_text(self.stdscr, 30, position_y)
+		self.path = os.path.normpath(os.path.join(self.path, filename))
