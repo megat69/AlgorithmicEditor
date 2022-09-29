@@ -467,12 +467,12 @@ class App:
 		if self.logs: print(*args, **kwargs)
 
 
-	def save(self):
+	def save(self, text_to_save:str=None):
 		def save_to_clipboard():
 			"""
 			Saves the code to the clipboard.
 			"""
-			pyperclip.copy(self.current_text)
+			pyperclip.copy(text_to_save)
 
 		def save_to_file():
 			"""
@@ -507,7 +507,10 @@ class App:
 					if confirm is not True:
 						return
 				with open(filename, "w", encoding="utf-8") as f:
-					f.write(self.current_text)
+					f.write(text_to_save)
+
+		if text_to_save is None:
+			text_to_save = self.current_text
 
 		display_menu(
 			self.stdscr,
@@ -700,11 +703,11 @@ class App:
 
 		final_compiled_code = "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
 		if noshow is False:
-			pyperclip.copy(final_compiled_code)
 			self.stdscr.clear()
 			self.stdscr.addstr(final_compiled_code)
 			self.stdscr.refresh()
 			self.stdscr.getch()
+			self.save(final_compiled_code)
 			self.stdscr.clear()
 			self.apply_stylings()
 			self.stdscr.refresh()
@@ -846,11 +849,12 @@ class App:
 							  + "".join(
 			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";" and instruction != "")\
 		                      + self.tab_char + "return 0;\n}"
-		pyperclip.copy(final_compiled_code)
+
 		self.stdscr.clear()
-		self.stdscr.addstr(final_compiled_code)
 		self.stdscr.refresh()
+		self.stdscr.addstr(final_compiled_code)
 		self.stdscr.getch()
+		self.save(final_compiled_code)
 		self.stdscr.clear()
 		self.apply_stylings()
 		self.stdscr.refresh()
