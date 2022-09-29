@@ -6,7 +6,7 @@ import os
 from functools import partial
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = False):
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
