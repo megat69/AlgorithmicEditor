@@ -460,7 +460,7 @@ class App:
 		Toggles the use of the std namespace.in the C++ compilation.
 		"""
 		self.using_namespace_std = not self.using_namespace_std
-		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std}")
+		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std} ")
 
 
 	def log(self, *args, **kwargs):
