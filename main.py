@@ -33,7 +33,8 @@ class App:
 		self.using_namespace_std = using_namespace_std
 		self.logs = logs
 		self.min_display_line = 0
-		self.min_display_char = 0
+		self.cur = tuple()
+		self.min_display_char = 0  # Useless at the moment
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -174,7 +175,7 @@ class App:
 			# Displays the current text
 			# TODO Longer lines
 			idx = 0
-			cur = tuple()
+			self.cur = tuple()
 			for i, line in enumerate(self.current_text.split("\n")[self.min_display_line:self.min_display_line+(self.rows-3)]):
 				line = line[self.min_display_char:]
 				# Getting the splitted line for syntax highlighting
@@ -182,9 +183,9 @@ class App:
 
 				# Getting the cursor position
 				if idx + len(line) > self.current_index and idx <= self.current_index:
-					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
+					self.cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
 				elif idx + len(line) == self.current_index:
-					cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
+					self.cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
 
 				# Writing the line to the screen
 				if len(str(self.lines)) + 1 + len(line) < self.cols:
@@ -209,9 +210,9 @@ class App:
 						del self.plugins[plugin_name]
 
 			# Placing cursor
-			if cur != tuple() and cur[1] < self.cols:
+			if self.cur != tuple() and self.cur[1] < self.cols:
 				try:
-					self.stdscr.addstr(*cur, curses.A_REVERSE)
+					self.stdscr.addstr(*self.cur, curses.A_REVERSE)
 				except curses.error: pass
 
 			# Visual stylings, e.g. adds a full line over the input
@@ -344,7 +345,7 @@ class App:
 		:param key: A character to add to the text.
 		"""
 		self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
-		self.current_index += 1
+		self.current_index += len(key)
 
 
 	def display_commands(self):
