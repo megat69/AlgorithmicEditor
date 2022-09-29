@@ -24,7 +24,7 @@ class Plugin:
 		"""
 		pass
 
-	def add_command(self, character:str, function:Callable, description:str):
+	def add_command(self, character:str, function:Callable, description:str, hidden:bool = False):
 		"""
 		Adds a command to the app.
 		:param character: The character triggering the command.
@@ -37,6 +37,6 @@ class Plugin:
 			# Checks if a command with the same prefix exists, and if so, replaces it
 			prefixes = tuple(self.app.commands.keys())
 			if character in prefixes:
-				self.app.commands[character] = (function, description)
+				self.app.commands[character] = (function, description, hidden)
 			else:
-				self.app.commands[character] = (function, description)
+				self.app.commands[character] = (function, description, hidden)

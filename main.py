@@ -16,16 +16,16 @@ class App:
 		self.lines = 1
 		self.current_index = 0
 		self.commands = {
-			"q": (self.quit, "Quit"),
-			"c": (self.compile, "Compile"),
-			"t": (self.modify_tab_char, "Modify tab char"),
-			"s": (self.save, "Save"),
-			"o": (self.open, "Open"),
-			"p": (self.compile_to_cpp, "Compile to C++"),
-			"j": (self.toggle_std_use, "Toggle namespace std"),
-			"h": (self.display_commands, "Commands list"),
+			"q": (self.quit, "Quit", False),
+			"c": (self.compile, "Compile", False),
+			"t": (self.modify_tab_char, "Modify tab char", True),
+			"s": (self.save, "Save", False),
+			"o": (self.open, "Open", False),
+			"p": (self.compile_to_cpp, "Compile to C++", False),
+			"j": (self.toggle_std_use, "Toggle namespace std", True),
+			"h": (self.display_commands, "Commands list", False),
 			# To add the command symbol to the text
-			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol)
+			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
 		}
 		self.instructions_list = []
 		self.tab_char = "\t"
@@ -105,7 +105,7 @@ class App:
 				self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
 				key = self.stdscr.getkey()
 				if key in self.commands.keys():
-					key_name, (function, name) = key, self.commands[key]
+					key_name, (function, name, hidden) = key, self.commands[key]
 					self.stdscr.addstr(self.rows - 1, 1, key_name)
 					self.stdscr.refresh()
 					key = self.stdscr.getkey()
@@ -257,8 +257,8 @@ class App:
 
 		# Adds the commands list at the bottom of the screen
 		cols = 0
-		for key_name, (function, name) in self.commands.items():
-			if key_name != self.command_symbol:
+		for key_name, (function, name, hidden) in self.commands.items():
+			if key_name != self.command_symbol and hidden is False:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 
 				# If printing this text would overflow off the screen, we break out of the loop
@@ -367,7 +367,7 @@ class App:
 		in_plugins_section = False
 
 		# Displays each command
-		for i, (key_name, (function, name)) in enumerate(self.commands.items()):
+		for i, (key_name, (function, name, hidden)) in enumerate(self.commands.items()):
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 			else:
