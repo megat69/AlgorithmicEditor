@@ -60,8 +60,6 @@ class App:
 		self.stdscr : _curses.window = stdscr
 		self.stdscr.clear()
 		self.rows, self.cols = self.stdscr.getmaxyx()
-		self.apply_stylings()
-		self.stdscr.refresh()
 
 		# If a .crash file exists, we show a message asking if they want their data to be recovered,
 		# then we set current_text to its contents and delete it
@@ -69,6 +67,7 @@ class App:
 			def recover_crash_data():
 				with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
 					self.current_text = f.read()
+				self.display_text()
 
 			display_menu(
 				self.stdscr,
@@ -76,9 +75,13 @@ class App:
 					("Yes", recover_crash_data),
 					("No", lambda: None)
 				),
-				label = "Data has been found from the last crash. Do you want to recover it ?"
+				label = "Data has been found from the last crash. Do you want to recover it ?",
+				clear = False
 			)
 			os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
+
+		self.apply_stylings()
+		self.stdscr.refresh()
 
 		# Declaring the color pairs
 		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
@@ -188,46 +191,7 @@ class App:
 
 			# Displays the current text
 			# TODO Longer lines
-			idx = 0
-			self.cur = tuple()
-			for i, line in enumerate(self.current_text.split("\n")[self.min_display_line:self.min_display_line+(self.rows-3)]):
-				line = line[self.min_display_char:]
-				# Getting the splitted line for syntax highlighting
-				splitted_line = line.split(" ")
-
-				# Getting the cursor position
-				if idx + len(line) > self.current_index and idx <= self.current_index:
-					self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
-				elif idx + len(line) == self.current_index:
-					self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
-
-				# Writing the line to the screen
-				if len(str(self.lines)) + 1 + len(line) < self.cols:
-					# If the line's length does not overflow off the screen, we write it entirely
-					self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
-				else:
-					# If the line's length overflows off the screen, we write only the part that stays in the screen
-					self.stdscr.addstr(i, len(str(self.lines)) + 1, line[:self.cols - (len(str(self.lines)) + 1)])
-
-				# Updating the amount of characters in the line
-				idx += len(line) + 1 + self.min_display_char
-
-				# Tests the beginning of the line to add a color, syntax highlighting
-				self.syntax_highlighting(line, splitted_line, i)
-
-				# Calls the plugins update_on_syntax_highlight function
-				for plugin_name, plugin in tuple(self.plugins.items()):
-					if len(plugin) > 1:
-						if hasattr(plugin[1], "update_on_syntax_highlight"):
-							plugin[1].update_on_syntax_highlight(line, splitted_line, i)
-					else:
-						del self.plugins[plugin_name]
-
-			# Placing cursor
-			if self.cur != tuple() and self.cur[1] < self.cols:
-				try:
-					self.stdscr.addstr(*self.cur, curses.A_REVERSE)
-				except curses.error: pass
+			self.display_text()
 
 			# Visual stylings, e.g. adds a full line over the input
 			self.apply_stylings()
@@ -258,6 +222,55 @@ class App:
 			),
 			1, "-- QUIT --"
 		)
+
+
+	def display_text(self):
+		"""
+		Displays the text in current_text.
+		"""
+		idx = 0
+		self.cur = tuple()
+		for i, line in enumerate(
+				self.current_text.split("\n")[self.min_display_line:self.min_display_line + (self.rows - 3)]):
+			line = line[self.min_display_char:]
+			# Getting the splitted line for syntax highlighting
+			splitted_line = line.split(" ")
+
+			# Getting the cursor position
+			if idx + len(line) > self.current_index and idx <= self.current_index:
+				self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx),
+				            line[self.current_index - idx])
+			elif idx + len(line) == self.current_index:
+				self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
+
+			# Writing the line to the screen
+			if len(str(self.lines)) + 1 + len(line) < self.cols:
+				# If the line's length does not overflow off the screen, we write it entirely
+				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
+			else:
+				# If the line's length overflows off the screen, we write only the part that stays in the screen
+				self.stdscr.addstr(i, len(str(self.lines)) + 1, line[:self.cols - (len(str(self.lines)) + 1)])
+
+			# Updating the amount of characters in the line
+			idx += len(line) + 1 + self.min_display_char
+
+			# Tests the beginning of the line to add a color, syntax highlighting
+			self.syntax_highlighting(line, splitted_line, i)
+
+			# Calls the plugins update_on_syntax_highlight function
+			for plugin_name, plugin in tuple(self.plugins.items()):
+				if len(plugin) > 1:
+					if hasattr(plugin[1], "update_on_syntax_highlight"):
+						plugin[1].update_on_syntax_highlight(line, splitted_line, i)
+				else:
+					del self.plugins[plugin_name]
+
+		# Placing cursor
+		if self.cur != tuple() and self.cur[1] < self.cols:
+			try:
+				self.stdscr.addstr(*self.cur, curses.A_REVERSE)
+			except curses.error:
+				pass
 
 
 	def apply_stylings(self) -> None:
