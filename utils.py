@@ -6,7 +6,7 @@ import os
 from functools import partial
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None):
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = False):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
@@ -14,6 +14,7 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	:param default_selected_element: The menu element selected by default. 0 by default.
 	It is composed of tuples of 2 elements : the command name, and the function to call upon selection.
 	:param label: Displays a title above the menu. None by default.
+	:param clear: Whether to clear the screen before creating the menu. True by default.
 	"""
 	# Gets the middle of the screen coordinates
 	screen_middle_y, screen_middle_x = get_screen_middle_coords(stdscr)
@@ -21,11 +22,12 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	# Selects an element
 	selected_element = default_selected_element
 
-	# Gets the amount of given commands, and stores it into a variable, for omptimization purposes.
+	# Gets the amount of given commands, and stores it into a variable, for optimization purposes.
 	cmd_len = len(commands)
 
 	# Clears the contents of the screen
-	stdscr.clear()
+	if clear:
+		stdscr.clear()
 
 	# Initializing the key
 	key = ""
