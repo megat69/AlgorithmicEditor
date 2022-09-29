@@ -63,6 +63,23 @@ class App:
 		self.apply_stylings()
 		self.stdscr.refresh()
 
+		# If a .crash file exists, we show a message asking if they want their data to be recovered,
+		# then we set current_text to its contents and delete it
+		if ".crash" in os.listdir(os.path.dirname(__file__)):
+			def recover_crash_data():
+				with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
+					self.current_text = f.read()
+
+			display_menu(
+				self.stdscr,
+				(
+					("Yes", recover_crash_data),
+					("No", lambda: None)
+				),
+				label = "Data has been found from the last crash. Do you want to recover it ?"
+			)
+			os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
+
 		# Declaring the color pairs
 		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
@@ -866,9 +883,16 @@ class App:
 
 
 if __name__ == "__main__":
-	app = App(
-		command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
-		using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
-		logs="--nologs" not in sys.argv
-	)
-	curses.wrapper(app.main)
+	try:
+		app = App(
+			command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
+			using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
+			logs="--nologs" not in sys.argv
+		)
+		curses.wrapper(app.main)
+	except Exception as e:
+		# In the event of a crash, saves the current_text to a .crash file
+		with open(".crash", "w", encoding="utf-8") as f:
+			f.write(app.current_text)
+		# Then raises the exception again
+		raise e
