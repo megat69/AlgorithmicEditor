@@ -276,6 +276,11 @@ class App:
 				except curses.error:
 					self.log(f"Could not display command {self.command_symbol}{key_name} - {name}")
 				cols += 1
+
+			# Adds a spacing between built-in and plugin commands
+			elif key_name == self.command_symbol:
+				cols += 3
+
 		self.stdscr.refresh()
 
 		# Gets the amount of lines in the text
