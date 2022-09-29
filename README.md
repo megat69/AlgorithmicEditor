@@ -489,7 +489,7 @@ Les commades sont, mais pas limitées à (les plugins peuvent en ajouter) :
 ## Plugins
 See [in the plugins repository](https://github.com/megat69/AlgorithmicEditor_Plugins) on how to create a plugin.
 
-***ENGLISH***
+***ENGLISH***<br>
 Plugins are a great tool offered to you by the editor, and allow to extend its functionality with official or third-party applets.<br>
 They can add custom commands, custom behaviour, custom syntax highlighting, and much, much more.<br>
 As of today, official plugins include, but are not restricted to :
@@ -500,7 +500,7 @@ As of today, official plugins include, but are not restricted to :
 - **And most importantly,** `plugin_repo`, which is the heart of the plugins : it allows you to manage (enable/disable/delete/list) your plugins or download/updates new ones.
   - It is the only plugin downloaded by default (if you select so in the setup).
 
-***FRANÇAIS***
+***FRANÇAIS***<br>
 Les plugins sont d'excellents outils proposés par l'éditeur, et vous permesttent d'étendre ses fonctionnalités avec des applets officiels ou tiers.<br>
 Ces derniers peuvent ajouter des commandes personnalisées, de la logique personnalisée, une coloration syntaxique personnalisée, et bien plus encore.<br>
 Au moment de l'écriture de ces lignes, les plugins officiels contiennent, mais ne sont pas restreints à :
@@ -511,3 +511,5 @@ Au moment de l'écriture de ces lignes, les plugins officiels contiennent, mais 
 - **Et le plus important,** `plugin_repo`, qui est au coeur de tous les plugins : il vous permet de gérer (activer/désactiver/supprimmer/lister) vos plugins, ou d'en télécharger/mettre à jour d'autres.
   - Il s'agit du seul plugin téléchargé par défaut (si vous acceptez durant le setup).
 
+
+**NOTE :** Even though this software supports Python 3.7 and above, every plugin might require a newer version of Python, so read their documentation carefully.
