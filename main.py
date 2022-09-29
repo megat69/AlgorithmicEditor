@@ -183,9 +183,9 @@ class App:
 
 				# Getting the cursor position
 				if idx + len(line) > self.current_index and idx <= self.current_index:
-					self.cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
+					self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx), line[self.current_index - idx])
 				elif idx + len(line) == self.current_index:
-					self.cur = (i, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
+					self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
 
 				# Writing the line to the screen
 				if len(str(self.lines)) + 1 + len(line) < self.cols:
