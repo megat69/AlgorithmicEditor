@@ -6,7 +6,6 @@ import os
 import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
-# TODO : Plugins documentation and README
 
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
