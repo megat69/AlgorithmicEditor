@@ -10,11 +10,11 @@ from utils import display_menu, input_text, get_screen_middle_coords, browse_fil
 
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
-		self.current_text = ""
-		self.stdscr : _curses.window = None
-		self.rows, self.cols = 0, 0
-		self.lines = 1
-		self.current_index = 0
+		self.current_text = ""  # The text being displayed in the window
+		self.stdscr : _curses.window = None  # The standard screen (see curses library)
+		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
+		self.lines = 1  # The number of lines containing text in the window
+		self.current_index = 0  # The current index of the cursor
 		self.commands = {
 			"q": (self.quit, "Quit", False),
 			"c": (self.compile, "Compile", False),
@@ -26,14 +26,14 @@ class App:
 			"h": (self.display_commands, "Commands list", False),
 			# To add the command symbol to the text
 			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
-		}
-		self.instructions_list = []
-		self.tab_char = "\t"
-		self.command_symbol = command_symbol
-		self.using_namespace_std = using_namespace_std
-		self.logs = logs
-		self.min_display_line = 0
-		self.cur = tuple()
+		}  # A dictionary of all the commands, either built-in or plugin-defined.
+		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
+		self.tab_char = "\t"  # The tab character
+		self.command_symbol = command_symbol  # The symbol triggering a command
+		self.using_namespace_std = using_namespace_std  # Whether to use the std namespace during the C++ compilation
+		self.logs = logs  # Whether to log
+		self.min_display_line = 0  # The minimum line displayed on the window (scroll)
+		self.cur = tuple()  # The cursor
 		self.min_display_char = 0  # Useless at the moment
 
 		# Preparing the color pairs
@@ -43,19 +43,22 @@ class App:
 			"variable": 3,
 			"instruction": 4,
 			"strings": 3
-		}
+		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while"),
 			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
-		}
+		}  # What each type of statement corresponds to
 
 		# Loads all the plugins
-		self.plugins = self.load_plugins()
+		self.plugins = self.load_plugins()  # A dict containing all the plugins as list of [module, instance]
 
 
 	def main(self, stdscr: _curses.window):
+		"""
+		The main function, wrapped around by curses.
+		"""
 		# Curses initialization
 		self.stdscr : _curses.window = stdscr
 		self.stdscr.clear()
@@ -321,6 +324,9 @@ class App:
 
 
 	def load_plugins(self):
+		"""
+		Loads all the plugins.
+		"""
 		# Creating the plugins folder if it does not exist
 		if not os.path.exists(os.path.join(os.path.dirname(__file__), "plugins")):
 			os.mkdir(os.path.join(os.path.dirname(__file__), "plugins"))
