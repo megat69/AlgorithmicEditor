@@ -173,6 +173,8 @@ class App:
 						self.min_display_line += 1
 						if self.min_display_line > self.lines - 1:
 							self.min_display_line = self.lines - 1
+					elif key == "KEY_F(1)":
+						self.commands["h"][0]()
 					"""elif key == "KEY_HOME":
 						self.min_display_char -= 1
 						if self.min_display_char < 0:
