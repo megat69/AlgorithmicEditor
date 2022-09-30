@@ -1,7 +1,10 @@
 # AlgorithmicEditor
 An internal and personal tool to parse pseudocode into algorithmic french.
 
-Please don't look at the code. For real. It was thrown together in a couple of days, and maintained since.
+![image](https://img.shields.io/github/languages/code-size/megat69/AlgorithmicEditor)
+![image](https://img.shields.io/tokei/lines/github/megat69/AlgorithmicEditor)
+![image](https://img.shields.io/badge/Version%20support-3.7%2B-green)
+![image](https://img.shields.io/github/commit-activity/m/megat69/AlgorithmicEditor)
 
 ## Syntax
 ### Variables declaration / Déclaration de Variables
