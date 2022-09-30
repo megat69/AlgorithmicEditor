@@ -7,6 +7,8 @@ import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
+
+# TODO : Config file
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
@@ -175,6 +177,8 @@ class App:
 							self.min_display_line = self.lines - 1
 					elif key == "KEY_F(1)":
 						self.commands["h"][0]()
+					elif key == "KEY_F(4)":
+						self.commands["q"][0]()
 					"""elif key == "KEY_HOME":
 						self.min_display_char -= 1
 						if self.min_display_char < 0:
