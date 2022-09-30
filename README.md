@@ -474,8 +474,8 @@ The commands are, but not limited to (plugins can add some) :
 - `:s` - Save : Saves the program **to your clipboard**. This will be changed in the future.
 - `:o` - Open : Opens a program **from your clipboard**, ***and overwrites the old one without saving***. This will be changed in the future.
 - `:p` - Compile to C++ : Transpiles your code into C++. **Copies the program to the clipboard, overriding what may be inside.** *Note that the transpilation isn't perfect, it is more of a means to test your algorithm quickly than having to rewrite it entirely in another language.*
-- `:h` - Toggle namespace std : Toggles whether to use the `std` namespace in the C++ code. If true, all `std::` calls will be replaced by a `using namespace std;` at the top of the program. False by default.
-- `:d` - Docstring : Quickly adds all the functions comments at the end of the current line to improve function creation efficiency.
+- `:j` - Toggle namespace std : Toggles whether to use the `std` namespace in the C++ code. If true, all `std::` calls will be replaced by a `using namespace std;` at the top of the program. False by default.
+- `:h` - Commands list : Lists all existing commands, either built-in or from plugins.
 
 ***FRANÇAIS***
 Vous pouvez utiliser des commandes qui auront un effet syr votre code. Ces commandes sont déclenchées par l'appui sur la touche du symbole de commande (`:` par défaut), suivi de la touche assignée, puis par l'appui sur la touche Entrée.<br>
@@ -486,8 +486,8 @@ Les commades sont, mais pas limitées à (les plugins peuvent en ajouter) :
 - `:s` - Sauvegarder : Sauvegarde le programme **dans le presse-papiers**. Cela sera changé dans le futur.
 - `:o` - Ouvrir : Ouvre le programme **depuis le presse-papiers**, ***et réécris par-dessus l'ancien sans le sauvegarder***. Cela sera changé dans le futur.
 - `:p` - Compiler vers C++ : Transcrit votre code en C++. **Copie le programme dans le presse-papiers, réécrivant ce qui pourrait être dedans.** *Notez que la transcription n'est pas parfaite, il s'agit plus de tester votre algorithme rapidement plutôt que d'avoir à le réécrire entièrement dans un autre langage.*
-- `:h` - Basculer namespace std : Bascule l'utilisation du namespace `std`dans le code C++. Si vrai, tous les appels à `std::` seront replacés par un `using namespace std;` au sommet du programme. Faux par défaut.
-- `:d` - Docstring : Ajoute rapidement tous les commentaires de fonction à la fin de la ligne courante pour améliorer l'efficacité dans la création de foncions.
+- `:j` - Basculer namespace std : Bascule l'utilisation du namespace `std`dans le code C++. Si vrai, tous les appels à `std::` seront replacés par un `using namespace std;` au sommet du programme. Faux par défaut.
+- `:h` - Liste des commandes : Liste toutes les commandes existantes, qu'elles soient par défaut ou proviennent de plugins.
 
 ## Plugins
 See [in the plugins repository](https://github.com/megat69/AlgorithmicEditor_Plugins) on how to create a plugin.
