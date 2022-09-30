@@ -6,7 +6,7 @@ import os
 import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
-
+# TODO : Plugins documentation and README
 
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
@@ -417,6 +417,12 @@ class App:
 
 
 	def syntax_highlighting(self, line, splitted_line, i):
+		"""
+		Creates a syntax highlighting for the given line.
+		:param line: The line to use for parsing.
+		:param splitted_line: A split version of the line (split on spaces)
+		:param i: The index of the line in the window.
+		"""
 		start_statement = splitted_line[0]
 		if start_statement in tuple(sum(self.color_control_flow.values(), tuple())):
 			if start_statement in self.color_control_flow["statement"]:
@@ -740,6 +746,9 @@ class App:
 		if noshow is False:
 			self.stdscr.clear()
 			self.stdscr.addstr(final_compiled_code)
+			for plugin in self.plugins.values():
+				if hasattr(plugin[1], "update_on_compilation"):
+					plugin[1].update_on_compilation(final_compiled_code, "algo")
 			self.stdscr.refresh()
 			self.stdscr.getch()
 			self.save(final_compiled_code)
@@ -888,6 +897,9 @@ class App:
 		self.stdscr.clear()
 		self.stdscr.refresh()
 		self.stdscr.addstr(final_compiled_code)
+		for plugin in self.plugins.values():
+			if hasattr(plugin[1], "update_on_compilation"):
+				plugin[1].update_on_compilation(final_compiled_code, "cpp")
 		self.stdscr.getch()
 		self.save(final_compiled_code)
 		self.stdscr.clear()

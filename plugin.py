@@ -22,6 +22,15 @@ class Plugin:
 	def update_on_keypress(self, key:str):
 		"""
 		Gets called right after the user presses a non-command/non-special key.
+		:param key: The key pressed by the user.
+		"""
+		pass
+
+	def update_on_compilation(self, final_compiled_code:str, compilation_type:str):
+		"""
+		Gets called at the end of a compilation.
+		:param final_compiled_code: The compiled code.
+		:param compilation_type: The language in which the code was compiled. Can be either "cpp" or "algo".
 		"""
 		pass
 
