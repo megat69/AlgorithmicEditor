@@ -37,13 +37,12 @@ class Plugin:
 	def add_command(self, character:str, function:Callable, description:str, hidden:bool = False):
 		"""
 		Adds a command to the app.
-		:param character: The character triggering the command.
+		:param character: The character triggering the command. It is highly recommended to make it no more than one character.
 		:param function: The function called on command trigger.
 		:param description: A very short description of the command shown to the user (less than 20 characters).
+		:param hidden: Whether the command should be hidden (only displayed in the commands list, and not the bottom of
+			the screen). False by default.
 		"""
-		if len(character) != 1:
-			raise Exception(f"Command character length must be one character, not {len(character)} ('{character}').")
-		else:
-			# If a command with the same prefix exists, and if so, replaces it
-			self.app.commands[character] = (function, description, hidden)
+		# If a command with the same prefix exists, it replaces it
+		self.app.commands[character] = (function, description, hidden)
 
