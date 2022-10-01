@@ -20,6 +20,7 @@ class App:
 			"c": (self.compile, "Compile", False),
 			"t": (self.modify_tab_char, "Modify tab char", True),
 			"s": (self.save, "Save", False),
+			"qs": (partial(self.save, quick_save=True), "Quicksave", False),
 			"o": (self.open, "Open", False),
 			"p": (self.compile_to_cpp, "Compile to C++", False),
 			"j": (self.toggle_std_use, "Toggle namespace std", True),
@@ -35,6 +36,7 @@ class App:
 		self.min_display_line = 0  # The minimum line displayed on the window (scroll)
 		self.cur = tuple()  # The cursor
 		self.min_display_char = 0  # Useless at the moment
+		self.last_save_action = "clipboard"  # What the user did the last time he saved some code from the editor ; can be 'clipboard' or the pah to a file.
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -123,18 +125,15 @@ class App:
 			# If system key is pressed
 			if key == self.command_symbol:
 				self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
-				key = self.stdscr.getkey()
+				key = input_text(self.stdscr, 1, self.rows - 1)
 				if key in self.commands.keys():
 					key_name, (function, name, hidden) = key, self.commands[key]
 					self.stdscr.addstr(self.rows - 1, 1, key_name)
-					self.stdscr.refresh()
-					key = self.stdscr.getkey()
-					if key == "\n":
-						try:
-							function()
-						except curses.error as e:
-							self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
-							self.log(e)
+					try:
+						function()
+					except curses.error as e:
+						self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
+						self.log(e)
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
@@ -518,17 +517,24 @@ class App:
 		if self.logs: print(*args, **kwargs)
 
 
-	def save(self, text_to_save:str=None):
+	def save(self, text_to_save:str=None, quick_save:bool=False):
+		"""
+		Saves the code into a file or the clipboard, depending on what's chosen by the user.
+		:param text_to_save: The text to save. If None, the contents of the editor. None by default.
+		:param quick_save: Whether to quicksave (do the last save action). False by default.
+		"""
 		def save_to_clipboard():
 			"""
 			Saves the code to the clipboard.
 			"""
+			self.last_save_action = "clipboard"
 			pyperclip.copy(text_to_save)
 
 		def save_to_file():
 			"""
 			Saves the code to a file.
 			"""
+			# Creates and displays a few messages to the user
 			msg = (
 				"Enter the absolute path to the file you want to",
 				"save the code to, including the filename and extension.",
@@ -537,12 +543,20 @@ class App:
 			)
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
+
+			# Asks for the filename
 			filename = input_text(self.stdscr, self.cols // 10, self.rows // 2 + len(msg))
+
+			# If the filename is empty, we don't go inside the if statement (thus cancelling the save)
 			if filename != "":
+				# If the filename is equals to the command symbol + v (e.g. ':v'), we make it what is currently inside the clipboard
 				if filename == self.command_symbol + "v":
 					filename = pyperclip.paste()
+				# If the filename is equals to the command symbol + b (e.g. ':b"), we open the file browser.
 				if filename == self.command_symbol + "b":
 					filename = browse_files(self.stdscr, can_create_files=True)()
+
+				# If the path already exists, we ask the user to confirm the decision of overwriting the file
 				if os.path.exists(filename):
 					confirm = None
 					def set_confirm(b:bool):
@@ -555,23 +569,46 @@ class App:
 						("Yes", partial(set_confirm, True)),
 						("No", partial(set_confirm, False))
 					), label = "This file already exists. Do you want to overwrite it ?")
+					# If the user didn't confirm, we don't save.
 					if confirm is not True:
 						return
+
+				# If the filename is a valid path, we dump the code into the requested file
 				with open(filename, "w", encoding="utf-8") as f:
 					f.write(text_to_save)
 
+				# Saving this save mode as quick action
+				if remember_quicksave:
+					self.last_save_action = filename
+
+		remember_quicksave = text_to_save is None
 		if text_to_save is None:
 			text_to_save = self.current_text
 
-		display_menu(
-			self.stdscr,
-			(
-				("Save to clipboard", save_to_clipboard),
-				("Save to file", save_to_file),
-				("Cancel", lambda: None)
-			), label = "-- SAVE --"
-		)
-		self.stdscr.clear()
+		# If this is a regular save, we deploy the menu
+		if quick_save is False:
+			display_menu(
+				self.stdscr,
+				(
+					("Save to clipboard", save_to_clipboard),
+					("Save to file", save_to_file),
+					("Cancel", lambda: None)
+				), label = "-- SAVE --"
+			)
+			self.stdscr.clear()
+
+		# If it is a quicksave :
+		else:
+			# We paste the code into the clipboard if the last save method was as so
+			if self.last_save_action == "clipboard":
+				save_to_clipboard()
+
+			# Or we dump the code in the last file it was saved to
+			else:
+				with open(self.last_save_action, "w", encoding="utf-8") as f:
+					f.write(text_to_save)
+
+			self.stdscr.addstr(self.rows - 1, 4, f"Quicksaved to {self.last_save_action}")
 
 
 	def open(self):
