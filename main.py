@@ -996,6 +996,7 @@ class App:
 
 
 if __name__ == "__main__":
+	os.chdir(os.path.dirname(__file__))
 	try:
 		app = App(
 			command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
