@@ -414,8 +414,9 @@ class App:
 		Inserts the text from the given file into the editor
 		"""
 		filename = browse_files(self.stdscr, can_create_files=False)()
-		with open(filename, "r", encoding="utf-8") as f:
-			self.add_char_to_text(f.read())
+		if filename != "":
+			with open(filename, "r", encoding="utf-8") as f:
+				self.add_char_to_text(f.read())
 
 
 	def add_char_to_text(self, key: str):
