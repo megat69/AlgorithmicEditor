@@ -38,7 +38,7 @@ if platform.system() == "Windows":
 else:
 	os.system(f"{pip_prefix} install -r requirements.txt")
 
-install_plugin_repo = input(translations[language]["install_plugin_repo"])[0].lower() != "n"
+install_plugin_repo = input("\n"*2 + translations[language]["install_plugin_repo"])[0].lower() != "n"
 if install_plugin_repo:
 	print(translations[language]["requirements_install"])
 	os.system(f"{pip_prefix} install -r plugin_repo-requirements.txt")
@@ -51,7 +51,7 @@ if install_plugin_repo:
 		print(translations[language]["error_occured"])
 
 if platform.system() == "Windows":
-	associate_filetypes = input(translations[language]["associate_filetype"]) != "n"
+	associate_filetypes = input("\n"*2 + translations[language]["associate_filetype"]) != "n"
 	if associate_filetypes:
 		# Writes the bat file launching the file
 		with open("AlgoEditorOpen.bat", "w", encoding="utf-8") as f:
