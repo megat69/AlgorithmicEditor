@@ -1,5 +1,8 @@
 import os, platform
-os.mkdir(os.path.join(os.path.dirname(__file__), "plugins"))
+os.chdir(os.path.dirname(__file__))
+try:
+	os.mkdir(os.path.join(os.path.dirname(__file__), "plugins"))
+except FileExistsError: pass
 
 language = "fr" if input("Choose a language (EN/FR) : ")[:2].lower() == "fr" else "en"
 translations = {
@@ -10,7 +13,8 @@ translations = {
 		                       "Il s'agit d'un excellent plugin pour vous aider à gérer et installer des plugins,"
 		                       " en plus d'être un très bonne exemple pour apprendre à créer le vôtre. (o/n)",
 		"setup_finished": "C'est tout bon ! Setup terminé.",
-		"error_occured": "Une erreur s'est produite durant le téléchargement du plugin_repo."
+		"error_occured": "Une erreur s'est produite durant le téléchargement du plugin_repo.",
+		"associate_filetype": "Voulez-vous associer l'extension '.algo' avec ce logiciel ? (o/n) "
 	},
 	'en': {
 		"pip_prefix": "Please enter your PIP prefix (pip, pip3, python -m pip, py -p pip...). Leave blank for 'pip'.",
@@ -19,7 +23,8 @@ translations = {
 		                       "It is a great plugin to help you manage and install plugins, as well as being a great "
 		                       "example on how to create your own. (y/n)",
 		"setup_finished": "All done ! Setup complete.",
-		"error_occured": "An error occurred while trying to download the plugin_repo."
+		"error_occured": "An error occurred while trying to download the plugin_repo.",
+		"associate_filetype": "Do you want to associate the extension '.algo' with this software ? (y/n) "
 	}
 }
 
@@ -44,5 +49,17 @@ if install_plugin_repo:
 			f.write(r.text)
 	else:
 		print(translations[language]["error_occured"])
+
+if platform.system() == "Windows":
+	associate_filetypes = input(translations[language]["associate_filetype"]) != "n"
+	if associate_filetypes:
+		# Writes the bat file launching the file
+		with open("AlgoEditorOpen.bat", "w", encoding="utf-8") as f:
+			f.write(f"MODE con:cols=197 lines=45\ncmd /k python \"{os.getcwd()}/main.py\" --file \"%1\"")
+
+		# Runs the commands to create the default extension
+		os.system(f"ftype AlgoEditorFile=\"{os.getcwd()}/AlgoEditorOpen.bat\" %1")
+		os.system(f"assoc .algo=AlgoEditorFile")
+
 
 print(translations[language]["setup_finished"])
