@@ -1,3 +1,4 @@
 windows-curses
 pyperclip
 fast_autocomplete[levenshtein]
+pywin32
