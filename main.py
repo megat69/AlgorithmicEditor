@@ -50,7 +50,7 @@ class App:
 			"strings": 3
 		}  # The number of the color pairs
 		self.color_control_flow = {
-			"statement": ("if", "else", "end", "elif", "for", "while", "switch"),
+			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default"),
 			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
