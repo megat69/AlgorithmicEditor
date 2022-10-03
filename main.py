@@ -8,7 +8,7 @@ import importlib
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
 # TODO Open .algo files in the editor by default on Windows
-# TODO If App.save is not called from :s, it should not switch :qs to that
+# TODO Support for CTRL_LEFT and CTRL_RIGHT
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
@@ -554,9 +554,9 @@ class App:
 			"""
 			Saves the code to the clipboard.
 			"""
-			self.last_save_action = "clipboard"
 			if remember_quicksave:
-				pyperclip.copy(text_to_save)
+				self.last_save_action = "clipboard"
+			pyperclip.copy(text_to_save)
 
 		def save_to_file():
 			"""
