@@ -472,6 +472,7 @@ The commands are, but not limited to (plugins can add some) :
 - `:c` - Compile : Compiles your code into algorithmic code. **Copies the program to the clipboard, overriding what may be inside.**
 - `:t` - Modify tab char : Allows you to type in a new string to replace the default tab character (`\t`) for the transpilations.
 - `:s` - Save : Saves the program.
+- `:qs` - Quicksave : Quicksaves the program to the last place is was saved to. Does not ask for confirmation.
 - `:o` - Open : Opens a program.
 - `:p` - Compile to C++ : Transpiles your code into C++. *Note that the transpilation isn't perfect, it is more of a means to test your algorithm quickly than having to rewrite it entirely in another language.*
 - `:j` - Toggle namespace std : Toggles whether to use the `std` namespace in the C++ code. If true, all `std::` calls will be replaced by a `using namespace std;` at the top of the program. False by default.
