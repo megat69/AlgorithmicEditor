@@ -50,7 +50,7 @@ class App:
 			"strings": 3
 		}  # The number of the color pairs
 		self.color_control_flow = {
-			"statement": ("if", "else", "end", "elif", "for", "while"),
+			"statement": ("if", "else", "end", "elif", "for", "while", "switch"),
 			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
@@ -147,7 +147,7 @@ class App:
 				self.stdscr.clear()
 
 				# If the key IS a backspace character, we remove the last character from the text
-				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_"):
+				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
 					if key == "\b":
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
