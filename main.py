@@ -555,7 +555,8 @@ class App:
 			Saves the code to the clipboard.
 			"""
 			self.last_save_action = "clipboard"
-			pyperclip.copy(text_to_save)
+			if remember_quicksave:
+				pyperclip.copy(text_to_save)
 
 		def save_to_file():
 			"""
