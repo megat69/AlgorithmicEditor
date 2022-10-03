@@ -117,6 +117,9 @@ class App:
 		)
 		del msg_string
 
+		# Displays the text
+		self.display_text()
+
 		# App main loop
 		while True:
 			# Gets the current screen size
