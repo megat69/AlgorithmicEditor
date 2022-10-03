@@ -1,4 +1,5 @@
 import curses, _curses
+import string
 import sys
 import pyperclip
 from functools import partial
@@ -8,7 +9,6 @@ import importlib
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
 # TODO Open .algo files in the editor by default on Windows
-# TODO Support for CTRL_LEFT and CTRL_RIGHT
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
@@ -144,7 +144,7 @@ class App:
 				self.stdscr.clear()
 
 				# If the key IS a backspace character, we remove the last character from the text
-				if key in ("\b", "\0") or key.startswith("KEY_"):
+				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_"):
 					if key == "\b":
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
@@ -168,6 +168,14 @@ class App:
 						self.current_index -= 1
 					elif key == "KEY_RIGHT":
 						self.current_index += 1
+					elif key == "CTL_LEFT":
+						self.current_index -= 1
+						while self.current_index >= 0 and self.current_text[self.current_index] in string.ascii_letters:
+							self.current_index -= 1
+					elif key == "CTL_RIGHT":
+						self.current_index += 1
+						while self.current_index < len(self.current_text) and self.current_text[self.current_index] in string.ascii_letters:
+							self.current_index += 1
 					elif key == "KEY_NPAGE":
 						self.min_display_line -= 1
 						if self.min_display_line < 0:
