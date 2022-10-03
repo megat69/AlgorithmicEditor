@@ -50,7 +50,7 @@ class App:
 			"strings": 3
 		}  # The number of the color pairs
 		self.color_control_flow = {
-			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default"),
+			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
 			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input")
@@ -148,7 +148,7 @@ class App:
 
 				# If the key IS a backspace character, we remove the last character from the text
 				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
-					if key == "\b":
+					if key in ("\b", "\0"):
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
 							self.current_index -= 1
@@ -715,13 +715,16 @@ class App:
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
 		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
-		         "case": "Cas", "default": "Autrement", "fx": "Fonction", "proc": "Procédure"}
+		         "case": "Cas", "default": "Autrement", "fx": "Fonction", "proc": "Procédure", "const": "Constante"}
 		var_types = {"int": "Entier", "float": "Réel", "string": "Chaîne de caractères", "bool": "Booléen",
 		             "char": "Caractère"}
 		for i, line in enumerate(self.instructions_list):
 			line = line.split(" ")
 			instruction_name = line[0]
 			instruction_params = line[1:]
+
+			if instruction_name == "const":
+				pass
 
 			if instruction_name in var_types.keys():
 				var_type = var_types[instruction_name]
