@@ -755,6 +755,7 @@ class App:
 
 			elif instruction_name == "precond": self.instructions_list[i] = f"Préconditions : {' '.join(instruction_params)}"
 			elif instruction_name == "data": self.instructions_list[i] = f"Données : {' '.join(instruction_params)}"
+			elif instruction_name == "datar": self.instructions_list[i] = f"Donnée/Résultat : {' '.join(instruction_params)}"
 			elif instruction_name == "result": self.instructions_list[i] = f"Résultats : {' '.join(instruction_params)}"
 			elif instruction_name == "desc": self.instructions_list[i] = f"Description : {' '.join(instruction_params)}"
 			elif instruction_name == "return":
@@ -893,6 +894,7 @@ class App:
 
 			elif instruction_name == "precond": self.instructions_list[i] = f"// Préconditions : {' '.join(instruction_params)}"
 			elif instruction_name == "data": self.instructions_list[i] = f"// Données : {' '.join(instruction_params)}"
+			elif instruction_name == "datar": self.instructions_list[i] = f"// Donnée/Résultat : {' '.join(instruction_params)}"
 			elif instruction_name == "result": self.instructions_list[i] = f"// Résultats : {' '.join(instruction_params)}"
 			elif instruction_name == "desc": self.instructions_list[i] = f"// Description : {' '.join(instruction_params)}"
 			elif instruction_name == "vars": self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
@@ -922,7 +924,7 @@ class App:
 			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "\\n")
 			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
 			                            + self.instructions_list[i] + (";" if instruction_name not in
-			                                (*names, "end", "fx", "fx_start", "precond", "data", "result", "desc", "vars", "//") else "")
+			                                (*names, "end", "fx", "fx_start", "precond", "data", "datar", "result", "desc", "vars", "//") else "")
 			if self.using_namespace_std:
 				self.instructions_list[i] = self.instructions_list[i].replace("std::", "")
 
