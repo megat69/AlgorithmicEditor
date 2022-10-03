@@ -7,8 +7,6 @@ import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
-# TODO Open file from CLI argument
-# TODO Insert command, allow to insert the contents of an algo file at the cursor position
 # TODO Open .algo files in the editor by default on Windows
 # TODO If App.save is not called from :s, it should not switch :qs to that
 class App:
@@ -29,6 +27,7 @@ class App:
 			"j": (self.toggle_std_use, "Toggle namespace std", True),
 			"h": (self.display_commands, "Commands list", False),
 			"cl": (self.clear_text, "Clear editor", True),
+			"is": (self.insert_text, "Insert file", True),
 			# To add the command symbol to the text
 			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
@@ -397,6 +396,15 @@ class App:
 			("No", lambda: None)
 		),
 		label="Confirm clearing editor ?")
+
+
+	def insert_text(self):
+		"""
+		Inserts the text from the given file into the editor
+		"""
+		filename = browse_files(self.stdscr, can_create_files=False)()
+		with open(filename, "r", encoding="utf-8") as f:
+			self.add_char_to_text(f.read())
 
 
 	def add_char_to_text(self, key: str):
@@ -982,6 +990,10 @@ if __name__ == "__main__":
 			using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
 			logs="--nologs" not in sys.argv
 		)
+		if "--file" in sys.argv:
+			filename = sys.argv[sys.argv.index("--file") + 1]
+			with open(filename, "r", encoding="utf-8") as f:
+				app.current_text = f.read()
 		curses.wrapper(app.main)
 	except Exception as e:
 		# In the event of a crash, saves the current_text to a .crash file
