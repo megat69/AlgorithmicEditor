@@ -6,6 +6,10 @@ An internal and personal tool to parse pseudocode into algorithmic french.
 ![image](https://img.shields.io/badge/Version%20support-3.7%2B-green)
 ![image](https://img.shields.io/github/commit-activity/m/megat69/AlgorithmicEditor)
 
+
+*For experimental features, see `experimental` branch.*
+
+
 ## Syntax
 ### Variables declaration / Déclaration de Variables
 ***ENGLISH***<br>
