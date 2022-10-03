@@ -9,6 +9,7 @@ import importlib
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
 # TODO Open .algo files in the editor by default on Windows
+# TODO Download all plugins
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
@@ -148,7 +149,7 @@ class App:
 
 				# If the key IS a backspace character, we remove the last character from the text
 				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
-					if key in ("\b", "\0"):
+					if key in ("\b", "\0", "^H"):
 						if self.current_index > 0:
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
 							self.current_index -= 1
@@ -724,9 +725,9 @@ class App:
 			instruction_params = line[1:]
 
 			if instruction_name == "const":
-				pass
+				self.instructions_list[i] = f"{names['const']} : {var_types[instruction_params[0]]} : {' '.join(instruction_params[1:])}"
 
-			if instruction_name in var_types.keys():
+			elif instruction_name in var_types.keys():
 				var_type = var_types[instruction_name]
 				self.instructions_list[i] = ", ".join(instruction_params) + " : " + var_type + \
 				                            ("s" if len(instruction_params) != 1 and instruction_name != "string" else "")
@@ -858,7 +859,7 @@ class App:
 		"""
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
-		names = ('for', 'if', 'while', 'switch', 'case', 'default', 'else', 'elif')
+		names = ('for', 'if', 'while', 'switch', 'case', 'default', 'else', 'elif', 'const')
 		ifsanitize = lambda s: s.replace('ET', '&&').replace('OU', '||').replace('NON', '!')
 		var_types = {"int": "int", "float": "float", "string": "std::string", "bool": "bool",
 		             "char": "char"}
@@ -870,7 +871,11 @@ class App:
 			instruction_name = line[0]
 			instruction_params = line[1:]
 
-			if instruction_name in var_types.keys():
+
+			if instruction_name == "const":
+				self.instructions_list[i] = f"const {' '.join(instruction_params)}"
+
+			elif instruction_name in var_types.keys():
 				var_type = var_types[instruction_name]
 				self.instructions_list[i] = var_type + " " + ", ".join(instruction_params)
 
