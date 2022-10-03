@@ -832,12 +832,14 @@ class App:
 		final_compiled_code = "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
 		if noshow is False:
 			self.stdscr.clear()
-			self.stdscr.addstr(final_compiled_code)
-			for plugin in self.plugins.values():
-				if hasattr(plugin[1], "update_on_compilation"):
-					plugin[1].update_on_compilation(final_compiled_code, "algo")
-			self.stdscr.refresh()
-			self.stdscr.getch()
+			try:
+				self.stdscr.addstr(final_compiled_code)
+				for plugin in self.plugins.values():
+					if hasattr(plugin[1], "update_on_compilation"):
+						plugin[1].update_on_compilation(final_compiled_code, "algo")
+				self.stdscr.refresh()
+				self.stdscr.getch()
+			except curses.error: pass
 			self.save(final_compiled_code)
 			self.stdscr.clear()
 			self.apply_stylings()
@@ -984,7 +986,9 @@ class App:
 
 		self.stdscr.clear()
 		self.stdscr.refresh()
-		self.stdscr.addstr(final_compiled_code)
+		try:
+			self.stdscr.addstr(final_compiled_code)
+		except curses.error: pass
 		for plugin in self.plugins.values():
 			if hasattr(plugin[1], "update_on_compilation"):
 				plugin[1].update_on_compilation(final_compiled_code, "cpp")
