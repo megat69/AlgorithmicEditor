@@ -103,7 +103,7 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 		key = stdscr.getkey()
 
 		# Sanitizes the input
-		if key == "\b":
+		if key in ("KEY_BACKSPACE", "\b", "\0"):
 			# If the character is a backspace, we remove the last character from the final text
 			final_text = final_text[:-1]
 			# Removes the character from the screen
