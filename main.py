@@ -8,8 +8,7 @@ import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
-# TODO Open .algo files in the editor by default on Windows
-# TODO Download all plugins
+# TODO Open .algo files in the editor by default on Linux
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
