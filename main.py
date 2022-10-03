@@ -7,7 +7,10 @@ import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
-
+# TODO Open file from CLI argument
+# TODO Insert command, allow to insert the contents of an algo file at the cursor position
+# TODO Open .algo files in the editor by default on Windows
+# TODO If App.save is not called from :s, it should not switch :qs to that
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
@@ -25,6 +28,7 @@ class App:
 			"p": (self.compile_to_cpp, "Compile to C++", False),
 			"j": (self.toggle_std_use, "Toggle namespace std", True),
 			"h": (self.display_commands, "Commands list", False),
+			"cl": (self.clear_text, "Clear editor", True),
 			# To add the command symbol to the text
 			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
@@ -378,6 +382,21 @@ class App:
 		Modifies the tab character.
 		"""
 		self.tab_char = input_text(self.stdscr, position_x=3)
+
+
+	def clear_text(self):
+		"""
+		Clears the current text in the editor.
+		"""
+		def _clear_text():
+			self.current_text = ""
+			self.current_index = 0
+
+		display_menu(self.stdscr, (
+			("Yes", _clear_text),
+			("No", lambda: None)
+		),
+		label="Confirm clearing editor ?")
 
 
 	def add_char_to_text(self, key: str):
