@@ -1007,23 +1007,51 @@ class App:
 		self.stdscr.refresh()
 
 
+
+def generate_crash_file(app:App, *args):
+	"""
+	Generates a .crash file.
+	:param app: The application instance.
+	"""
+	with open(".crash", "w", encoding="utf-8") as f:
+		f.write(app.current_text)
+
 if __name__ == "__main__":
+	# Selects the current working directory as the directory of this file
 	os.chdir(os.path.dirname(__file__))
+
 	try:
+		# Instanciates the app
 		app = App(
 			command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
 			using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
 			logs="--nologs" not in sys.argv
 		)
+
+		# If a file was specified as argument
 		if "--file" in sys.argv:
 			filename = sys.argv[sys.argv.index("--file") + 1]
+			# We read the file contents and store it as the app's current text
 			with open(filename, "r", encoding="utf-8") as f:
 				app.current_text = f.read()
+			# We make it so the quicksave will automatically save to this file
 			app.last_save_action = filename
+
+		# Detects console closing and creates a .crash file, depending on the OS
+		import platform
+		if platform.system() == "Windows":
+			import win32api
+			win32api.SetConsoleCtrlHandler(partial(generate_crash_file, app), True)
+		else:
+			import signal
+			signal.signal(signal.SIGHUP, partial(generate_crash_file, app))
+
+		# Wr launch the app
 		curses.wrapper(app.main)
+
+	# If a crash occurs, generates a .crash file
 	except Exception as e:
 		# In the event of a crash, saves the current_text to a .crash file
-		with open(".crash", "w", encoding="utf-8") as f:
-			f.write(app.current_text)
+		generate_crash_file(app)
 		# Then raises the exception again
 		raise e
