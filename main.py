@@ -1003,6 +1003,7 @@ if __name__ == "__main__":
 			filename = sys.argv[sys.argv.index("--file") + 1]
 			with open(filename, "r", encoding="utf-8") as f:
 				app.current_text = f.read()
+			app.last_save_action = filename
 		curses.wrapper(app.main)
 	except Exception as e:
 		# In the event of a crash, saves the current_text to a .crash file
