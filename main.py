@@ -229,6 +229,11 @@ class App:
 		Exits the app.
 		"""
 		def quit():
+			# Saves the plugin config
+			with open("plugins_config.json", "w", encoding="utf8") as f:
+				json.dump(self.plugins_config, f, indent=2)
+
+			# Exits the app
 			sys.exit(0)
 		def save_and_quit():
 			self.save()
