@@ -549,12 +549,14 @@ class App:
 					curses.color_pair(self.color_pairs["variable"])
 				)
 
-			if len(splitted_line) > 3 and splitted_line[3].isdigit():
-				self.stdscr.addstr(
-					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
-					splitted_line[3],
-					curses.color_pair(5)
-				)
+			if len(splitted_line) > 3:
+				for j in range(3, len(splitted_line)):
+					if splitted_line[j].isdigit():
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + len(" ".join(splitted_line[:j])) + 2,
+							splitted_line[j],
+							curses.color_pair(5)
+						)
 
 		# If the instruction is a constant
 		elif splitted_line[0] == "const" and len(splitted_line) > 1:
@@ -857,7 +859,9 @@ class App:
 
 			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
 				try:
-					self.instructions_list[i] = f"{instruction_params[1]} : tableau [ {instruction_params[2]} ] de type {var_types[instruction_params[0]].lower()}"
+					self.instructions_list[i] = f"{instruction_params[1]} : tableau " +\
+							"".join(f"[ {instruction_params[i]} ]" for i in range(2, len(instruction_params))) +\
+							f" de type {var_types[instruction_params[0]].lower()}"
 				except IndexError:
 					self.stdscr.clear()
 					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
@@ -976,7 +980,9 @@ class App:
 
 			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
 				try:
-					self.instructions_list[i] = f"{instruction_params[0]}[{instruction_params[2]}] {instruction_params[1]};"
+					self.instructions_list[i] = f"{instruction_params[0]}" +\
+							"".join(f"[{instruction_params[i]}]" for i in range(2, len(instruction_params))) +\
+							f" {instruction_params[1]};"
 				except IndexError:
 					self.stdscr.clear()
 					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
