@@ -1,8 +1,11 @@
 import os, platform
 os.chdir(os.path.dirname(__file__))
 try:
-	os.mkdir(os.path.join(os.path.dirname(__file__), "plugins"))
+	os.mkdir("plugins")
 except FileExistsError: pass
+if not os.path.exists("plugins_config.json"):
+	with open("plugins_config.json", "w", encoding="utf-8") as f:
+		f.write("{}")
 
 language = "fr" if input("Choose a language (EN/FR) : ")[:2].lower() == "fr" else "en"
 translations = {
