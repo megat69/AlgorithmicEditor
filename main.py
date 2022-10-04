@@ -714,7 +714,7 @@ class App:
 		"""
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
-		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon",
+		names = {"for": "Pour", "if": "Si", "while": "Tant Que", "switch": "Selon", "arr": "Tableau",
 		         "case": "Cas", "default": "Autrement", "fx": "Fonction", "proc": "Procédure", "const": "Constante"}
 		var_types = {"int": "Entier", "float": "Réel", "string": "Chaîne de caractères", "bool": "Booléen",
 		             "char": "Caractère"}
@@ -823,6 +823,20 @@ class App:
 				self.instructions_list[i] = f"Variables locales : {' '.join(instruction_params)}"
 				instructions_stack.append("vars")
 
+			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
+				try:
+					self.instructions_list[i] = f"{instruction_params[1]} : tableau [ {instruction_params[2]} ] de type {var_types[instruction_params[0]].lower()}"
+				except IndexError:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
+					self.stdscr.getch()
+					return None
+				except KeyError:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : {instruction_params[0]} is not a recognized variable type")
+					self.stdscr.getch()
+					return None
+
 			elif len(instruction_params) != 0:
 				if instruction_params[0] == "=":
 					self.instructions_list[i] = f"{instruction_name} ← {' '.join(instruction_params[1:])}"
@@ -858,7 +872,7 @@ class App:
 		"""
 		self.instructions_list = self.current_text.split("\n")
 		instructions_stack = []
-		names = ('for', 'if', 'while', 'switch', 'case', 'default', 'else', 'elif', 'const')
+		names = ('for', 'if', 'while', 'switch', 'case', 'default', 'else', 'elif', 'const', 'arr')
 		ifsanitize = lambda s: s.replace('ET', '&&').replace('OU', '||').replace('NON', '!')
 		var_types = {"int": "int", "float": "float", "string": "std::string", "bool": "bool",
 		             "char": "char"}
@@ -927,6 +941,20 @@ class App:
 
 			elif instruction_name == "input":
 				self.instructions_list[i] = f"std::cout << std::endl;\n{self.tab_char * ((len(instructions_stack) + ('fx' not in instructions_stack)))}std::cin >> {' '.join(instruction_params)}"
+
+			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
+				try:
+					self.instructions_list[i] = f"{instruction_params[0]}[{instruction_params[2]}] {instruction_params[1]};"
+				except IndexError:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
+					self.stdscr.getch()
+					return None
+				except KeyError:
+					self.stdscr.clear()
+					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : {instruction_params[0]} is not a recognized variable type")
+					self.stdscr.getch()
+					return None
 
 			elif instruction_name == "fx":
 				while instruction_params[-1] == "": instruction_params.pop()
