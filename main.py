@@ -556,6 +556,22 @@ class App:
 					curses.color_pair(5)
 				)
 
+		# If the instruction is a constant
+		elif splitted_line[0] == "const" and len(splitted_line) > 1:
+			if splitted_line[1] in self.color_control_flow["variable"]:
+				self.stdscr.addstr(
+					i, len(str(self.lines)) + 7,
+					splitted_line[1],
+					curses.color_pair(self.color_pairs["variable"])
+				)
+
+			if len(splitted_line) > 2 and "=" in splitted_line[3]:
+				self.stdscr.addstr(
+					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
+					splitted_line[3],
+					curses.color_pair(self.color_pairs["statement"])
+				)
+
 
 	def toggle_std_use(self):
 		"""
