@@ -9,7 +9,6 @@ An internal and personal tool to parse pseudocode into algorithmic french.
 
 *For experimental features, see `experimental` branch.*
 
-
 ## Syntax
 ### Variables declaration / Déclaration de Variables
 ***ENGLISH***<br>
@@ -56,6 +55,51 @@ Vous pouvez assigner une valeur à une variable de la même manière que dans n'
 
 L'éditeur supporte n'importe quel opérateur (`=`, `+=`, `-=`, `*=`, ...).
 
+
+#### Arrays / Tableaux
+***ENGLISH***<br>
+You can define arrays with the `arr` keyword, followed by its type, then its name, and its size in each of its dimensions.<br>
+Syntax :<br>
+```
+// Creates a 2D array of 5x5 integers
+arr int myArray 5 5
+```
+
+Accessing arrays works just as in C, C++, or Python. Indexes start at 0.<br>
+You can use the `len(array)` function to get the array's length.<br>
+Example syntax :<br>
+```
+// Assigning a value
+grades[2] = 12
+
+// Displaying each value with pipes in between
+for i 0 len(grades)
+print " " & grades[i] & " |"
+end
+print "(ENDL)"
+```
+
+***FRANÇAIS***<br>
+Vous pouvez créer des tableaux avec le mot-clé `arr`, suivi de son type, de son nom, et de la taille de chacune de ses dimensions.<br>
+Syntaxe :<br>
+```
+// Crée un tableau 2D de 5x5 entiers
+arr int monTableau 5 5
+```
+
+Accéder à des tableaux fonctionne de la même manière qu'en C, C++, ou Python. Les indices commencent à 0.<br>
+Vous pouvez utiliser la fonction `len(tableau)` pour obtenir la taille du tableau.<br>
+Exemple de syntaxe :<br>
+```
+// Assignation d'une valeur
+notes[2] = 12
+
+// Affichage de chaque valeur avec des pipes entre elles
+for i 0 len(notes)
+print " " & notes[i] & " |"
+end
+print "(ENDL)"
+```
 
 ### Loops
 ***ENGLISH***<br>
