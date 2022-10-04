@@ -484,6 +484,16 @@ class App:
 			# Overwrites the beginning of the line with the given color if possible
 			self.stdscr.addstr(i, len(str(self.lines)) + 1, start_statement, curses.color_pair(self.color_pairs[c_pair]))
 
+		# Finds all '[' and ']' signs and gives them the statement color
+		for current_symbol in '[]':
+			symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == current_symbol)
+			for index in symbol_indexes:
+				self.stdscr.addstr(
+					i,
+					len(str(self.lines)) + 1 + index, line[index],
+					curses.color_pair(self.color_pairs["statement"])
+				)
+
 		# Finds all strings between quotes (single or double) and highlights them green
 		quotes_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "\"")
 		for j, index in enumerate(quotes_indexes):
