@@ -1,10 +1,10 @@
 from typing import Callable
+import json
 
 
 class Plugin:
 	def __init__(self, app):
 		self.app = app
-		self.created_commands = {}
 
 	def init(self):
 		"""
