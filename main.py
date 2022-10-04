@@ -71,7 +71,7 @@ class App:
 
 		# If a .crash file exists, we show a message asking if they want their data to be recovered,
 		# then we set current_text to its contents and delete it
-		if ".crash" in os.listdir(os.path.dirname(__file__)):
+		if ".crash" in os.listdir(os.path.dirname(__file__)) and "--file" not in sys.argv:
 			def recover_crash_data():
 				with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
 					self.current_text = f.read()
