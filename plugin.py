@@ -6,6 +6,7 @@ class Plugin:
 	def __init__(self, app):
 		self.app = app  # An instance of the app
 		self.plugin_name : str = ""  # The name of the plugin
+		self.config : dict = {}  # The config data of the plugin
 
 	def init(self):
 		"""

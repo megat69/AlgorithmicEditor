@@ -6,6 +6,7 @@ import pyperclip
 from functools import partial
 import os
 import importlib
+import json
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
@@ -41,6 +42,8 @@ class App:
 		self.cur = tuple()  # The cursor
 		self.min_display_char = 0  # Useless at the moment
 		self.last_save_action = "clipboard"  # What the user did the last time he saved some code from the editor ; can be 'clipboard' or the pah to a file.
+		with open("plugins_config.json", "r", encoding="utf-8") as f:
+			self.plugins_config = json.load(f)  # The configuration of the plugins
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -372,6 +375,9 @@ class App:
 			try:
 				plugins[plugin].append(plugins[plugin][0].init(self))
 				plugins[plugin][-1].plugin_name = plugin
+				if plugin not in self.plugins_config.keys():
+					self.plugins_config[plugin] = {}
+				plugins[plugin][-1].config = self.plugins_config[plugin]
 			except Exception as e:
 				del plugins[plugin]
 				self.log(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
