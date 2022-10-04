@@ -53,7 +53,7 @@ class App:
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
 			"function": ("fx", "fx_start", "return"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
-			"instruction": ("print", "input")
+			"instruction": ("print", "input", "arr")
 		}  # What each type of statement corresponds to
 
 		# Loads all the plugins
@@ -539,6 +539,22 @@ class App:
 						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
 					)
+
+		# If the instruction is an array, we highlight the array's type and its size
+		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
+			if splitted_line[1] in self.color_control_flow["variable"]:
+				self.stdscr.addstr(
+					i, len(str(self.lines)) + 5,
+					splitted_line[1],
+					curses.color_pair(self.color_pairs["variable"])
+				)
+
+			if len(splitted_line) > 3 and splitted_line[3].isdigit():
+				self.stdscr.addstr(
+					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
+					splitted_line[3],
+					curses.color_pair(5)
+				)
 
 
 	def toggle_std_use(self):
