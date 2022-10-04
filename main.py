@@ -9,7 +9,7 @@ import importlib
 
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
-# TODO Open .algo files in the editor by default on Linux
+
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
@@ -371,6 +371,7 @@ class App:
 			# Initializes the plugins init function
 			try:
 				plugins[plugin].append(plugins[plugin][0].init(self))
+				plugins[plugin][-1].plugin_name = plugin
 			except Exception as e:
 				del plugins[plugin]
 				self.log(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
