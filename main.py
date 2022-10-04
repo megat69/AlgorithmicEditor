@@ -1049,11 +1049,9 @@ class App:
 			self.instructions_list[i] = self.instructions_list[i].replace("puissance(", "pow(").replace("racine(", "sqrt(")
 			self.instructions_list[i] = self.instructions_list[i].replace("aleatoire(", "rand(")
 			if 'len(' in self.instructions_list[i]:
-				print(self.instructions_list[i])
 				len_params = re.findall(r"len\(([a-zA-Z0-9_]+)\)", self.instructions_list[i])
 				for param in len_params:
 					self.instructions_list[i] = self.instructions_list[i].replace(f"len({param})", f"(sizeof({param})/sizeof({param}[0]))")
-				print(self.instructions_list[i])
 			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "\\n")
 			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
 			                            + self.instructions_list[i] + (";" if instruction_name not in
