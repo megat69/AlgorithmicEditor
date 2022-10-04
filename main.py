@@ -318,7 +318,7 @@ class App:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 
 				# If printing this text would overflow off the screen, we break out of the loop
-				if cols + len(generated_str) >= self.cols + 4:
+				if cols + len(generated_str) >= self.cols - 4:
 					try:
 						self.stdscr.addstr(self.rows - 2, cols, "...", curses.A_REVERSE)
 					except curses.error: pass
