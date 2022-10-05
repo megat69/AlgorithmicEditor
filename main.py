@@ -838,17 +838,30 @@ class App:
 
 			elif instruction_name == "fx":
 				while instruction_params[-1] == "": instruction_params.pop()
+
+				def handle_params(instruction_params):
+					params = []
+					for i in range(2, len(instruction_params), 2):
+						params.append(f"{instruction_params[i+1]} : ")
+						try:
+							if not instruction_params[i].startswith("arr"):
+								params[-1] += var_types[instruction_params[i]][instruction_params[i][0] == '&':]
+							else:
+								params[-1] += f"Tableau[{instruction_params[i].split('_')[2]}] d'{var_types[instruction_params[i].split('_')[1]]}"
+						except IndexError:
+							params.pop()
+					params = ", ".join(params)
+					return params
+
 				if instruction_params[0] != "void":
 					instructions_stack.append("fx")
-					params = tuple(f"{instruction_params[i+1]} : {var_types[instruction_params[i]][instruction_params[i][0]=='&':]}" for i in range(2, len(instruction_params), 2))
+					params = handle_params(instruction_params)
 					params = ", ".join(params)
 					self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
 					del params
 				else:
 					instructions_stack.append("proc")
-					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i + 1][instruction_params[i+1][0]=='&':]}" for i in
-					               range(2, len(instruction_params), 2))
-					params = ", ".join(params)
+					params = handle_params(instruction_params)
 					self.instructions_list[i] = f"Procédure {instruction_params[1]} ({params})"
 					del params
 
