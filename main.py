@@ -979,6 +979,7 @@ class App:
 		var_types = {"int": "int", "float": "float", "string": "std::string", "bool": "bool",
 		             "char": "char"}
 		fxtext = []
+		constants = []
 		last_elem = None
 
 		for i, line in enumerate(self.instructions_list):
@@ -988,7 +989,8 @@ class App:
 
 
 			if instruction_name == "const":
-				self.instructions_list[i] = f"const {' '.join(instruction_params)}"
+				constants.append(f"const {' '.join(instruction_params)};")
+				self.instructions_list[i] = ""
 
 			elif instruction_name in var_types.keys():
 				var_type = var_types[instruction_name]
@@ -1046,9 +1048,9 @@ class App:
 
 			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
 				try:
-					self.instructions_list[i] = f"{instruction_params[0]}" +\
+					self.instructions_list[i] = f"{instruction_params[0]} {instruction_params[1]}" +\
 							"".join(f"[{instruction_params[i]}]" for i in range(2, len(instruction_params))) +\
-							f" {instruction_params[1]};"
+							f";"
 				except IndexError:
 					self.stdscr.clear()
 					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
@@ -1069,7 +1071,7 @@ class App:
 						if not instruction_params[i].startswith("arr"):
 							params.append(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}")
 						else:
-							params.append(f"{var_types[instruction_params[i].split('_')[1]]}[{instruction_params[i].split('_')[2]}] {instruction_params[i+1]}")
+							params.append(f"{var_types[instruction_params[i].split('_')[1]]} {instruction_params[i+1]}[{instruction_params[i].split('_')[2]}]")
 					params = ", ".join(params)
 					if instruction_params[0] != "void":
 						self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
@@ -1128,7 +1130,7 @@ class App:
 		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
 		                                                'racine(' in self.current_text else '')  \
 		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
-							  "\n".join(fxtext) + "\n\nint main() {\n" + (self.tab_char + "srand(time(NULL));\n" if 'aleatoire(' in self.current_text else '') \
+							  "\n".join(constants) + "\n"*(1+(len(constants)>0)) + "\n".join(fxtext) + "\n\nint main() {\n" + (self.tab_char + "srand(time(NULL));\n" if 'aleatoire(' in self.current_text else '') \
 							  + "".join(
 			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";" and instruction != "")\
 		                      + self.tab_char + "return 0;\n}"
