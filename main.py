@@ -1140,7 +1140,7 @@ if __name__ == "__main__":
 			import signal
 			signal.signal(signal.SIGHUP, partial(generate_crash_file, app))
 
-		# Wr launch the app
+		# We launch the app
 		curses.wrapper(app.main)
 
 	# If a crash occurs, generates a .crash file
