@@ -563,6 +563,35 @@ class App:
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
 					)
 
+				# If the argument's type is array
+				elif splitted_line[j].startswith("arr"):
+					# Highlighting the array type in red
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						"arr", curses.color_pair(self.color_pairs["statement"])
+					)
+					# Highlighting the underscore
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 3,
+						"_", curses.color_pair(self.color_pairs["function"])
+					)
+					# Highlighting the var type in yellow
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4,
+						splitted_line[j][4:7], curses.color_pair(self.color_pairs["variable"])
+					)
+					# Highlighting the underscore
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 7,
+						"_", curses.color_pair(self.color_pairs["function"])
+					)
+					# If the end of the argument type is a number, highlighting it green
+					if splitted_line[j][8:].isdigit():
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 8,
+							splitted_line[j][8:], curses.color_pair(5)
+						)
+
 		# If the instruction is an array, we highlight the array's type and its size
 		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
 			if splitted_line[1] in self.color_control_flow["variable"]:
