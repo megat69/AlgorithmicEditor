@@ -1064,7 +1064,12 @@ class App:
 				while instruction_params[-1] == "": instruction_params.pop()
 				instructions_stack.append("fx")
 				try:
-					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+					params = []
+					for i in range(2, len(instruction_params), 2):
+						if not instruction_params[i].startswith("arr"):
+							params.append(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}")
+						else:
+							params.append(f"{var_types[instruction_params[i].split('_')[1]]}[{instruction_params[i].split('_')[2]}] {instruction_params[i+1]}")
 					params = ", ".join(params)
 					if instruction_params[0] != "void":
 						self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
