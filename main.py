@@ -590,7 +590,7 @@ class App:
 					curses.color_pair(self.color_pairs["variable"])
 				)
 
-			if len(splitted_line) > 2 and "=" in splitted_line[3]:
+			if len(splitted_line) > 3 and "=" in splitted_line[3]:
 				self.stdscr.addstr(
 					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
 					splitted_line[3],
