@@ -563,6 +563,35 @@ class App:
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
 					)
 
+				# If the argument's type is array
+				elif splitted_line[j].startswith("arr"):
+					# Highlighting the array type in red
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						"arr", curses.color_pair(self.color_pairs["statement"])
+					)
+					# Highlighting the underscore
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 3,
+						"_", curses.color_pair(self.color_pairs["function"])
+					)
+					# Highlighting the var type in yellow
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4,
+						splitted_line[j][4:7], curses.color_pair(self.color_pairs["variable"])
+					)
+					# Highlighting the underscore
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 7,
+						"_", curses.color_pair(self.color_pairs["function"])
+					)
+					# If the end of the argument type is a number, highlighting it green
+					if splitted_line[j][8:].isdigit():
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 8,
+							splitted_line[j][8:], curses.color_pair(5)
+						)
+
 		# If the instruction is an array, we highlight the array's type and its size
 		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
 			if splitted_line[1] in self.color_control_flow["variable"]:
@@ -590,7 +619,7 @@ class App:
 					curses.color_pair(self.color_pairs["variable"])
 				)
 
-			if len(splitted_line) > 2 and "=" in splitted_line[3]:
+			if len(splitted_line) > 3 and "=" in splitted_line[3]:
 				self.stdscr.addstr(
 					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
 					splitted_line[3],
@@ -838,17 +867,30 @@ class App:
 
 			elif instruction_name == "fx":
 				while instruction_params[-1] == "": instruction_params.pop()
+
+				def handle_params(instruction_params):
+					params = []
+					for i in range(2, len(instruction_params), 2):
+						params.append(f"{instruction_params[i+1]} : ")
+						try:
+							if not instruction_params[i].startswith("arr"):
+								params[-1] += var_types[instruction_params[i]][instruction_params[i][0] == '&':]
+							else:
+								params[-1] += f"Tableau[{'_'.join(instruction_params[i].split('_')[2:])}] d'{var_types[instruction_params[i].split('_')[1]]}"
+						except IndexError:
+							params.pop()
+					params = ", ".join(params)
+					return params
+
 				if instruction_params[0] != "void":
 					instructions_stack.append("fx")
-					params = tuple(f"{instruction_params[i+1]} : {var_types[instruction_params[i]][instruction_params[i][0]=='&':]}" for i in range(2, len(instruction_params), 2))
+					params = handle_params(instruction_params)
 					params = ", ".join(params)
 					self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
 					del params
 				else:
 					instructions_stack.append("proc")
-					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i + 1][instruction_params[i+1][0]=='&':]}" for i in
-					               range(2, len(instruction_params), 2))
-					params = ", ".join(params)
+					params = handle_params(instruction_params)
 					self.instructions_list[i] = f"Procédure {instruction_params[1]} ({params})"
 					del params
 
@@ -937,6 +979,7 @@ class App:
 		var_types = {"int": "int", "float": "float", "string": "std::string", "bool": "bool",
 		             "char": "char"}
 		fxtext = []
+		constants = []
 		last_elem = None
 
 		for i, line in enumerate(self.instructions_list):
@@ -946,7 +989,8 @@ class App:
 
 
 			if instruction_name == "const":
-				self.instructions_list[i] = f"const {' '.join(instruction_params)}"
+				constants.append(f"const {' '.join(instruction_params)};")
+				self.instructions_list[i] = ""
 
 			elif instruction_name in var_types.keys():
 				var_type = var_types[instruction_name]
@@ -1004,9 +1048,9 @@ class App:
 
 			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
 				try:
-					self.instructions_list[i] = f"{instruction_params[0]}" +\
+					self.instructions_list[i] = f"{instruction_params[0]} {instruction_params[1]}" +\
 							"".join(f"[{instruction_params[i]}]" for i in range(2, len(instruction_params))) +\
-							f" {instruction_params[1]};"
+							f";"
 				except IndexError:
 					self.stdscr.clear()
 					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
@@ -1022,7 +1066,12 @@ class App:
 				while instruction_params[-1] == "": instruction_params.pop()
 				instructions_stack.append("fx")
 				try:
-					params = tuple(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}" for i in range(2, len(instruction_params), 2))
+					params = []
+					for i in range(2, len(instruction_params), 2):
+						if not instruction_params[i].startswith("arr"):
+							params.append(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}")
+						else:
+							params.append(f"{var_types[instruction_params[i].split('_')[1]]} {instruction_params[i+1]}[{'_'.join(instruction_params[i].split('_')[2:])}]")
 					params = ", ".join(params)
 					if instruction_params[0] != "void":
 						self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
@@ -1081,7 +1130,7 @@ class App:
 		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
 		                                                'racine(' in self.current_text else '')  \
 		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
-							  "\n".join(fxtext) + "\n\nint main() {\n" + (self.tab_char + "srand(time(NULL));\n" if 'aleatoire(' in self.current_text else '') \
+							  "\n".join(constants) + "\n"*(1+(len(constants)>0)) + "\n".join(fxtext) + "\n\nint main() {\n" + (self.tab_char + "srand(time(NULL));\n" if 'aleatoire(' in self.current_text else '') \
 							  + "".join(
 			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";" and instruction != "")\
 		                      + self.tab_char + "return 0;\n}"
