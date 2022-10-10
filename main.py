@@ -45,6 +45,9 @@ class App:
 		with open("plugins_config.json", "r", encoding="utf-8") as f:
 			self.plugins_config = json.load(f)  # The configuration of the plugins
 
+		# Changes the class variable of browse_files to be the config's class variable
+		browse_files.last_browsed_path = self.plugins_config["BASE_CONFIG"]["default_save_location"]
+
 		# Preparing the color pairs
 		self.color_pairs = {
 			"statement": 1,
@@ -229,7 +232,8 @@ class App:
 		Exits the app.
 		"""
 		def quit():
-			# Saves the plugin config
+			# Saves the plugin config, after saving the base config
+			self.plugins_config["BASE_CONFIG"]["default_save_location"] = browse_files.last_browsed_path
 			with open("plugins_config.json", "w", encoding="utf8") as f:
 				json.dump(self.plugins_config, f, indent=2)
 
