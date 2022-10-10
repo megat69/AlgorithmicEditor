@@ -45,6 +45,9 @@ class App:
 		with open("plugins_config.json", "r", encoding="utf-8") as f:
 			self.plugins_config = json.load(f)  # The configuration of the plugins
 
+		# Changes the class variable of browse_files to be the config's class variable
+		browse_files.last_browsed_path = self.plugins_config["BASE_CONFIG"]["default_save_location"]
+
 		# Preparing the color pairs
 		self.color_pairs = {
 			"statement": 1,
@@ -229,7 +232,8 @@ class App:
 		Exits the app.
 		"""
 		def quit():
-			# Saves the plugin config
+			# Saves the plugin config, after saving the base config
+			self.plugins_config["BASE_CONFIG"]["default_save_location"] = browse_files.last_browsed_path
 			with open("plugins_config.json", "w", encoding="utf8") as f:
 				json.dump(self.plugins_config, f, indent=2)
 
@@ -578,19 +582,15 @@ class App:
 					# Highlighting the var type in yellow
 					self.stdscr.addstr(
 						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4,
-						splitted_line[j][4:7], curses.color_pair(self.color_pairs["variable"])
+						splitted_line[j][4:4 + len(splitted_line[j].split("_")[1])], curses.color_pair(self.color_pairs["variable"])
 					)
 					# Highlighting the underscore
-					self.stdscr.addstr(
-						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 7,
-						"_", curses.color_pair(self.color_pairs["function"])
-					)
-					# If the end of the argument type is a number, highlighting it green
-					if splitted_line[j][8:].isdigit():
+					try:
 						self.stdscr.addstr(
-							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 8,
-							splitted_line[j][8:], curses.color_pair(5)
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
+							"_", curses.color_pair(self.color_pairs["function"])
 						)
+					except IndexError: pass
 
 		# If the instruction is an array, we highlight the array's type and its size
 		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
@@ -876,7 +876,7 @@ class App:
 							if not instruction_params[i].startswith("arr"):
 								params[-1] += var_types[instruction_params[i]][instruction_params[i][0] == '&':]
 							else:
-								params[-1] += f"Tableau[{'_'.join(instruction_params[i].split('_')[2:])}] d'{var_types[instruction_params[i].split('_')[1]]}"
+								params[-1] += f"Tableau[{'_'.join(instruction_params[i].split('_')[2:])}] de {var_types[instruction_params[i].split('_')[1]]}s"
 						except IndexError:
 							params.pop()
 					params = ", ".join(params)
@@ -885,7 +885,6 @@ class App:
 				if instruction_params[0] != "void":
 					instructions_stack.append("fx")
 					params = handle_params(instruction_params)
-					params = ", ".join(params)
 					self.instructions_list[i] = f"Fonction {instruction_params[1]} ({params}) : {var_types[instruction_params[0]]}"
 					del params
 				else:
@@ -1164,7 +1163,7 @@ if __name__ == "__main__":
 	os.chdir(os.path.dirname(__file__))
 
 	try:
-		# Instanciates the app
+		# Instantiates the app
 		app = App(
 			command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
 			using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],

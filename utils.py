@@ -127,22 +127,21 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 	return final_text
 
 
-last_browsed_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
 class browse_files:
+	last_browsed_path = ""
 	def __init__(self, stdscr, given_path:str=None, can_create_files:bool=True):
 		"""
 		Browse files to find one, returns a path to this file.
 		:param stdscr: The standard screen.
 		:return: A path to the selected file.
 		"""
-		self.path = last_browsed_path if given_path is None else os.path.normpath(given_path)
+		self.path = browse_files.last_browsed_path if given_path is None else os.path.normpath(given_path)
 		self.stdscr = stdscr
 		self.can_create_files = can_create_files
 
 
 	def __call__(self, stdscr=None, given_path:str=None) -> str:
-		global last_browsed_path
-		self.path = last_browsed_path if given_path is None else os.path.normpath(given_path)
+		self.path = browse_files.last_browsed_path if given_path is None else os.path.normpath(given_path)
 		if stdscr is not None:
 			self.stdscr = stdscr
 		folders_list = []
@@ -182,7 +181,7 @@ class browse_files:
 			label=self.path
 		)
 
-		last_browsed_path = os.path.dirname(self.path)
+		browse_files.last_browsed_path = os.path.dirname(self.path)
 		return self.path
 
 
