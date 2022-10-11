@@ -48,8 +48,24 @@ class Compiler:
 				# Calls the callback function and gives it the instruction's name and params, along with the line number
 				fx_name(instruction_name, instruction_params, i)
 
+			# Defines a variable if wanted
 			elif instruction_name in self.var_types:
-				pass
+				self.define_var(line, i)
+
+			# Reassigns a variable if wanted
+			elif len(instruction_params) != 0:
+				if instruction_params[0].endswith("="):
+					self.var_assignation(line, i)
+
+			# Makes the final trimming to the line
+			self.final_trim(i)
+
+
+		# Makes the final adjustments to each line and puts everything together
+		final_compiled_code = self.final_touches()
+
+		# Finally returns the compiled code
+		return final_compiled_code
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -188,5 +204,33 @@ class Compiler:
 	def analyze_fx_start(self, instruction_name:str, instruction_params:list, line_number:int):
 		"""
 		Analyzes a constant.
+		"""
+		pass
+
+
+	def final_trim(self, line_number:int):
+		"""
+		Makes the final trim to the line.
+		"""
+		pass
+
+
+	def final_touches(self):
+		"""
+		Makes the final touches to the line.
+		"""
+		pass
+
+
+	def define_var(self, instruction:list, line_number:int):
+		"""
+		Is called when a variable is defined.
+		"""
+		pass
+
+
+	def var_assignation(self, instruction:list, line_number:int):
+		"""
+		Is called when a variable is defined.
 		"""
 		pass
