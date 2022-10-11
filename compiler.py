@@ -13,7 +13,9 @@ class Compiler:
 		"""
 		Initializes a new compiler.
 		:param instruction_names: Dictionaries containing the translation of the instructions
+			Keys : ('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc', 'const')
 		:param var_types: Dictionaries containing the translation of the variable names
+			Keys : ('int', 'float', 'string', 'bool', 'char')
 		"""
 		# Dictionaries containing the translation of the variable names and the translation of the instructions
 		self.instruction_names = instruction_names
@@ -39,10 +41,152 @@ class Compiler:
 			instruction_params = line[1:]
 
 			# Based on the instruction's name, dispatches to the correct functions
-			match instruction_name:
-				case "":
-					pass
+			if instruction_name in self.instruction_names.keys():
+				# Turns the fx_name into a callback function : The analyze_%name% method of this class.
+				try: fx_name = getattr(self, f"analyze_{instruction_name}")
+				except Exception: raise NotImplementedError(f"Function {instruction_name} not implemented")
+				# Calls the callback function and gives it the instruction's name and params, along with the line number
+				fx_name(instruction_name, instruction_params, i)
 
-				case _:  # Then checks for variables and stuff
-					if instruction_name in self.var_types:
-						pass
+			elif instruction_name in self.var_types:
+				pass
+
+
+	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_for(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_end(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_while(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_if(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_else(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_elif(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_switch(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_case(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_default(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_print(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_input(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_fx(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_precond(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_data(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_datar(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_result(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_return(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_desc(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
+
+
+	def analyze_fx_start(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a constant.
+		"""
+		pass
