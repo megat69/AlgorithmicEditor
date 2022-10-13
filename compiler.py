@@ -218,6 +218,20 @@ class Compiler:
 		pass
 
 
+	def analyze_vars(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes local variables.
+		"""
+		pass
+
+
+	def analyze_arr(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes local variables.
+		"""
+		pass
+
+
 	def final_trim(self, line_number:int):
 		"""
 		Makes the final trim to the line.
@@ -246,11 +260,11 @@ class Compiler:
 		pass
 
 
-	def error(self, message:str):
+	def error(self, message:str="Error."):
 		"""
 		Errors out to the user.
 		"""
 		self.stdscr.clear()
-		self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'case' statement outside of a 'switch'.")
+		self.stdscr.addstr(0, 0, message)
 		self.stdscr.getch()
-		return None
+		self.errored = True
