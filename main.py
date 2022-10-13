@@ -9,6 +9,7 @@ import importlib
 import json
 
 from algorithmic_compiler import AlgorithmicCompiler
+from cpp_compiler import CppCompiler
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
 
@@ -154,6 +155,31 @@ class App:
 			self.stdscr,
 			self.tab_char
 		)
+		self.compilers["C++"] = CppCompiler(
+			{
+				"for": "Pour",
+				"if": "Si",
+				"while": "Tant Que",
+				"switch": "Selon",
+				"arr": "Tableau",
+				"case": "Cas",
+				"default": "Autrement",
+				"fx": "Fonction",
+				"proc": "Procédure",
+				"const": "Constante"
+			},
+			{
+				"int": "Entier",
+				"float": "Réel",
+				"string": "Chaîne de caractères",
+				"bool": "Booléen",
+				"char": "Caractère"
+			},
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc"),
+			self.stdscr,
+			self.tab_char
+		)
+
 
 		# Displays the text
 		self.display_text()
