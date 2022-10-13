@@ -242,9 +242,6 @@ class AlgorithmicCompiler(Compiler):
 		# Adds the end of line
 		self.instructions_list[line_number] = self.instructions_list[line_number].replace("(ENDL)", "(FIN DE LIGNE)")
 
-		# Adds the 'len' function
-		self.instructions_list[line_number] = self.instructions_list[line_number].replace("len(", "taille(")
-
 		# Adds the correct tabbing (amount of tabs is equal to amount of instructions in the instructions stack,
 		# minus one if the current instruction is in the instruction names)
 		tab_amount = len(self.instructions_stack)

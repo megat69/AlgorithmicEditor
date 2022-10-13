@@ -1,15 +1,9 @@
-"""
-Compiler TODO :
-
-Single class, two instances : Shared attributes
-Possesses a main 'compile' function, which will call an 'analyze_line' method,
-which will dispatch to the correct function based on the first argument in the line,
-or if there is an equal sign
-"""  # TODO : Interpreter
+from typing import Union
+# TODO : Interpreter
 
 
 class Compiler:
-	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:tuple, stdscr, tab_char:str="\t"):
+	def __init__(self, instruction_names:dict|tuple, var_types:dict, other_instructions:tuple, stdscr, tab_char:str="\t"):
 		"""
 		Initializes a new compiler.
 		:param instruction_names: Dictionaries containing the translation of the instructions
