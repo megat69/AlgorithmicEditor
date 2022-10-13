@@ -34,6 +34,11 @@ class Compiler:
 		# Keeps as an attribute the list of instructions
 		self.instructions_list = instructions_list
 
+		# Creates the instruction names
+		instruction_names = self.instruction_names
+		if isinstance(self.instruction_names, dict):
+			instruction_names = instruction_names.keys()
+
 		# Interprets each instruction one by one
 		for i, line in enumerate(self.instructions_list):
 			# Checks if no error occurred
@@ -44,7 +49,7 @@ class Compiler:
 			instruction_params = line[1:]
 
 			# Based on the instruction's name, dispatches to the correct functions
-			if instruction_name in (*self.instruction_names.keys(), *self.other_instructions):
+			if instruction_name in (*instruction_names, *self.other_instructions):
 				# Turns the fx_name into a callback function : The analyze_%name% method of this class.
 				try: fx_name = getattr(self, f"analyze_{instruction_name}")
 				except Exception: raise NotImplementedError(f"Function {instruction_name} not implemented")

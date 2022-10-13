@@ -156,28 +156,17 @@ class App:
 			self.tab_char
 		)
 		self.compilers["C++"] = CppCompiler(
+			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc'),
 			{
-				"for": "Pour",
-				"if": "Si",
-				"while": "Tant Que",
-				"switch": "Selon",
-				"arr": "Tableau",
-				"case": "Cas",
-				"default": "Autrement",
-				"fx": "Fonction",
-				"proc": "Procédure",
-				"const": "Constante"
-			},
-			{
-				"int": "Entier",
-				"float": "Réel",
-				"string": "Chaîne de caractères",
-				"bool": "Booléen",
-				"char": "Caractère"
+				"int": "int",
+				"float": "float",
+				"string": "std::string",
+				"bool": "bool",
+				"char": "char"
 			},
 			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc"),
 			self.stdscr,
-			self.tab_char
+			self
 		)
 
 
@@ -899,179 +888,31 @@ class App:
 		"""
 		Compiles everything to C++ code ; might not always work.
 		"""
+		# Creates a list if instructions by splitting the text into lines
 		self.instructions_list = self.current_text.split("\n")
-		instructions_stack = []
-		names = ('for', 'if', 'while', 'switch', 'case', 'default', 'else', 'elif', 'const', 'arr')
-		ifsanitize = lambda s: s.replace('ET', '&&').replace('OU', '||').replace('NON', '!')
-		var_types = {"int": "int", "float": "float", "string": "std::string", "bool": "bool",
-		             "char": "char"}
-		fxtext = []
-		constants = []
-		last_elem = None
 
-		for i, line in enumerate(self.instructions_list):
-			line = line.split(" ")
-			instruction_name = line[0]
-			instruction_params = line[1:]
+		# Compiles the code through the Compiler class's compile method
+		final_compiled_code = self.compilers["C++"].compile(self.instructions_list)
 
-
-			if instruction_name == "const":
-				constants.append(f"const {' '.join(instruction_params)};")
-				self.instructions_list[i] = ""
-
-			elif instruction_name in var_types.keys():
-				var_type = var_types[instruction_name]
-				self.instructions_list[i] = var_type + " " + ", ".join(instruction_params)
-
-			elif instruction_name == "for":
-				instructions_stack.append("for")
-				self.instructions_list[i] = f"for ({instruction_params[0]} = {instruction_params[1]}; " \
-				                            f"{instruction_params[0]} <= {instruction_params[2]}; " \
-				                            f"{instruction_params[0]} += {1 if len(instruction_params) < 4 else instruction_params[3]})" + "{"
-
-			elif instruction_name == "end":
-				last_elem = instructions_stack.pop()
-				if last_elem in ("case", "default"):
-					self.instructions_list[i] = self.tab_char + "break;"
-				else:
-					self.instructions_list[i] = "}"
-
-			elif instruction_name == "while":
-				instructions_stack.append("while")
-				self.instructions_list[i] = f"while ({ifsanitize(' '.join(instruction_params))}) " + "{"
-
-			elif instruction_name == "if":
-				instructions_stack.append("if")
-				self.instructions_list[i] = f"if ({ifsanitize(' '.join(instruction_params))}) " + "{"
-
-			elif instruction_name == "else":
-				self.instructions_list[i] = "} else {"
-
-			elif instruction_name == "elif":
-				self.instructions_list[i] = "} " + f"else if ({ifsanitize(' '.join(instruction_params))}) " + " {"
-
-			elif instruction_name == "switch":
-				instructions_stack.append("switch")
-				self.instructions_list[i] = f"switch ({' '.join(instruction_params)}) " + "{"
-
-			elif instruction_name == "case":
-				if "switch" not in instructions_stack:
-					self.stdscr.clear()
-					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'case' statement outside of a 'switch'.")
-					self.stdscr.getch()
-					return None
-				instructions_stack.append("case")
-				self.instructions_list[i] = f"case {' '.join(instruction_params)}:"
-
-			elif instruction_name == "default":
-				instructions_stack.append("default")
-				self.instructions_list[i] = "default:"
-
-			elif instruction_name == "print":
-				self.instructions_list[i] = f"std::cout << {' '.join(instruction_params).replace(' & ', ' << ')}"
-
-			elif instruction_name == "input":
-				self.instructions_list[i] = f"std::cout << std::endl;\n{self.tab_char * ((len(instructions_stack) + ('fx' not in instructions_stack)))}std::cin >> {' '.join(instruction_params)}"
-
-			elif instruction_name == "arr":  # Array : arr <type> <name> <size>
-				try:
-					self.instructions_list[i] = f"{instruction_params[0]} {instruction_params[1]}" +\
-							"".join(f"[{instruction_params[i]}]" for i in range(2, len(instruction_params))) +\
-							f";"
-				except IndexError:
-					self.stdscr.clear()
-					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'arr' statement does not have all its parameters set")
-					self.stdscr.getch()
-					return None
-				except KeyError:
-					self.stdscr.clear()
-					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : {instruction_params[0]} is not a recognized variable type")
-					self.stdscr.getch()
-					return None
-
-			elif instruction_name == "fx":
-				while instruction_params[-1] == "": instruction_params.pop()
-				instructions_stack.append("fx")
-				try:
-					params = []
-					for i in range(2, len(instruction_params), 2):
-						if not instruction_params[i].startswith("arr"):
-							params.append(f"{var_types[instruction_params[i]]} {instruction_params[i+1]}")
-						else:
-							params.append(f"{var_types[instruction_params[i].split('_')[1]]} {instruction_params[i+1]}[{']['.join(instruction_params[i].split('_')[2:])}]")
-					params = ", ".join(params)
-					if instruction_params[0] != "void":
-						self.instructions_list[i] = f"{var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
-					else:
-						self.instructions_list[i] = f"void {instruction_params[1]}({params}) " + "{"
-					del params
-				except KeyError: pass
-
-			elif instruction_name == "precond": self.instructions_list[i] = f"// Préconditions : {' '.join(instruction_params)}"
-			elif instruction_name == "data": self.instructions_list[i] = f"// Données : {' '.join(instruction_params)}"
-			elif instruction_name == "datar": self.instructions_list[i] = f"// Donnée/Résultat : {' '.join(instruction_params)}"
-			elif instruction_name == "result": self.instructions_list[i] = f"// Résultats : {' '.join(instruction_params)}"
-			elif instruction_name == "desc": self.instructions_list[i] = f"// Description : {' '.join(instruction_params)}"
-			elif instruction_name == "vars": self.instructions_list[i] = f"// Variables locales : {' '.join(instruction_params)}"
-			elif instruction_name == "fx_start": self.instructions_list[i] = ""
-			elif instruction_name == "return":
-				# Checks we're not in a procedure
-				if "proc" in instructions_stack:
-					self.stdscr.clear()
-					self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'return' statement in a procedure.")
-					self.stdscr.getch()
-					return None
-				# Checks we're inside a function
-				elif "fx" not in instructions_stack:
-					self.stdscr.clear()
-					self.stdscr.addstr(0, 0, f"Error on line {i+1} : 'return' statement outside of a function.")
-					self.stdscr.getch()
-					return None
-				else:
-					self.instructions_list[i] = f"return {' '.join(instruction_params)}"
-
-			elif len(instruction_params) != 0:
-				if instruction_params[0].endswith("="):
-					self.instructions_list[i] = f"{instruction_name} {' '.join(instruction_params)}"
-
-			self.instructions_list[i] = self.instructions_list[i].replace("puissance(", "pow(").replace("racine(", "sqrt(")
-			self.instructions_list[i] = self.instructions_list[i].replace("aleatoire(", "rand(")
-			if 'len(' in self.instructions_list[i]:
-				len_params = re.findall(r"len\(([a-zA-Z0-9_]+)\)", self.instructions_list[i])
-				for param in len_params:
-					self.instructions_list[i] = self.instructions_list[i].replace(f"len({param})", f"(sizeof({param})/sizeof({param}[0]))")
-			self.instructions_list[i] = self.instructions_list[i].replace("(ENDL)", "\\n")
-			self.instructions_list[i] = self.tab_char * (len(instructions_stack) - (1 if instruction_name in (*names, "fx") else 0))\
-			                            + self.instructions_list[i] + (";" if instruction_name not in
-			                                (*names, "end", "fx", "fx_start", "precond", "data", "datar", "result", "desc", "vars", "//") else "")
-			if self.using_namespace_std:
-				self.instructions_list[i] = self.instructions_list[i].replace("std::", "")
-
-			if "fx" in instructions_stack or (instruction_name == "end" and last_elem == "fx"):
-				fxtext.append(self.instructions_list[i])
-				if instruction_name == "end":
-					fxtext[-1] += "\n"
-				self.instructions_list[i] = ""
-
-		final_compiled_code = "#include <iostream>\n" + ("using namespace std;\n" if self.using_namespace_std else "") + \
-		                      ("#include <math.h>\n" if 'puissance(' in self.current_text or \
-		                                                'racine(' in self.current_text else '')  \
-		                      + ("#include <stdlib.h>\n#include <time.h>\n" if 'aleatoire(' in self.current_text else '') + "\n" +\
-							  "\n".join(constants) + "\n"*(1+(len(constants)>0)) + "\n".join(fxtext) + "\n\nint main() {\n" + (self.tab_char + "srand(time(NULL));\n" if 'aleatoire(' in self.current_text else '') \
-							  + "".join(
-			self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != ";" and instruction != "")\
-		                      + self.tab_char + "return 0;\n}"
-
+		# Shows the compilation result to the user
 		self.stdscr.clear()
 		self.stdscr.refresh()
 		try:
 			self.stdscr.addstr(final_compiled_code)
 		except curses.error: pass
+
+		# Calls each plugins' update_on_compilation method
 		for plugin in self.plugins.values():
 			if hasattr(plugin[1], "update_on_compilation"):
 				plugin[1].update_on_compilation(final_compiled_code, "cpp")
+
+		# Adds a pause
 		self.stdscr.getch()
+
+		# Saves the compiled code based on the user's choice
 		self.save(final_compiled_code)
+
+		# Clears the screen and reapplies each stylings
 		self.stdscr.clear()
 		self.apply_stylings()
 		self.stdscr.refresh()
@@ -1085,6 +926,7 @@ def generate_crash_file(app:App, *args):
 	"""
 	with open(".crash", "w", encoding="utf-8") as f:
 		f.write(app.current_text)
+
 
 if __name__ == "__main__":
 	# Selects the current working directory as the directory of this file

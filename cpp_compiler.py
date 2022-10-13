@@ -53,7 +53,7 @@ class CppCompiler(Compiler):
 		# Creates the for loop's body
 		self.instructions_list[line_number] = f"for ({instruction_params[0]} = {instruction_params[1]}; " \
 		f"{instruction_params[0]} <= {instruction_params[2]}; " \
-		f"{instruction_params[0]} += {1 if len(instruction_params) < 4 else instruction_params[3]})" + "{"
+		f"{instruction_params[0]} += {1 if len(instruction_params) < 4 else instruction_params[3]}) " + "{"
 
 
 	def analyze_end(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -282,11 +282,15 @@ class CppCompiler(Compiler):
 		# Adds the correct tabbing (amount of tabs is equal to amount of instructions in the instructions stack,
 		# minus one if the current instruction is in the instruction names)
 		tab_amount = len(self.instructions_stack)
-		if instruction_name in (*self.instruction_names.keys(), "else", "elif"):
+		if instruction_name in (*self.instruction_names, "else", "elif"):
 			tab_amount -= 1
 
 		# Adds a semicolon if necessary
-		if not (self.instructions_list[line_number].startswith("//") or instruction_name in self.instruction_names):
+		if not (
+				self.instructions_list[line_number].startswith("//") or
+				self.instructions_list[line_number].endswith("}") or
+				instruction_name in self.instruction_names
+		):
 			self.instructions_list[line_number] += ";"
 
 		# Writes the line
@@ -297,7 +301,10 @@ class CppCompiler(Compiler):
 			self.instructions_list[line_number] = self.instructions_list[line_number].replace("std::", "")
 
 		# Adds it to fxtext if necessary
-		if "fx" in self.instructions_stack or (instruction_name == "end" and self.instructions_stack[-1] == "fx"):
+		if len(self.instructions_stack) != 0 and (
+				"fx" in self.instructions_stack or
+				(instruction_name == "end" and self.instructions_stack[-1] == "fx")
+		):
 			self.fxtext.append(self.instructions_list[line_number])
 			if instruction_name == "end":
 				self.fxtext[-1] += "\n"
