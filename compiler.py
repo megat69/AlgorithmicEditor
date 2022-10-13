@@ -9,7 +9,7 @@ or if there is an equal sign
 
 
 class Compiler:
-	def __init__(self, instruction_names:dict, var_types:dict, stdscr, tab_char:str="\t"):
+	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:tuple, stdscr, tab_char:str="\t"):
 		"""
 		Initializes a new compiler.
 		:param instruction_names: Dictionaries containing the translation of the instructions
@@ -20,6 +20,7 @@ class Compiler:
 		# Dictionaries containing the translation of the variable names and the translation of the instructions
 		self.instruction_names = instruction_names
 		self.var_types = var_types
+		self.other_instructions = other_instructions
 
 		# Compilation-related variables
 		self.instructions_list = []  # The list of instructions to be compiled
@@ -49,7 +50,7 @@ class Compiler:
 			instruction_params = line[1:]
 
 			# Based on the instruction's name, dispatches to the correct functions
-			if instruction_name in self.instruction_names.keys():
+			if instruction_name in (*self.instruction_names.keys(), *self.other_instructions):
 				# Turns the fx_name into a callback function : The analyze_%name% method of this class.
 				try: fx_name = getattr(self, f"analyze_{instruction_name}")
 				except Exception: raise NotImplementedError(f"Function {instruction_name} not implemented")

@@ -5,8 +5,8 @@ from compiler import Compiler
 
 
 class AlgorithmicCompiler(Compiler):
-	def __init__(self, instruction_names:dict, var_types:dict, stdscr, tab_char:str="\t"):
-		super().__init__(instruction_names, var_types, stdscr, tab_char)
+	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:tuple, stdscr, tab_char:str="\t"):
+		super().__init__(instruction_names, var_types, other_instructions, stdscr, tab_char)
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
