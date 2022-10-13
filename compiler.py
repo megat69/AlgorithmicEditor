@@ -9,7 +9,7 @@ or if there is an equal sign
 
 
 class Compiler:
-	def __init__(self, instruction_names:dict, var_types:dict, stdscr):
+	def __init__(self, instruction_names:dict, var_types:dict, stdscr, tab_char:str="\t"):
 		"""
 		Initializes a new compiler.
 		:param instruction_names: Dictionaries containing the translation of the instructions
@@ -28,6 +28,7 @@ class Compiler:
 		# Use variables
 		self.stdscr = stdscr
 		self.errored = False
+		self.tab_char = tab_char
 
 
 	def compile(self, instructions_list:list):
@@ -65,7 +66,7 @@ class Compiler:
 					self.var_assignation(line, i)
 
 			# Makes the final trimming to the line
-			self.final_trim(i)
+			self.final_trim(instruction_name, i)
 
 		# Also checks if an error occurred
 		if self.errored:
@@ -232,7 +233,7 @@ class Compiler:
 		pass
 
 
-	def final_trim(self, line_number:int):
+	def final_trim(self, instruction_name:str, line_number:int):
 		"""
 		Makes the final trim to the line.
 		"""
