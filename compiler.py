@@ -9,7 +9,7 @@ or if there is an equal sign
 
 
 class Compiler:
-	def __init__(self, instruction_names:dict, var_types:dict):
+	def __init__(self, instruction_names:dict, var_types:dict, stdscr):
 		"""
 		Initializes a new compiler.
 		:param instruction_names: Dictionaries containing the translation of the instructions
@@ -25,6 +25,10 @@ class Compiler:
 		self.instructions_list = []  # The list of instructions to be compiled
 		self.instructions_stack = []  # The stack of the instructions (indicates the number of tabs and the last instruction block's name)
 
+		# Use variables
+		self.stdscr = stdscr
+		self.errored = False
+
 
 	def compile(self, instructions_list:list):
 		"""
@@ -36,6 +40,9 @@ class Compiler:
 
 		# Interprets each instruction one by one
 		for i, line in enumerate(self.instructions_list):
+			# Checks if no error occurred
+			if self.errored: break
+
 			line = line.split(' ')
 			instruction_name = line[0]
 			instruction_params = line[1:]
@@ -60,6 +67,9 @@ class Compiler:
 			# Makes the final trimming to the line
 			self.final_trim(i)
 
+		# Also checks if an error occurred
+		if self.errored:
+			return None
 
 		# Makes the final adjustments to each line and puts everything together
 		final_compiled_code = self.final_touches()
@@ -234,3 +244,13 @@ class Compiler:
 		Is called when a variable is defined.
 		"""
 		pass
+
+
+	def error(self, message:str):
+		"""
+		Errors out to the user.
+		"""
+		self.stdscr.clear()
+		self.stdscr.addstr(0, 0, f"Error on line {i + 1} : 'case' statement outside of a 'switch'.")
+		self.stdscr.getch()
+		return None
