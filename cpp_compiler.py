@@ -184,15 +184,15 @@ class CppCompiler(Compiler):
 			self.instructions_list[line_number] = f"return {' '.join(instruction_params)}"
 
 
+	def analyze_vars(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Variables locales : """
+		self.instructions_list[line_number] = f"// Variables locales : {' '.join(instruction_params)}"
+
+
 	def analyze_fx_start(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Début : """
 		# Empties the line
 		self.instructions_list[line_number] = ""
-
-
-	def analyze_vars(self, instruction_name:str, instruction_params:list, line_number:int):
-		""" Variables locales : """
-		self.instructions_list[line_number] = f"// Variables locales : {' '.join(instruction_params)}"
 
 
 	def analyze_arr(self, instruction_name:str, instruction_params:list, line_number:int):
