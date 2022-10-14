@@ -228,7 +228,7 @@ class CppCompiler(Compiler):
 			# Fetches each parameter (going two by two, because each param goes <type> <name>)
 			for i in range(2, len(instruction_params), 2):
 				# Adds the parameter to the list of parameters
-				params.append(f"{instruction_params[i + 1]} : ")
+				params.append("")
 
 				# Try block in case there is an IndexError
 				try:
@@ -236,12 +236,12 @@ class CppCompiler(Compiler):
 					if not instruction_params[i].startswith("arr"):
 						# We add it to the params as the type, followed by the name, of whose we remove the
 						# first char if it is '&' (no datar mode in algorithmic)
-						params[-1] += self.var_types[instruction_params[i]][instruction_params[i][0] == '&':]
+						params[-1] += self.var_types[instruction_params[i]] + " " + instruction_params[i + 1][instruction_params[i][0] == '&':]
 
 					# If the param is an array, we parse it correctly
 					else:
-						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
-						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
+						current_array_param = instruction_params[i].split("_")
+						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
 
 				# If an IndexError is encountered, we remove the last param from the params list and continue
 				except IndexError:
