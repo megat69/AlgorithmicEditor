@@ -237,6 +237,17 @@ class AlgorithmicCompiler(Compiler):
 			self.instructions_list[line_number] = f"Procédure {instruction_params[1]} ({params})"
 
 
+	def var_assignation(self, instruction:list, line_number:int):
+		"""
+		Assigns/reassigns a variable.
+		"""
+		# Reassigns a value with an operator
+		if instruction[1] != "=":
+			instruction.insert(2, f"{instruction[0]} {instruction[1][:-1]}")
+		# Assigns the value to the variable
+		instruction[1] = "<-"
+		self.instructions_list[line_number] = " ".join(instruction)
+
 	def final_trim(self, instruction_name:str, line_number:int):
 		""" Adds the line ends, transforms the function names, and adds the correct indentation """
 		# Adds the end of line
