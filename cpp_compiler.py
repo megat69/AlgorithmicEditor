@@ -322,10 +322,12 @@ class CppCompiler(Compiler):
 
 		# Branching on whether it is a procedure or a function
 		# We write the line as a structure
-		self.instructions_list[line_number] = f"struct {instruction_params[0]}" + " {\n"
+		self.constants.append("")
+		self.constants[-1] += f"struct {instruction_params[0]}" + " {\n"
 		for param in params:
-			self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 2) + param + ";\n"
-		self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 1) + "}"
+			self.constants[-1] += self.tab_char * (len(self.instructions_stack) + 1) + param + ";\n"
+		self.constants[-1] += self.tab_char * len(self.instructions_stack) + "}"
+		self.instructions_list[line_number] = ""
 
 
 	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
