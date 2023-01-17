@@ -5,7 +5,7 @@ try:
 except FileExistsError: pass
 if not os.path.exists("plugins_config.json"):
 	with open("plugins_config.json", "w", encoding="utf-8") as f:
-		f.write('{\n\t"DEFAULT_CONFIG": {\n\t\t"default_save_location": "%%"\n\t}\n}'.replace("%%", os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))))
+		f.write('{\n\t"BASE_CONFIG": {\n\t\t"default_save_location": "%%"\n\t}\n}'.replace("%%", os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))))
 
 language = "fr" if input("Choose a language (EN/FR) : ")[:2].lower() == "fr" else "en"
 translations = {
