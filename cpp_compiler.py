@@ -366,7 +366,7 @@ class CppCompiler(Compiler):
 		final_compiled_code += "\n\nint main() {\n"
 
 		# We add the srand(time(NULL)) statement if we are using random
-		if "aleatoire(" in self.app.current_text:
+		if "aleatoire(" in self.app.current_text or "alea(" in self.app.current_text:
 			final_compiled_code += self.tab_char + "srand(time(NULL));\n"
 
 		# We then add each instruction along with a tab
