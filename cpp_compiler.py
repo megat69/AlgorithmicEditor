@@ -296,7 +296,8 @@ class CppCompiler(Compiler):
 		for algo_function, cpp_function in (
 				("puissance(", "pow("),
 				("racine(", "sqrt("),
-				("aleatoire(", "rand(")
+				("aleatoire(", "rand("),
+				("alea(", "rand(")
 		):
 			self.instructions_list[line_number] = self.instructions_list[line_number].replace(algo_function, cpp_function)
 
@@ -342,7 +343,7 @@ class CppCompiler(Compiler):
 			final_compiled_code += "#include <math.h>\n"
 
 		# If we use random in the code, we import stdlib.h and time.h
-		if 'aleatoire(' in self.app.current_text:
+		if 'aleatoire(' in self.app.current_text or 'alea(' in self.app.current_text:
 			final_compiled_code += "#include <stdlib.h>\n#include <time.h>\n"
 
 		# If we use the std namespace, we put it there
