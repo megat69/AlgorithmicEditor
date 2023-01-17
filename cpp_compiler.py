@@ -21,9 +21,20 @@ class CppCompiler(Compiler):
 		self.constants = []
 		# Creates a list of function lines
 		self.fxtext = []
+		# Creates the return code
+		self.return_code = "0"
 
 		# Creates some use variables
 		self.app = app
+
+
+	def prepare_new_compilation(self):
+		"""
+		Resets everything before compilation.
+		"""
+		self.constants.clear()
+		self.fxtext.clear()
+		self.return_code = "0"
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -64,6 +75,10 @@ class CppCompiler(Compiler):
 		# If the last element is a case or default statement, we replace the end with a break statement
 		if last_elem in ("case", "default"):
 			self.instructions_list[line_number] = self.tab_char + "break;"
+
+		elif last_elem == "fx":
+			self.fxtext.append("}")
+			self.instructions_list[line_number] = ""
 
 		# Otherwise it's just a curly bracket
 		else:
@@ -266,6 +281,61 @@ class CppCompiler(Compiler):
 			self.instructions_list[line_number] = f"void {instruction_params[1]}({params}) " + "{"
 
 
+
+	def analyze_struct(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Creates a structure definition """
+		# Prevents a crash when extra spaces are at the end of the line
+		while instruction_params[-1] == "": instruction_params.pop()
+
+		# Function to handle the parameters, whether they are arrays or standard variables
+		def handle_params(instruction_params):
+			# The list of parameters
+			params = []
+
+			# Fetches each parameter (going two by two, because each param goes <type> <name>)
+			for i in range(1, len(instruction_params), 2):
+				# Adds the parameter to the list of parameters
+				params.append("")
+
+				# Try block in case there is an IndexError
+				try:
+					# If the param is NOT an array
+					if not instruction_params[i].startswith("arr"):
+						# We add it to the params as the type, followed by the name, of whose we remove the
+						# first char if it is '&' (no datar mode in algorithmic)
+						params[-1] += self.var_types[instruction_params[i]] + " " + instruction_params[i + 1][instruction_params[i][0] == '&':]
+
+					# If the param is an array, we parse it correctly
+					else:
+						current_array_param = instruction_params[i].split("_")
+						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
+
+				# If an IndexError is encountered, we remove the last param from the params list and continue
+				except IndexError:
+					params.pop()
+
+			# We return back the parameters
+			return params
+
+		# Getting the parameters string
+		params = handle_params(instruction_params)
+
+		# Branching on whether it is a procedure or a function
+		# We write the line as a structure
+		self.constants.append("")
+		self.constants[-1] += f"struct {instruction_params[0]}" + " {\n"
+		for param in params:
+			self.constants[-1] += self.tab_char * (len(self.instructions_stack) + 1) + param + ";\n"
+		self.constants[-1] += self.tab_char * len(self.instructions_stack) + "}"
+		self.instructions_list[line_number] = ""
+
+
+	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Changes the return code at the end of the function. """
+		self.instructions_list[line_number] = ""
+		self.return_code = " ".join(instruction_params)
+
+
 	def final_trim(self, instruction_name:str, line_number:int):
 		""" Adds the line ends, transforms the function names, and adds the correct indentation """
 		# Adds the end of line
@@ -275,7 +345,8 @@ class CppCompiler(Compiler):
 		for algo_function, cpp_function in (
 				("puissance(", "pow("),
 				("racine(", "sqrt("),
-				("aleatoire(", "rand(")
+				("aleatoire(", "rand("),
+				("alea(", "rand(")
 		):
 			self.instructions_list[line_number] = self.instructions_list[line_number].replace(algo_function, cpp_function)
 
@@ -302,8 +373,8 @@ class CppCompiler(Compiler):
 
 		# Adds it to fxtext if necessary
 		if len(self.instructions_stack) != 0 and (
-				"fx" in self.instructions_stack or
-				(instruction_name == "end" and self.instructions_stack[-1] == "fx")
+			"fx" in self.instructions_stack or
+			(instruction_name == "end" and self.instructions_stack[-1] == "fx")
 		):
 			self.fxtext.append(self.instructions_list[line_number])
 			if instruction_name == "end":
@@ -321,7 +392,7 @@ class CppCompiler(Compiler):
 			final_compiled_code += "#include <math.h>\n"
 
 		# If we use random in the code, we import stdlib.h and time.h
-		if 'aleatoire(' in self.app.current_text:
+		if 'aleatoire(' in self.app.current_text or 'alea(' in self.app.current_text:
 			final_compiled_code += "#include <stdlib.h>\n#include <time.h>\n"
 
 		# If we use the std namespace, we put it there
@@ -338,21 +409,21 @@ class CppCompiler(Compiler):
 			final_compiled_code += "\n"
 
 		# We then add the function's text
-		final_compiled_code += "\n".join(self.fxtext)
+		final_compiled_code += "\n".join(text for text in self.fxtext if text.replace(self.tab_char, "") != ";")
 
 		# We start to add the main function
 		final_compiled_code += "\n\nint main() {\n"
 
 		# We add the srand(time(NULL)) statement if we are using random
-		if "aleatoire(" in self.app.current_text:
+		if "aleatoire(" in self.app.current_text or "alea(" in self.app.current_text:
 			final_compiled_code += self.tab_char + "srand(time(NULL));\n"
 
 		# We then add each instruction along with a tab
 		for instruction in self.instructions_list:
-			if instruction not in (";", ""):
+			if instruction.replace(self.tab_char, "") != ";" and instruction != "":
 				final_compiled_code += self.tab_char + instruction + "\n"
 
 		# We complete the compilation
-		final_compiled_code += self.tab_char + "return 0;\n}"
+		final_compiled_code += self.tab_char + f"return {self.return_code};\n" + "}"
 
 		return final_compiled_code

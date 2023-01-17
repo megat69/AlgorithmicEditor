@@ -1,5 +1,4 @@
 import curses, _curses
-import re
 import string
 import sys
 import pyperclip
@@ -14,9 +13,9 @@ from utils import display_menu, input_text, get_screen_middle_coords, browse_fil
 
 
 class App:
-	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
+	def __init__(self, command_symbol: str = ":", logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
-		self.stdscr : _curses.window = None  # The standard screen (see curses library)
+		self.stdscr: _curses.window = None  # The standard screen (see curses library)
 		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
 		self.lines = 1  # The number of lines containing text in the window
 		self.current_index = 0  # The current index of the cursor
@@ -38,7 +37,7 @@ class App:
 		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
 		self.tab_char = "\t"  # The tab character
 		self.command_symbol = command_symbol  # The symbol triggering a command
-		self.using_namespace_std = using_namespace_std  # Whether to use the std namespace during the C++ compilation
+		self.using_namespace_std = False  # Whether to use the std namespace during the C++ compilation
 		self.logs = logs  # Whether to log
 		self.min_display_line = 0  # The minimum line displayed on the window (scroll)
 		self.cur = tuple()  # The cursor
@@ -54,6 +53,18 @@ class App:
 		else:
 			browse_files.last_browsed_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
 
+		# Changes the namespace std use based on its setting last time
+		if "using_namespace_std" in self.plugins_config["BASE_CONFIG"].keys():
+			self.using_namespace_std = self.plugins_config["BASE_CONFIG"]["using_namespace_std"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = False
+
+		# Changes the tab character based on its setting last time
+		if "tab_char" in self.plugins_config["BASE_CONFIG"].keys():
+			self.tab_char = self.plugins_config["BASE_CONFIG"]["tab_char"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["tab_char"] = self.tab_char
+
 		# Preparing the color pairs
 		self.color_pairs = {
 			"statement": 1,
@@ -64,7 +75,7 @@ class App:
 		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
-			"function": ("fx", "fx_start", "return"),
+			"function": ("fx", "fx_start", "return", "CODE_RETOUR", "struct"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input", "arr")
 		}  # What each type of statement corresponds to
@@ -78,7 +89,7 @@ class App:
 		The main function, wrapped around by curses.
 		"""
 		# Curses initialization
-		self.stdscr : _curses.window = stdscr
+		self.stdscr: _curses.window = stdscr
 		self.stdscr.clear()
 		self.rows, self.cols = self.stdscr.getmaxyx()
 
@@ -142,7 +153,8 @@ class App:
 				"default": "Autrement",
 				"fx": "Fonction",
 				"proc": "Procédure",
-				"const": "Constante"
+				"const": "Constante",
+				"struct": "Structure"
 			},
 			{
 				"int": "Entier",
@@ -151,12 +163,12 @@ class App:
 				"bool": "Booléen",
 				"char": "Caractère"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR"),
 			self.stdscr,
 			self.tab_char
 		)
 		self.compilers["C++"] = CppCompiler(
-			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc'),
+			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc', 'struct'),
 			{
 				"int": "int",
 				"float": "float",
@@ -164,7 +176,7 @@ class App:
 				"bool": "bool",
 				"char": "char"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR"),
 			self.stdscr,
 			self
 		)
@@ -456,6 +468,7 @@ class App:
 		Modifies the tab character.
 		"""
 		self.tab_char = input_text(self.stdscr, position_x=3)
+		self.plugins_config["BASE_CONFIG"]["tab_char"] = self.tab_char
 
 
 	def clear_text(self):
@@ -673,7 +686,53 @@ class App:
 					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
 					splitted_line[3],
 					curses.color_pair(self.color_pairs["statement"])
-				)
+				)# If the instruction is a function declaration, we highlight each types in the declaration
+
+		# If the instruction is a structure
+		elif splitted_line[0] == "struct" and len(splitted_line) > 1:
+			# Highlighting the structure's name
+			self.stdscr.addstr(
+				i, len(str(self.lines)) + 8,
+				splitted_line[1],
+				curses.color_pair(5)
+			)
+
+			# Highlighting each argument's type
+			for j in range(2, len(splitted_line), 2):
+				if splitted_line[j] in self.color_control_flow["variable"]:
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
+					)
+
+				# If the argument's type is array
+				elif splitted_line[j].startswith("arr"):
+					# Highlighting the array type in red
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						"arr", curses.color_pair(self.color_pairs["statement"])
+					)
+					# Highlighting the underscore
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 3,
+						"_", curses.color_pair(self.color_pairs["function"])
+					)
+					# Highlighting the var type in yellow
+					try:
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4,
+							splitted_line[j][4:4 + len(splitted_line[j].split("_")[1])], curses.color_pair(self.color_pairs["variable"])
+						)
+					except IndexError: pass
+					# Highlighting the underscore
+					try:
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
+							"_", curses.color_pair(self.color_pairs["function"])
+						)
+					except IndexError: pass
+
+
 
 
 	def toggle_std_use(self):
@@ -682,6 +741,7 @@ class App:
 		"""
 		self.using_namespace_std = not self.using_namespace_std
 		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std} ")
+		self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = self.using_namespace_std
 
 
 	def log(self, *args, **kwargs):
@@ -857,11 +917,11 @@ class App:
 		# Compiles the code through the Compiler class's compile method
 		final_compiled_code = self.compilers["algorithmic"].compile(self.instructions_list)
 
-		if noshow is False:
+		if noshow is False and final_compiled_code is not None:
 			# Shows the compilation result to the user
 			self.stdscr.clear()
 			try:
-				self.stdscr.addstr(final_compiled_code)
+				self.stdscr.addstr(0, 0, final_compiled_code)
 
 				# Calls each plugins' update_on_compilation method
 				for plugin in self.plugins.values():
@@ -898,7 +958,7 @@ class App:
 		self.stdscr.clear()
 		self.stdscr.refresh()
 		try:
-			self.stdscr.addstr(final_compiled_code)
+			self.stdscr.addstr(0, 0, final_compiled_code)
 		except curses.error: pass
 
 		# Calls each plugins' update_on_compilation method
@@ -935,10 +995,13 @@ if __name__ == "__main__":
 	try:
 		# Instantiates the app
 		app = App(
-			command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
-			using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
+			command_symbol=":" if "--command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
 			logs="--nologs" not in sys.argv
 		)
+
+		# Setting the use for the std namespace if there was an argument for it
+		if "--using_namespace_std" in sys.argv:
+			app.using_namespace_std = sys.argv[sys.argv.index("--using_namespace_std") + 1]
 
 		# If a file was specified as argument
 		if "--file" in sys.argv:

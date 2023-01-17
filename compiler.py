@@ -31,6 +31,9 @@ class Compiler:
 		Dispatches the compilation to the correct functions based on the instruction params.
 		:param instructions_list: The list of instructions, a list of strings.
 		"""
+		# Calls the pre-compilation cleaning method
+		self.prepare_new_compilation()
+
 		# Keeps as an attribute the list of instructions
 		self.instructions_list = instructions_list
 
@@ -77,6 +80,13 @@ class Compiler:
 
 		# Finally returns the compiled code
 		return final_compiled_code
+
+
+	def prepare_new_compilation(self):
+		"""
+		Gets called before compilation so the compiler can clean itself.
+		"""
+		pass
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -229,6 +239,20 @@ class Compiler:
 	def analyze_arr(self, instruction_name:str, instruction_params:list, line_number:int):
 		"""
 		Analyzes local variables.
+		"""
+		pass
+
+
+	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes the return code.
+		"""
+		pass
+
+
+	def analyze_struct(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a structure.
 		"""
 		pass
 
