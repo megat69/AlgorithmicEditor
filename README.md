@@ -295,6 +295,34 @@ input age
 ```
 
 
+### Return code / Code de retour
+***ENGLISH***<br>
+This C++ exclusive feature will allow you to give your program a custom return code.
+
+Syntax :<br>
+```
+CODE_RETOUR <int>
+```
+
+Example :<br>
+```
+CODE_RETOUR 69
+```
+
+***FRANÇAIS***<br>
+Cette fonctionnalité exclusive à C++ vous permet de donner à votre programme un code de retour exclusif.
+
+Syntaxe :<br>
+```
+CODE_RETOUR <int>
+```
+
+Exemple :<br>
+```
+CODE_RETOUR 69
+```
+
+
 ### Switch / Selon
 ***ENGLISH***<br>
 The `switch` statement allows to have a simpler algorithm than a bunch of if/elif/else statements.<br>

@@ -237,6 +237,11 @@ class AlgorithmicCompiler(Compiler):
 			self.instructions_list[line_number] = f"Procédure {instruction_params[1]} ({params})"
 
 
+	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Analyzes the return code. """
+		self.instructions_list[line_number] = ""
+
+
 	def var_assignation(self, instruction:list, line_number:int):
 		"""
 		Assigns/reassigns a variable.

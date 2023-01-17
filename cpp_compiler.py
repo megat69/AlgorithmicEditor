@@ -21,6 +21,8 @@ class CppCompiler(Compiler):
 		self.constants = []
 		# Creates a list of function lines
 		self.fxtext = []
+		# Creates the return code
+		self.return_code = "0"
 
 		# Creates some use variables
 		self.app = app
@@ -32,6 +34,7 @@ class CppCompiler(Compiler):
 		"""
 		self.constants.clear()
 		self.fxtext.clear()
+		self.return_code = "0"
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -278,6 +281,12 @@ class CppCompiler(Compiler):
 			self.instructions_list[line_number] = f"void {instruction_params[1]}({params}) " + "{"
 
 
+	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Changes the return code at the end of the function. """
+		self.instructions_list[line_number] = ""
+		self.return_code = " ".join(instruction_params)
+
+
 	def final_trim(self, instruction_name:str, line_number:int):
 		""" Adds the line ends, transforms the function names, and adds the correct indentation """
 		# Adds the end of line
@@ -365,8 +374,6 @@ class CppCompiler(Compiler):
 				final_compiled_code += self.tab_char + instruction + "\n"
 
 		# We complete the compilation
-		final_compiled_code += self.tab_char + "return 0;\n}"
+		final_compiled_code += self.tab_char + f"return {self.return_code};\n" + "}"
 
 		return final_compiled_code
-
-# TODO : Ajouter CODE_RETOUR: <int>

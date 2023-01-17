@@ -63,7 +63,7 @@ class App:
 		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
-			"function": ("fx", "fx_start", "return"),
+			"function": ("fx", "fx_start", "return", "CODE_RETOUR"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input", "arr")
 		}  # What each type of statement corresponds to
@@ -150,7 +150,7 @@ class App:
 				"bool": "Booléen",
 				"char": "Caractère"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR"),
 			self.stdscr,
 			self.tab_char
 		)
@@ -163,7 +163,7 @@ class App:
 				"bool": "bool",
 				"char": "char"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR"),
 			self.stdscr,
 			self
 		)
