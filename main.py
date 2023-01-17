@@ -59,6 +59,12 @@ class App:
 		else:
 			self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = False
 
+		# Changes the tab character based on its setting last time
+		if "tab_char" in self.plugins_config["BASE_CONFIG"].keys():
+			self.tab_char = self.plugins_config["BASE_CONFIG"]["tab_char"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["tab_char"] = self.tab_char
+
 		# Preparing the color pairs
 		self.color_pairs = {
 			"statement": 1,
@@ -462,6 +468,7 @@ class App:
 		Modifies the tab character.
 		"""
 		self.tab_char = input_text(self.stdscr, position_x=3)
+		self.plugins_config["BASE_CONFIG"]["tab_char"] = self.tab_char
 
 
 	def clear_text(self):
