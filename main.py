@@ -1,5 +1,4 @@
 import curses, _curses
-import re
 import string
 import sys
 import pyperclip
@@ -16,7 +15,7 @@ from utils import display_menu, input_text, get_screen_middle_coords, browse_fil
 class App:
 	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
-		self.stdscr : _curses.window = None  # The standard screen (see curses library)
+		self.stdscr: _curses.window = None  # The standard screen (see curses library)
 		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
 		self.lines = 1  # The number of lines containing text in the window
 		self.current_index = 0  # The current index of the cursor
@@ -78,7 +77,7 @@ class App:
 		The main function, wrapped around by curses.
 		"""
 		# Curses initialization
-		self.stdscr : _curses.window = stdscr
+		self.stdscr: _curses.window = stdscr
 		self.stdscr.clear()
 		self.rows, self.cols = self.stdscr.getmaxyx()
 
@@ -861,7 +860,7 @@ class App:
 			# Shows the compilation result to the user
 			self.stdscr.clear()
 			try:
-				self.stdscr.addstr(final_compiled_code)
+				self.stdscr.addstr(0, 0, final_compiled_code)
 
 				# Calls each plugins' update_on_compilation method
 				for plugin in self.plugins.values():
@@ -898,7 +897,7 @@ class App:
 		self.stdscr.clear()
 		self.stdscr.refresh()
 		try:
-			self.stdscr.addstr(final_compiled_code)
+			self.stdscr.addstr(0, 0, final_compiled_code)
 		except curses.error: pass
 
 		# Calls each plugins' update_on_compilation method
@@ -958,7 +957,7 @@ if __name__ == "__main__":
 			import signal
 			signal.signal(signal.SIGHUP, partial(generate_crash_file, app))
 
-		# Wr launch the app
+		# We launch the app
 		curses.wrapper(app.main)
 
 	# If a crash occurs, generates a .crash file

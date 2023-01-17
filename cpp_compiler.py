@@ -26,6 +26,14 @@ class CppCompiler(Compiler):
 		self.app = app
 
 
+	def prepare_new_compilation(self):
+		"""
+		Resets everything before compilation.
+		"""
+		self.constants.clear()
+		self.fxtext.clear()
+
+
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Constante : Nom : Paramètres """
 		# Adds a constant to the list of constants
@@ -64,6 +72,10 @@ class CppCompiler(Compiler):
 		# If the last element is a case or default statement, we replace the end with a break statement
 		if last_elem in ("case", "default"):
 			self.instructions_list[line_number] = self.tab_char + "break;"
+
+		elif last_elem == "fx":
+			self.fxtext.append("}")
+			self.instructions_list[line_number] = ""
 
 		# Otherwise it's just a curly bracket
 		else:
@@ -302,8 +314,8 @@ class CppCompiler(Compiler):
 
 		# Adds it to fxtext if necessary
 		if len(self.instructions_stack) != 0 and (
-				"fx" in self.instructions_stack or
-				(instruction_name == "end" and self.instructions_stack[-1] == "fx")
+			"fx" in self.instructions_stack or
+			(instruction_name == "end" and self.instructions_stack[-1] == "fx")
 		):
 			self.fxtext.append(self.instructions_list[line_number])
 			if instruction_name == "end":
@@ -338,7 +350,7 @@ class CppCompiler(Compiler):
 			final_compiled_code += "\n"
 
 		# We then add the function's text
-		final_compiled_code += "\n".join(self.fxtext)
+		final_compiled_code += "\n".join(text for text in self.fxtext if text.replace(self.tab_char, "") != ";")
 
 		# We start to add the main function
 		final_compiled_code += "\n\nint main() {\n"
@@ -349,10 +361,12 @@ class CppCompiler(Compiler):
 
 		# We then add each instruction along with a tab
 		for instruction in self.instructions_list:
-			if instruction not in (";", ""):
+			if instruction.replace(self.tab_char, "") != ";" and instruction != "":
 				final_compiled_code += self.tab_char + instruction + "\n"
 
 		# We complete the compilation
 		final_compiled_code += self.tab_char + "return 0;\n}"
 
 		return final_compiled_code
+
+# TODO : Ajouter CODE_RETOUR: <int>
