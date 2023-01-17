@@ -237,6 +237,55 @@ class AlgorithmicCompiler(Compiler):
 			self.instructions_list[line_number] = f"Procédure {instruction_params[1]} ({params})"
 
 
+	def analyze_struct(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Creates a function definition """
+		# Prevents a crash when extra spaces are at the end of the line
+		while instruction_params[-1] == "": instruction_params.pop()
+
+		# Function to handle the parameters, whether they are arrays or standard variables
+		def handle_params(instruction_params):
+			# The list of parameters
+			params = []
+
+			# Fetches each parameter (going two by two, because each param goes <type> <name>)
+			for i in range(1, len(instruction_params), 2):
+				# Adds the parameter to the list of parameters
+				try:
+					params.append(f"{instruction_params[i + 1]} : ")
+				except IndexError:
+					self.error(f"Error on line {line_number} : The structure definition contains an unnamed parameter.")
+					return []
+
+				# Try block in case there is an IndexError
+				try:
+					# If the param is NOT an array
+					if not instruction_params[i].startswith("arr"):
+						# We add it to the params as the type, followed by the name, of whose we remove the
+						# first char if it is '&' (no datar mode in algorithmic)
+						params[-1] += self.var_types[instruction_params[i]][instruction_params[i][0] == '&':]
+
+					# If the param is an array, we parse it correctly
+					else:
+						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
+						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
+
+				# If an IndexError is encountered, we remove the last param from the params list and continue
+				except IndexError:
+					params.pop()
+
+			# We return the params
+			return params
+
+		# Getting the parameters string
+		params = handle_params(instruction_params)
+
+		# We write the line as a structure
+		self.instructions_list[line_number] = f"Structure {instruction_params[0]}\n"
+		for param in params:
+			self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 2) + param + "\n"
+		self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 1)+ "Fin Structure"
+
+
 	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Analyzes the return code. """
 		self.instructions_list[line_number] = ""

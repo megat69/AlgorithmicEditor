@@ -69,7 +69,7 @@ class App:
 		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
-			"function": ("fx", "fx_start", "return", "CODE_RETOUR"),
+			"function": ("fx", "fx_start", "return", "CODE_RETOUR", "struct"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input", "arr")
 		}  # What each type of statement corresponds to
@@ -147,7 +147,8 @@ class App:
 				"default": "Autrement",
 				"fx": "Fonction",
 				"proc": "Procédure",
-				"const": "Constante"
+				"const": "Constante",
+				"struct": "Structure"
 			},
 			{
 				"int": "Entier",
@@ -678,7 +679,53 @@ class App:
 					i, len(str(self.lines)) + len(" ".join(splitted_line[:3])) + 2,
 					splitted_line[3],
 					curses.color_pair(self.color_pairs["statement"])
-				)
+				)# If the instruction is a function declaration, we highlight each types in the declaration
+
+		# If the instruction is a structure
+		elif splitted_line[0] == "struct" and len(splitted_line) > 1:
+			# Highlighting the structure's name
+			self.stdscr.addstr(
+				i, len(str(self.lines)) + 8,
+				splitted_line[1],
+				curses.color_pair(5)
+			)
+
+			# Highlighting each argument's type
+			for j in range(2, len(splitted_line), 2):
+				if splitted_line[j] in self.color_control_flow["variable"]:
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
+					)
+
+				# If the argument's type is array
+				elif splitted_line[j].startswith("arr"):
+					# Highlighting the array type in red
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])),
+						"arr", curses.color_pair(self.color_pairs["statement"])
+					)
+					# Highlighting the underscore
+					self.stdscr.addstr(
+						i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 3,
+						"_", curses.color_pair(self.color_pairs["function"])
+					)
+					# Highlighting the var type in yellow
+					try:
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4,
+							splitted_line[j][4:4 + len(splitted_line[j].split("_")[1])], curses.color_pair(self.color_pairs["variable"])
+						)
+					except IndexError: pass
+					# Highlighting the underscore
+					try:
+						self.stdscr.addstr(
+							i, len(str(self.lines)) + 2 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
+							"_", curses.color_pair(self.color_pairs["function"])
+						)
+					except IndexError: pass
+
+
 
 
 	def toggle_std_use(self):
@@ -863,7 +910,7 @@ class App:
 		# Compiles the code through the Compiler class's compile method
 		final_compiled_code = self.compilers["algorithmic"].compile(self.instructions_list)
 
-		if noshow is False:
+		if noshow is False and final_compiled_code is not None:
 			# Shows the compilation result to the user
 			self.stdscr.clear()
 			try:
