@@ -162,7 +162,7 @@ class App:
 			self.tab_char
 		)
 		self.compilers["C++"] = CppCompiler(
-			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc'),
+			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc', 'struct'),
 			{
 				"int": "int",
 				"float": "float",

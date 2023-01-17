@@ -283,7 +283,7 @@ class AlgorithmicCompiler(Compiler):
 		self.instructions_list[line_number] = f"Structure {instruction_params[0]}\n"
 		for param in params:
 			self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 2) + param + "\n"
-		self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 1)+ "Fin Structure"
+		self.instructions_list[line_number] += self.tab_char * (len(self.instructions_stack) + 1) + "Fin Structure"
 
 
 	def analyze_CODE_RETOUR(self, instruction_name:str, instruction_params:list, line_number:int):
