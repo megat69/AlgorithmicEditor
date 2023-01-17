@@ -13,7 +13,7 @@ from utils import display_menu, input_text, get_screen_middle_coords, browse_fil
 
 
 class App:
-	def __init__(self, command_symbol: str = ":", using_namespace_std: bool = False, logs: bool = True):
+	def __init__(self, command_symbol: str = ":", logs: bool = True):
 		self.current_text = ""  # The text being displayed in the window
 		self.stdscr: _curses.window = None  # The standard screen (see curses library)
 		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
@@ -37,7 +37,7 @@ class App:
 		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
 		self.tab_char = "\t"  # The tab character
 		self.command_symbol = command_symbol  # The symbol triggering a command
-		self.using_namespace_std = using_namespace_std  # Whether to use the std namespace during the C++ compilation
+		self.using_namespace_std = False  # Whether to use the std namespace during the C++ compilation
 		self.logs = logs  # Whether to log
 		self.min_display_line = 0  # The minimum line displayed on the window (scroll)
 		self.cur = tuple()  # The cursor
@@ -52,6 +52,12 @@ class App:
 			browse_files.last_browsed_path = self.plugins_config["BASE_CONFIG"]["default_save_location"]
 		else:
 			browse_files.last_browsed_path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
+
+		# Changes the namespace std use based on its setting last time
+		if "using_namespace_std" in self.plugins_config["BASE_CONFIG"].keys():
+			self.using_namespace_std = self.plugins_config["BASE_CONFIG"]["using_namespace_std"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = False
 
 		# Preparing the color pairs
 		self.color_pairs = {
@@ -681,6 +687,7 @@ class App:
 		"""
 		self.using_namespace_std = not self.using_namespace_std
 		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std} ")
+		self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = self.using_namespace_std
 
 
 	def log(self, *args, **kwargs):
@@ -934,10 +941,13 @@ if __name__ == "__main__":
 	try:
 		# Instantiates the app
 		app = App(
-			command_symbol=":" if "-command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
-			using_namespace_std=False if "--using_namespace_std" not in sys.argv else sys.argv[sys.argv.index("--using_namespace_std") + 1],
+			command_symbol=":" if "--command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
 			logs="--nologs" not in sys.argv
 		)
+
+		# Setting the use for the std namespace if there was an argument for it
+		if "--using_namespace_std" in sys.argv:
+			app.using_namespace_std = sys.argv[sys.argv.index("--using_namespace_std") + 1]
 
 		# If a file was specified as argument
 		if "--file" in sys.argv:
