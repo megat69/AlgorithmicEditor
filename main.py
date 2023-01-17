@@ -6,6 +6,7 @@ from functools import partial
 import os
 import importlib
 import json
+from typing import Union
 
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
@@ -903,7 +904,7 @@ class App:
 			self.apply_stylings()
 
 
-	def compile(self, noshow:bool=False) -> None | str:
+	def compile(self, noshow:bool=False) -> Union[None, str]:
 		"""
 		Compiles the inputted text into algorithmic code.
 		:param noshow: Whether not to show the compiled code.
