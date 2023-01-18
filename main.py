@@ -69,13 +69,20 @@ class App:
 
 
 		# Getting the theme
-		theme_parser = ConfigParser()
-		theme_parser.read("theme.ini")
+		self._theme_parser = ConfigParser()
+		self._theme_parser.read("theme.ini")
 
 		# Preparing the color pairs
 		self.color_pairs = {
-			pair_name: theme_parser["PAIRS"].getint(pair_name)
-			for pair_name in ("statement", "function", "variable", "instruction", "strings", "special_string")
+			pair_name: self._theme_parser["PAIRS"].getint(pair_name, fallback_value)
+			for pair_name, fallback_value in (
+				("statement", 1),
+				("function", 2),
+				("variable", 3),
+				("instruction", 4),
+				("strings", 3),
+				("special_string", 5)
+			)
 		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
@@ -120,11 +127,34 @@ class App:
 		self.stdscr.refresh()
 
 		# Declaring the color pairs
-		curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-		curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
-		curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-		curses.init_pair(4, curses.COLOR_CYAN, curses.COLOR_BLACK)
-		curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK)
+		for i in range(1, 9):
+			# Finds each pair of colors in the theme
+			current_pair = self._theme_parser["COLORS"].get(f"pair_{i}")
+
+			# If the current pair is defined in the theme
+			if current_pair is not None:
+				# We turn it into an actual pair by separating the values on the comma
+				current_pair = current_pair.split(",")
+
+				# We check that this is indeed a pair, otherwise raise an error
+				if len(current_pair) != 2:
+					raise Exception(f"Error in theme pair_{i} : Pairs in should be composed of two colors separated by "
+									f"a comma (',') ; found {current_pair}")
+
+				# Then we sanitize the values by stripping them from whitespaces and putting them in uppercase
+				for j in range(2):
+					current_pair[j] = current_pair[j].strip().upper()
+
+					# We also check if this color exists in curses, and otherwise raise an exception
+					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
+						raise Exception(f"Error in theme pair_{i} color {j} : {current_pair[j]} is not a curses color.")
+
+				# We then initialize the pair by finding the corresponding curses color
+				curses.init_pair(
+					i,
+					getattr(curses, f"COLOR_{current_pair[0]}"),
+					getattr(curses, f"COLOR_{current_pair[1]}")
+				)
 
 		# Initializes each plugin, if they have an init function
 		msg_string = "Loaded plugin {}"
