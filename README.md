@@ -414,8 +414,77 @@ end
 print color
 ```
 
+### Structures
+***ENGLISH***<br>
+Structures are like a mold, which allows you to create objects containing the same set of variables.
+
+A structure starts with the keyword `struct`, followed by the name of the structure, then all the variable it contains (type and name).
+
+Syntax :<br>
+```
+struct Flower int price string name
+```
+
+Initializing a structure starts with the keyword `init`, followed by the type of structure you are declaring, and the name of the variable this structure instance will be stored into.
+
+You can also follow that by adding the name of some elements of the structure and their value to quickly initialize them without adding too much code.
+
+Syntax :<br>
+```
+init Flower flower price 5 name "Rose"
+```
+
+Example :<br>
+```
+struct Flower int price string name
+
+init Flower flower price 5 name "Rose"
+
+print "You are about to buy a " & flower.name & " for " & flower.price & " euros."
+
+if flower.price > 5
+print "Ouch"
+else
+print "Cheap"
+end
+```
+
+***FRANÇAIS***<br>
+Les structures sont un moule, qui vous permet de créer des objects contenant les mêmes variables.
+
+Une structure commence avec le mot-clé `struct`, suivi du nom donné à la structure, puis toutes les variables contenues à l'intérieur (type et nom).
+
+Syntaxe :<br>
+```
+struct Fleur int prix string nom
+```
+
+L'initialisation d'une structure commence par le mot-clé `init`, suivi du type de structure que vous déclarez, et le nom de la variable dans laquelle cette structure sera contenue.
+
+Vous pouvez également ajouter après le nom de certains éléments (ou tous) de la structure suivi d'une valeur pour les initialiser rapidement sans rajouter trop de code.
+
+Syntax :<br>
+```
+init Fleur fleur prix 5 nom "Rose"
+```
+
+Example :<br>
+```
+struct Fleur int prix string nom
+
+init Fleur fleur prix 5 nom "Rose"
+
+print "Vous allez acheter un(e) " & fleur.nom & " pour " & fleur.prix & " euros."
+
+if fleur.prix > 5
+print "Ouch"
+else
+print "Abordable !"
+end
+```
+
 ### Functions & Procedures / Fonctions et Procédures
-***ENGLISH***
+***ENGLISH***<br>
 Functions are pieces of code returning a specific value that are reusable anywhere in your code.<br>
 Procedures are special functions which simply do an action, but return nothing.<br>
 Functions and Procedures can have any number of arguments passed to them.
@@ -471,7 +540,7 @@ print "(ENDL)"
 end
 ```
 
-***FRANÇAIS***
+***FRANÇAIS***<br>
 Les fonctions sont des bouts de code retournant une valeur spécifique qui sont réutilisables partout dans le code.<br>
 Les procédures sont des fonctions particulières qui effectuent simplement une action, mais ne retourne rien.<br>
 Les fonctions et procédures peuvent avoir autant de paramètres que voulu.
