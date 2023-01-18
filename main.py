@@ -622,6 +622,33 @@ class App:
 				curses.color_pair(self.color_pairs["statement"])
 			)
 
+
+		# Function to find all the instances of a substring in a string
+		def find_all(full_string: str, search: str):
+			"""
+			Finds all instances of a substring in a string.
+			:param full_string: The string to search into.
+			:param search: The string of whom to find all the instances.
+			:return: A generator containing all the indexes of the substring.
+			"""
+			start = 0
+			while True:
+				start = full_string.find(search, start)
+				if start == -1: return
+				yield start
+				start += len(search)
+
+
+		# Finds all instances of built-in functions to color them green
+		for builtin_function in ("puissance", "racine", "aleatoire", "alea"):
+			for builtin_function_index in find_all(line, f"{builtin_function}("):
+				self.stdscr.addstr(
+					i, minlen + builtin_function_index,
+					builtin_function,
+					curses.color_pair(self.color_pairs["special_string"])
+				)
+
+
 		# If the instruction is a function declaration, we highlight each types in the declaration
 		if splitted_line[0] == "fx" and len(splitted_line) > 1:
 			# Highlighting the function's return type; as statement if void or variable otherwise
