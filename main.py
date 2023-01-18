@@ -34,6 +34,7 @@ class App:
 			"h": (self.display_commands, "Commands list", False),
 			"cl": (self.clear_text, "Clear editor", True),
 			"is": (self.insert_text, "Insert file", True),
+			"rlt": (self.reload_theme, "Reload theme", True),
 			# To add the command symbol to the text
 			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
@@ -335,6 +336,19 @@ class App:
 					getattr(curses, f"COLOR_{current_pair[0]}"),
 					getattr(curses, f"COLOR_{current_pair[1]}")
 				)
+
+
+	def reload_theme(self):
+		"""
+		Reloads the theme.
+		"""
+		self._theme_parser.read("theme.ini")
+		self.color_pairs = {
+			pair_name: self._theme_parser["PAIRS"].getint(pair_name, fallback_value)
+			for pair_name, fallback_value in self.color_pairs.items()
+		}
+		self._declare_color_pairs()
+
 
 	def quit(self) -> None:
 		"""
