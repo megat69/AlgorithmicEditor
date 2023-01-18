@@ -280,16 +280,20 @@ class CppCompiler(Compiler):
 
 				# Try block in case there is an IndexError
 				try:
+					# If the param is an array, we parse it correctly
+					if instruction_params[i].startswith("arr"):
+						current_array_param = instruction_params[i].split("_")
+						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
+
+					# If the param is a structure, we parse it correctly
+					elif instruction_params[i].startswith("struct_"):
+						params[-1] += "struct " * self.use_struct_keyword + f"{instruction_params[i][7:]} {instruction_params[i + 1]}"
+
 					# If the param is NOT an array
-					if not instruction_params[i].startswith("arr"):
+					else:
 						# We add it to the params as the type, followed by the name, of whose we remove the
 						# first char if it is '&' (no datar mode in algorithmic)
 						params[-1] += self.var_types[instruction_params[i]] + " " + instruction_params[i + 1][instruction_params[i][0] == '&':]
-
-					# If the param is an array, we parse it correctly
-					else:
-						current_array_param = instruction_params[i].split("_")
-						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
 
 				# If an IndexError is encountered, we remove the last param from the params list and continue
 				except IndexError:
@@ -343,16 +347,20 @@ class CppCompiler(Compiler):
 
 				# Try block in case there is an IndexError
 				try:
+					# If the param is an array, we parse it correctly
+					if instruction_params[i].startswith("arr"):
+						current_array_param = instruction_params[i].split("_")
+						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
+
+					# If the param is a structure, we parse it correctly
+					elif instruction_params[i].startswith("struct_"):
+						params[-1] += "struct " * self.use_struct_keyword + f"{instruction_params[i][7:]} {instruction_params[i + 1]}"
+
 					# If the param is NOT an array
-					if not instruction_params[i].startswith("arr"):
+					else:
 						# We add it to the params as the type, followed by the name, of whose we remove the
 						# first char if it is '&' (no datar mode in algorithmic)
 						params[-1] += self.var_types[instruction_params[i]] + " " + instruction_params[i + 1][instruction_params[i][0] == '&':]
-
-					# If the param is an array, we parse it correctly
-					else:
-						current_array_param = instruction_params[i].split("_")
-						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
 
 				# If an IndexError is encountered, we remove the last param from the params list and continue
 				except IndexError:

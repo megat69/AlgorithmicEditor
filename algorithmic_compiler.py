@@ -227,16 +227,20 @@ class AlgorithmicCompiler(Compiler):
 
 				# Try block in case there is an IndexError
 				try:
-					# If the param is NOT an array
-					if not instruction_params[i].startswith("arr"):
+					# If the param is an array, we parse it correctly
+					if instruction_params[i].startswith("arr"):
+						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
+						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
+
+					# If the param is a structure, we parse it correctly
+					elif instruction_params[i].startswith("struct_"):
+						params[-1] += f"Structure {instruction_params[i][7:]}"
+
+					# If the param is NOT an array nor a structure
+					else:
 						# We add it to the params as the type, followed by the name, of whose we remove the
 						# first char if it is '&' (no datar mode in algorithmic)
 						params[-1] += self.var_types[instruction_params[i]][instruction_params[i][0] == '&':]
-
-					# If the param is an array, we parse it correctly
-					else:
-						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
-						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
 
 				# If an IndexError is encountered, we remove the last param from the params list and continue
 				except IndexError:
@@ -292,16 +296,20 @@ class AlgorithmicCompiler(Compiler):
 
 				# Try block in case there is an IndexError
 				try:
+					# If the param is an array, we parse it correctly
+					if instruction_params[i].startswith("arr"):
+						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
+						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
+
+					# If the param is a structure, we parse it correctly
+					elif instruction_params[i].startswith("struct_"):
+						params[-1] += f"Structure {instruction_params[i][7:]}"
+
 					# If the param is NOT an array
-					if not instruction_params[i].startswith("arr"):
+					else:
 						# We add it to the params as the type, followed by the name, of whose we remove the
 						# first char if it is '&' (no datar mode in algorithmic)
 						params[-1] += self.var_types[instruction_params[i]][instruction_params[i][0] == '&':]
-
-					# If the param is an array, we parse it correctly
-					else:
-						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
-						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
 
 				# If an IndexError is encountered, we remove the last param from the params list and continue
 				except IndexError:
