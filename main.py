@@ -127,34 +127,7 @@ class App:
 		self.stdscr.refresh()
 
 		# Declaring the color pairs
-		for i in range(1, 9):
-			# Finds each pair of colors in the theme
-			current_pair = self._theme_parser["COLORS"].get(f"pair_{i}")
-
-			# If the current pair is defined in the theme
-			if current_pair is not None:
-				# We turn it into an actual pair by separating the values on the comma
-				current_pair = current_pair.split(",")
-
-				# We check that this is indeed a pair, otherwise raise an error
-				if len(current_pair) != 2:
-					raise Exception(f"Error in theme pair_{i} : Pairs in should be composed of two colors separated by "
-									f"a comma (',') ; found {current_pair}")
-
-				# Then we sanitize the values by stripping them from whitespaces and putting them in uppercase
-				for j in range(2):
-					current_pair[j] = current_pair[j].strip().upper()
-
-					# We also check if this color exists in curses, and otherwise raise an exception
-					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
-						raise Exception(f"Error in theme pair_{i} color {j} : {current_pair[j]} is not a curses color.")
-
-				# We then initialize the pair by finding the corresponding curses color
-				curses.init_pair(
-					i,
-					getattr(curses, f"COLOR_{current_pair[0]}"),
-					getattr(curses, f"COLOR_{current_pair[1]}")
-				)
+		self._declare_color_pairs()
 
 		# Initializes each plugin, if they have an init function
 		msg_string = "Loaded plugin {}"
@@ -321,6 +294,39 @@ class App:
 			# Screen refresh after input
 			self.stdscr.refresh()
 
+	def _declare_color_pairs(self):
+		"""
+		Declares all the curses color pairs based on the theme.
+		"""
+		# Fetches all the possible color pair numbers in the theme
+		for i in range(1, 9):
+			# Finds each pair of colors in the theme
+			current_pair = self._theme_parser["COLORS"].get(f"pair_{i}")
+
+			# If the current pair is defined in the theme
+			if current_pair is not None:
+				# We turn it into an actual pair by separating the values on the comma
+				current_pair = current_pair.split(",")
+
+				# We check that this is indeed a pair, otherwise raise an error
+				if len(current_pair) != 2:
+					raise Exception(f"Error in theme pair_{i} : Pairs in should be composed of two colors separated by "
+					                f"a comma (',') ; found {current_pair}")
+
+				# Then we sanitize the values by stripping them from whitespaces and putting them in uppercase
+				for j in range(2):
+					current_pair[j] = current_pair[j].strip().upper()
+
+					# We also check if this color exists in curses, and otherwise raise an exception
+					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
+						raise Exception(f"Error in theme pair_{i} color {j} : {current_pair[j]} is not a curses color.")
+
+				# We then initialize the pair by finding the corresponding curses color
+				curses.init_pair(
+					i,
+					getattr(curses, f"COLOR_{current_pair[0]}"),
+					getattr(curses, f"COLOR_{current_pair[1]}")
+				)
 
 	def quit(self) -> None:
 		"""
