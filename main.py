@@ -67,14 +67,15 @@ class App:
 		else:
 			self.plugins_config["BASE_CONFIG"]["tab_char"] = self.tab_char
 
+
+		# Getting the theme
+		theme_parser = ConfigParser()
+		theme_parser.read("theme.ini")
+
 		# Preparing the color pairs
 		self.color_pairs = {
-			"statement": 1,
-			"function": 2,
-			"variable": 3,
-			"instruction": 4,
-			"strings": 3,
-			"special_string": 5
+			pair_name: theme_parser["PAIRS"].getint(pair_name)
+			for pair_name in ("statement", "function", "variable", "instruction", "strings", "special_string")
 		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
