@@ -389,7 +389,7 @@ class CppCompiler(Compiler):
 		if not (
 				self.instructions_list[line_number].startswith("//") or
 				self.instructions_list[line_number].endswith("}") or
-				instruction_name in self.instruction_names
+				instruction_name in (*self.instruction_names, "else", "elif")
 		):
 			self.instructions_list[line_number] += ";"
 
