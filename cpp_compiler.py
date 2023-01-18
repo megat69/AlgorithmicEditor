@@ -232,11 +232,21 @@ class CppCompiler(Compiler):
 
 	def analyze_init(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Analyzes the structure initialization. """
-		if len(instruction_params) == 2:
-			self.instructions_list[line_number] = f"struct {instruction_params[0]} {instruction_params[1]}"
+
+		if len(instruction_params) < 2:  # Error for missing parameters
+			self.error(f"Error on line {line_number + 1} : Structure initialization should take at least two arguments "
+			           f": 'structure_type' and 'var_name', yet took {len(instruction_params)}.")
+		elif len(instruction_params) % 2 == 1:  # Error for missing parameters
+			self.error(f"Error on line {line_number + 1} : Structure initialization arguments number should be even.")
 		else:
-			self.error(f"Error on line {line_number + 1} : Structure initialization should take exactly two arguments :"
-			           f" 'structure_type' and 'var_name', yet took {len(instruction_params)}.")
+			# Creates the structure initialization
+			self.instructions_list[line_number] = f"struct {instruction_params[0]} {instruction_params[1]};"
+
+			# Then for each extra couple of arguments, adds a initialization to this line
+			for i in range(2, len(instruction_params), 2):
+				self.instructions_list[line_number] += "\n" + self.tab_char * (len(self.instructions_stack) + 1)
+				self.instructions_list[line_number] += f"{instruction_params[1]}.{instruction_params[i]} = {instruction_params[i + 1]};"
+			self.instructions_list[line_number] = self.instructions_list[line_number][:-1]
 
 
 	def analyze_fx(self, instruction_name:str, instruction_params:list, line_number:int):
