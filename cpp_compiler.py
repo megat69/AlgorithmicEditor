@@ -48,14 +48,24 @@ class CppCompiler(Compiler):
 
 	def define_var(self, instruction:list, line_number:int):
 		""" Noms, séparés, par, des, virgules : Type(s) """
-		# Gets the type of the variable
+		# Finding the type of the variable
 		var_type = self.var_types[instruction[0]]
 
-		# Gets the name of the variables
-		variable_names = ", ".join(instruction[1:])
+		# If the third argument is an equals ('=') sign, we use the shorthand for quick variable assignation
+		if len(instruction) > 2 and instruction[2] == "=":
+			# We remove the type of the variable from the instructions list
+			instruction.pop(0)
 
-		# Creates the line
-		self.instructions_list[line_number] = var_type + " " + variable_names
+			# We call the variable assignation method to generate an assignation string
+			self.var_assignation(instruction, line_number)
+
+		# Otherwise, we define all the variables quickly
+		else:
+			# Getting the names of each variable
+			variable_names = ", ".join(instruction[1:])
+
+			# Creating the string
+			self.instructions_list[line_number] = var_type + " " + variable_names
 
 
 	def analyze_for(self, instruction_name:str, instruction_params:list, line_number:int):

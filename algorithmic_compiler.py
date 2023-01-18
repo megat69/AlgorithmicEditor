@@ -16,11 +16,35 @@ class AlgorithmicCompiler(Compiler):
 
 	def define_var(self, instruction:list, line_number:int):
 		""" Noms, séparés, par, des, virgules : Type(s) """
+		# Finding the type of the variable
 		var_type = self.var_types[instruction[0]]
-		variable_names = ", ".join(instruction[1:])
-		self.instructions_list[line_number] = f"{variable_names} : {var_type}"
-		if len(instruction[1:]) != 1 and instruction[0] != "string":  # Adds an 's' to the var type if multiple vars are declared
-			self.instructions_list[line_number] += "s"
+
+		# If the third argument is an equals ('=') sign, we use the shorthand for quick variable assignation
+		if len(instruction) > 2 and instruction[2] == "=":
+			# We save the name of the variable
+			variable_name = instruction[1]
+
+			# We remove the type of the variable from the instructions list
+			instruction.pop(0)
+
+			# We call the variable assignation method to generate an assignation string
+			self.var_assignation(instruction, line_number)
+
+			# We add to the current line the definition of the variable
+			self.instructions_list[line_number] = f"{variable_name} : {var_type}\n" + \
+					self.tab_char * (len(self.instructions_stack) + 1) + self.instructions_list[line_number]
+
+		# Otherwise, we define all the variables quickly
+		else:
+			# Getting the names of each variable
+			variable_names = ", ".join(instruction[1:])
+
+			# Creating the string
+			self.instructions_list[line_number] = f"{variable_names} : {var_type}"
+
+			# Adds an 's' to the var type if multiple vars are declared
+			if len(instruction[1:]) != 1 and instruction[0] != "string":
+				self.instructions_list[line_number] += "s"
 
 
 	def analyze_for(self, instruction_name:str, instruction_params:list, line_number:int):

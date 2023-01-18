@@ -602,6 +602,14 @@ class App:
 					splitted_line[1],
 					curses.color_pair(self.color_pairs["statement"])
 				)
+
+			elif splitted_line[0] in self.color_control_flow["variable"] and splitted_line[2] == "=":
+				self.stdscr.addstr(
+					i, minlen + sum(len(e) + 1 for e in splitted_line[:2]),
+					"=",
+					curses.color_pair(self.color_pairs["statement"])
+				)
+
 		except IndexError:
 			pass  # If there is no space in the line
 
