@@ -7,6 +7,7 @@ import os
 import importlib
 import json
 from typing import Union
+from configparser import ConfigParser
 
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
@@ -257,6 +258,10 @@ class App:
 						self.commands["h"][0]()
 					elif key == "KEY_F(4)":
 						self.commands["q"][0]()
+					elif key == "KEY_SEND":  # The key used to type '<', for some reason
+						self.add_char_to_text("<")
+					elif key == "CTL_END":  # The key used to type '>', for some reason
+						self.add_char_to_text(">")
 					"""elif key == "KEY_HOME":
 						self.min_display_char -= 1
 						if self.min_display_char < 0:
