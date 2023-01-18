@@ -964,6 +964,9 @@ class App:
 		# Creates a list if instructions by splitting the text into lines
 		self.instructions_list = self.current_text.split("\n")
 
+		# Modifies the std::string use of std:: based on its use
+		self.compilers["C++"].var_types["string"] = ("std::" if self.using_namespace_std is False else "") + "string"
+
 		# Compiles the code through the Compiler class's compile method
 		final_compiled_code = self.compilers["C++"].compile(self.instructions_list)
 
