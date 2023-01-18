@@ -72,7 +72,8 @@ class App:
 			"function": 2,
 			"variable": 3,
 			"instruction": 4,
-			"strings": 3
+			"strings": 3,
+			"special_string": 5
 		}  # The number of the color pairs
 		self.color_control_flow = {
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
@@ -673,7 +674,7 @@ class App:
 						self.stdscr.addstr(
 							i, minlen + len(" ".join(splitted_line[:j])) + 1,
 							splitted_line[j],
-							curses.color_pair(5)
+							curses.color_pair(self.color_pairs["special_string"])
 						)
 
 		# If the instruction is a constant
@@ -698,7 +699,7 @@ class App:
 			self.stdscr.addstr(
 				i, minlen + 7,
 				splitted_line[1],
-				curses.color_pair(5)
+				curses.color_pair(self.color_pairs["special_string"])
 			)
 
 			# Highlighting each argument's type
@@ -743,10 +744,33 @@ class App:
 			self.stdscr.addstr(
 				i, minlen + 5,
 				splitted_line[1],
-				curses.color_pair(5)
+				curses.color_pair(self.color_pairs["special_string"])
 			)
 
+			# Highlighting each of the arguments if they correspond to a field of the structure, or a number
+			for j in range(3, len(splitted_line)):
+				# Defining a default flag as being... Well, normal.
+				flag = curses.A_NORMAL
 
+				# Highlighting if the argument is a field of the structure (thus if its index is odd)
+				if j % 2 == 1:
+					# Highlighting as variable
+					flag = curses.color_pair(self.color_pairs["variable"])
+
+				# Highlighting the argument as a statement if it is a number
+				elif splitted_line[j].isdigit():
+					flag = curses.color_pair(self.color_pairs["statement"])
+
+				# Highlighting as a special string if the argument is a string
+				elif len(splitted_line[j]) > 0 and splitted_line[j][0] in "\"'":
+					flag = curses.color_pair(self.color_pairs["special_string"])
+
+				# Overwrites the text
+				self.stdscr.addstr(
+					i, minlen + 5 + sum(len(e) + 1 for e in splitted_line[1:j]),
+					splitted_line[j],
+					flag
+				)
 
 
 	def toggle_std_use(self):
