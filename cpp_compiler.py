@@ -14,7 +14,8 @@ def ifsanitize(string:str) -> str:
 
 
 class CppCompiler(Compiler):
-	def __init__(self, instruction_names:tuple, var_types:dict, other_instructions:tuple, stdscr, app):
+	def __init__(self, instruction_names:tuple, var_types:dict, other_instructions:tuple, stdscr, app,
+	                use_struct_keyword:bool=True):
 		super().__init__(instruction_names, var_types, other_instructions, stdscr, app.tab_char)
 
 		# Creates a list of constants
@@ -23,6 +24,9 @@ class CppCompiler(Compiler):
 		self.fxtext = []
 		# Creates the return code
 		self.return_code = "0"
+
+		# Chooses whether we use the struct keyword in the functions' return type and arguments
+		self.use_struct_keyword = use_struct_keyword
 
 		# Creates some use variables
 		self.app = app
@@ -301,8 +305,19 @@ class CppCompiler(Compiler):
 		# Branching on whether it is a procedure or a function
 		if instruction_params[0] != "void":
 			self.instructions_stack.append("fx")
+
+			# If the return type is not a structure
+			if not instruction_params[0].startswith("struct_"):
+				# We add the return type
+				self.instructions_list[line_number] = self.var_types[instruction_params[0]]
+
+			# If the return type is a structure
+			else:
+				# We add the structure message followed by the return type
+				self.instructions_list[line_number] = "struct " * self.use_struct_keyword + instruction_params[0][7:]
+
 			# We write the line as a function
-			self.instructions_list[line_number] = f"{self.var_types[instruction_params[0]]} {instruction_params[1]}({params}) " + "{"
+			self.instructions_list[line_number] += f" {instruction_params[1]}({params}) " + "{"
 
 		else:  # Procedure
 			self.instructions_stack.append("proc")
@@ -435,7 +450,7 @@ class CppCompiler(Compiler):
 		final_compiled_code += "\n".join(self.constants)
 		# We also add another newline if there are constants declared
 		if len(self.constants) != 0:
-			final_compiled_code += "\n"
+			final_compiled_code += "\n\n"
 
 		# We then add the function's text
 		final_compiled_code += "\n".join(text for text in self.fxtext if text.replace(self.tab_char, "") != ";")

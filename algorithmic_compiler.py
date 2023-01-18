@@ -253,7 +253,17 @@ class AlgorithmicCompiler(Compiler):
 		if instruction_params[0] != "void":
 			self.instructions_stack.append("fx")
 			# We write the line as a function
-			self.instructions_list[line_number] = f"Fonction {instruction_params[1]} ({params}) : {self.var_types[instruction_params[0]]}"
+			self.instructions_list[line_number] = f"Fonction {instruction_params[1]} ({params}) : "
+
+			# If the return type is not a structure
+			if not instruction_params[0].startswith("struct_"):
+				# We add the return type
+				self.instructions_list[line_number] += self.var_types[instruction_params[0]]
+
+			# If the return type is a structure
+			else:
+				# We add the structure message followed by the return type
+				self.instructions_list[line_number] += "Structure " + instruction_params[0][7:]
 
 		else:  # Procedure
 			self.instructions_stack.append("proc")

@@ -30,6 +30,7 @@ class App:
 			"o": (self.open, "Open", False),
 			"p": (self.compile_to_cpp, "Compile to C++", False),
 			"j": (self.toggle_std_use, "Toggle namespace std", True),
+			"st": (self.toggle_struct_use, "Toggle struct keyword use", True),
 			"h": (self.display_commands, "Commands list", False),
 			"cl": (self.clear_text, "Clear editor", True),
 			"is": (self.insert_text, "Insert file", True),
@@ -40,6 +41,7 @@ class App:
 		self.tab_char = "\t"  # The tab character
 		self.command_symbol = command_symbol  # The symbol triggering a command
 		self.using_namespace_std = False  # Whether to use the std namespace during the C++ compilation
+		self.use_struct_keyword = False  # Whether to use the struct keyword in the functions' return type during the C++ compilation
 		self.logs = logs  # Whether to log
 		self.min_display_line = 0  # The minimum line displayed on the window (scroll)
 		self.cur = tuple()  # The cursor
@@ -60,6 +62,12 @@ class App:
 			self.using_namespace_std = self.plugins_config["BASE_CONFIG"]["using_namespace_std"]
 		else:
 			self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = False
+
+		# Changes the namespace std use based on its setting last time
+		if "use_struct_keyword" in self.plugins_config["BASE_CONFIG"].keys():
+			self.use_struct_keyword = self.plugins_config["BASE_CONFIG"]["use_struct_keyword"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["use_struct_keyword"] = False
 
 		# Changes the tab character based on its setting last time
 		if "tab_char" in self.plugins_config["BASE_CONFIG"].keys():
@@ -852,11 +860,20 @@ class App:
 
 	def toggle_std_use(self):
 		"""
-		Toggles the use of the std namespace.in the C++ compilation.
+		Toggles the use of the std namespace in the C++ compilation.
 		"""
 		self.using_namespace_std = not self.using_namespace_std
 		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std} ")
 		self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = self.using_namespace_std
+
+
+	def toggle_struct_use(self):
+		"""
+		Toggles the use of the struct keyword in the function's return type during the C++ compilation.
+		"""
+		self.use_struct_keyword = not self.use_struct_keyword
+		self.stdscr.addstr(self.rows - 1, 4, f"Toggled struct keyword use to {self.use_struct_keyword} ")
+		self.plugins_config["BASE_CONFIG"]["use_struct_keyword"] = self.use_struct_keyword
 
 
 	def log(self, *args, **kwargs):
@@ -1068,6 +1085,7 @@ class App:
 
 		# Modifies the std::string use of std:: based on its use
 		self.compilers["C++"].var_types["string"] = ("std::" if self.using_namespace_std is False else "") + "string"
+		self.compilers["C++"].use_struct_keyword = self.use_struct_keyword
 
 		# Compiles the code through the Compiler class's compile method
 		final_compiled_code = self.compilers["C++"].compile(self.instructions_list)
