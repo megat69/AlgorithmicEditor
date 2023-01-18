@@ -153,8 +153,7 @@ class App:
 				"default": "Autrement",
 				"fx": "Fonction",
 				"proc": "Procédure",
-				"const": "Constante",
-				"struct": "Structure"
+				"const": "Constante"
 			},
 			{
 				"int": "Entier",
@@ -163,7 +162,7 @@ class App:
 				"bool": "Booléen",
 				"char": "Caractère"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct"),
 			self.stdscr,
 			self.tab_char
 		)
@@ -176,7 +175,7 @@ class App:
 				"bool": "bool",
 				"char": "char"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init"),
 			self.stdscr,
 			self
 		)

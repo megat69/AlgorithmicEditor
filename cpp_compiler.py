@@ -230,6 +230,15 @@ class CppCompiler(Compiler):
 			self.error(f"Error on line {line_number + 1} : {instruction_params[0]} is not a recognized variable type")
 
 
+	def analyze_init(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Analyzes the structure initialization. """
+		if len(instruction_params) == 2:
+			self.instructions_list[line_number] = f"struct {instruction_params[0]} {instruction_params[1]}"
+		else:
+			self.error(f"Error on line {line_number + 1} : Structure initialization should take exactly two arguments :"
+			           f" 'structure_type' and 'var_name', yet took {len(instruction_params)}.")
+
+
 	def analyze_fx(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Creates a function definition """
 		# Prevents a crash when extra spaces are at the end of the line

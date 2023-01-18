@@ -291,6 +291,15 @@ class AlgorithmicCompiler(Compiler):
 		self.instructions_list[line_number] = ""
 
 
+	def analyze_init(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Analyzes the structure initialization. """
+		if len(instruction_params) == 2:
+			self.instructions_list[line_number] = f"{instruction_params[1]} : Structure {instruction_params[0]}"
+		else:
+			self.error(f"Error on line {line_number + 1} : Structure initialization should take exactly two arguments :"
+			           f" 'structure_type' and 'var_name', yet took {len(instruction_params)}.")
+
+
 	def var_assignation(self, instruction:list, line_number:int):
 		"""
 		Assigns/reassigns a variable.
