@@ -709,6 +709,19 @@ class App:
 					curses.color_pair(self.color_pairs["variable" if splitted_line[1] != "void" else "statement"])
 				)
 
+			# Or if it is a structure
+			elif splitted_line[1].startswith("struct"):
+				self.stdscr.addstr(
+					i, minlen + 3,
+					"struct",
+					curses.color_pair(self.color_pairs["instruction"])
+				)
+				self.stdscr.addstr(
+					i, minlen + 10,
+					splitted_line[1][7:],
+					curses.color_pair(self.color_pairs["special_string"])
+				)
+
 			# Highlighting each argument's type
 			for j in range(3, len(splitted_line), 2):
 				if splitted_line[j] in (*self.color_control_flow["variable"], "void"):
@@ -743,6 +756,19 @@ class App:
 							"_", curses.color_pair(self.color_pairs["function"])
 						)
 					except IndexError: pass
+
+				# If the argument is a structure
+				elif splitted_line[j].startswith("struct"):
+					self.stdscr.addstr(
+						i, minlen + 1 + len(" ".join(splitted_line[:j])),
+						"struct", curses.color_pair(self.color_pairs["instruction"])
+					)
+					self.stdscr.addstr(
+						i, minlen + 8 + len(" ".join(splitted_line[:j])),
+						splitted_line[j][7:],
+						curses.color_pair(self.color_pairs["special_string"])
+					)
+
 
 		# If the instruction is an array, we highlight the array's type and its size
 		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
