@@ -5,8 +5,8 @@ import json
 class Plugin:
 	def __init__(self, app):
 		self.app = app  # An instance of the app
-		self.plugin_name : str = ""  # The name of the plugin
-		self.config : dict = {}  # The config data of the plugin
+		self.plugin_name: str = ""  # The name of the plugin
+		self.config: dict = {}  # The config data of the plugin
 
 	def init(self):
 		"""
@@ -14,21 +14,21 @@ class Plugin:
 		"""
 		pass
 
-	def update_on_syntax_highlight(self, line:str, splitted_line:list, i:int):
+	def update_on_syntax_highlight(self, line: str, splitted_line: list, i: int):
 		"""
 		Gets called every frame, right after the syntax highlighting of the current line is complete.
 		Gets called n times each frame, where n is the amount of lines in the program.
 		"""
 		pass
 
-	def update_on_keypress(self, key:str):
+	def update_on_keypress(self, key: str):
 		"""
 		Gets called right after the user presses a non-command/non-special key.
 		:param key: The key pressed by the user.
 		"""
 		pass
 
-	def update_on_compilation(self, final_compiled_code:str, compilation_type:str):
+	def update_on_compilation(self, final_compiled_code: str, compilation_type: str):
 		"""
 		Gets called at the end of a compilation.
 		:param final_compiled_code: The compiled code.
@@ -36,7 +36,7 @@ class Plugin:
 		"""
 		pass
 
-	def add_command(self, character:str, function:Callable, description:str, hidden:bool = False):
+	def add_command(self, character: str, function: Callable, description: str, hidden: bool = False):
 		"""
 		Adds a command to the app.
 		:param character: The character triggering the command. It is highly recommended to make it no more than one character.
