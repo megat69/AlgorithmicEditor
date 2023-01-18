@@ -530,13 +530,13 @@ end
 ### Available Functions / Fonctions Disponibles
 ***ENGLISH***
 Three functions are available and can be used all throughout the code.
-- `aleatoire()`, which is the equivalent of C's *rand()* function
+- `aleatoire()`, which is the equivalent of C's *rand()* function. The `alea()` alias is also available.
 - `puissance(x, n)`, which is the equivalent of C's *pow()* function
 - `racine(x)`, which is the equivalent of C's *sqrt()* function
 
 ***FRANÇAIS***
 Trois fonctions sont disponibles et utilisables à travers votre code.
-- `aleatoire()`, l'équivalent de la fonction *rand()* de C. Renvoie un nombre aléatoire.
+- `aleatoire()`, l'équivalent de la fonction *rand()* de C. Renvoie un nombre aléatoire. L'alias `alea()` est aussi utilisable.
 - `puissance(x, n)`, l'équivalent de la fonction *pow()* de C. Renvoie la puissance de x par n.
 - `racine(x)`, l'équivalent de la fonction *sqrt()* de C. Renvoie la racine de x.
 
