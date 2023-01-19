@@ -303,6 +303,7 @@ class App:
 			# Screen refresh after input
 			self.stdscr.refresh()
 
+
 	def _declare_color_pairs(self):
 		"""
 		Declares all the curses color pairs based on the theme.
@@ -336,20 +337,6 @@ class App:
 					getattr(curses, f"COLOR_{current_pair[0]}"),
 					getattr(curses, f"COLOR_{current_pair[1]}")
 				)
-
-
-	def reload_theme(self):
-		"""
-		Reloads the theme.
-		"""
-		self._theme_parser.read("theme.ini")
-		self.color_pairs = {
-			pair_name: self._theme_parser["PAIRS"].getint(pair_name, fallback_value)
-			for pair_name, fallback_value in self.color_pairs.items()
-		}
-		self._declare_color_pairs()
-		# Adds a message at the bottom to warn the theme was reloaded
-		self.stdscr.addstr(self.rows - 1, 4, "The theme was reloaded.")
 
 
 	def quit(self) -> None:
@@ -477,6 +464,20 @@ class App:
 		# Puts the line numbers at the edge of the screen
 		for i in range(self.min_display_line, min(self.lines, self.min_display_line+(self.rows-3))):
 			self.stdscr.addstr(i - self.min_display_line, 0, str(i + 1).zfill(len(str(self.lines))), curses.A_REVERSE)
+
+
+	def reload_theme(self):
+		"""
+		Reloads the theme.
+		"""
+		self._theme_parser.read("theme.ini")
+		self.color_pairs = {
+			pair_name: self._theme_parser["PAIRS"].getint(pair_name, fallback_value)
+			for pair_name, fallback_value in self.color_pairs.items()
+		}
+		self._declare_color_pairs()
+		# Adds a message at the bottom to warn the theme was reloaded
+		self.stdscr.addstr(self.rows - 1, 4, "The theme was reloaded.")
 
 
 	def load_plugins(self):
