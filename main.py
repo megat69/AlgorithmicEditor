@@ -275,6 +275,8 @@ class App:
 						self.add_char_to_text("<")
 					elif key == "CTL_END":  # The key used to type '>', for some reason
 						self.add_char_to_text(">")
+					elif key == "SHF_PADSLASH":  # The key used to type '!', for some reason
+						self.add_char_to_text("!")
 					"""elif key == "KEY_HOME":
 						self.min_display_char -= 1
 						if self.min_display_char < 0:
