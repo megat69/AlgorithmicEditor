@@ -178,7 +178,7 @@ class App:
 				"bool": "Booléen",
 				"char": "Caractère"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct"),
 			self.stdscr,
 			self.tab_char
 		)
@@ -191,7 +191,7 @@ class App:
 				"bool": "bool",
 				"char": "char"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init"),
+			("print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init"),
 			self.stdscr,
 			self
 		)
