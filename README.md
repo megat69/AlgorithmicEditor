@@ -30,7 +30,7 @@ Multiple core features are implemented through plugins, such as autocompletion, 
 - [x] Plugin support
 - [x] Theme support
 - [x] Quick and easy learning curve
-
+- [ ] A built-in pseudocode interpreter (yet)
 
 ## Download
 This software requires Python to run. You can download Python at the website [of the Python foundation](https://python.org/downloads).
