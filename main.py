@@ -348,6 +348,8 @@ class App:
 			for pair_name, fallback_value in self.color_pairs.items()
 		}
 		self._declare_color_pairs()
+		# Adds a message at the bottom to warn the theme was reloaded
+		self.stdscr.addstr(self.rows - 1, 4, "The theme was reloaded.")
 
 
 	def quit(self) -> None:
@@ -358,7 +360,8 @@ class App:
 			# Saves the plugin config, after saving the base config
 			if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
 				self.plugins_config["BASE_CONFIG"]["default_save_location"] = browse_files.last_browsed_path
-			with open("plugins_config.json", "w", encoding="utf8") as f:
+			with open("plugins_config.json", "w", encoding="utf-8") as f:
+				print(self.plugins_config)
 				json.dump(self.plugins_config, f, indent=2)
 
 			# Exits the app
