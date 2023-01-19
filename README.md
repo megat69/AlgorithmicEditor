@@ -6,8 +6,40 @@ An internal and personal tool to parse pseudocode into algorithmic french.
 ![image](https://img.shields.io/badge/Version%20support-3.7%2B-green)
 ![image](https://img.shields.io/github/commit-activity/m/megat69/AlgorithmicEditor)
 
+## Overview
+The algorithmic editor allows you to quickly doodle with some predefined pseudo code and generate either Algorithmic French or C++ code on the fly. 
 
-*For experimental features, see `experimental` branch.*
+![Preview of the Algorithmic Editor](https://github.com/megat69/AlgorithmicEditor/blob/main/images/AlgorithmicEditorPreview.png)
+*Preview of the Algorithmic Editor*
+
+![Preview of the Algorithmic Editor - Transpiling to Algorithmic language](https://github.com/megat69/AlgorithmicEditor/blob/main/images/AlgorithmicEditorPreview_AlgoCompilation.png)
+*Preview of the Algorithmic Editor - Transpiling to Algorithmic language*
+
+![Preview of the Algorithmic Editor - Transpiling to C++](https://github.com/megat69/AlgorithmicEditor/blob/main/images/AlgorithmicEditorPreview_CppCompilation.png)
+*Preview of the Algorithmic Editor - Transpiling to C++*
+
+The algorithmic editor is powered by Python and the curses library : it sits inside you console with a neat and simple user interface !
+
+This choice of language and library allows it to be extremely modular, allowing each user to use, create, and download multiple [plugins](https://github.com/megat69/AlgorithmicEditor_Plugins) to customize their experience.
+
+Multiple core features are implemented through plugins, such as autocompletion, documentation generation, copy/paste, insert mode, and a lot more !
+
+**Features :**
+- [x] Pseudo-code to algorithmic transpilation
+- [x] Pseudo-code to C++ transpilation
+- [x] Plugin support
+- [x] Theme support
+- [x] Quick and easy learning curve
+
+
+## Download
+This software requires Python to run. You can download Python at the website [of the Python foundation](https://python.org/downloads).
+
+Clone the repository or download the source code by clicking the green "Code" button at the top of the page and clicking "Download ZIP".
+
+Once the repository is downloaded, you can run the `setup.py` file *(please run as administrator on Windows if you want the file extension `.algo` to be associated with the editor)*, which will guide you through the process of installing the software.
+
+Once the setup is complete, you can run the `main.py` file to run the editor.
 
 ## Syntax
 ### Variables declaration / Déclaration de Variables
