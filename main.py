@@ -361,7 +361,6 @@ class App:
 			if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
 				self.plugins_config["BASE_CONFIG"]["default_save_location"] = browse_files.last_browsed_path
 			with open("plugins_config.json", "w", encoding="utf-8") as f:
-				print(self.plugins_config)
 				json.dump(self.plugins_config, f, indent=2)
 
 			# Exits the app
