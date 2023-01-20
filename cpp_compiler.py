@@ -378,7 +378,7 @@ class CppCompiler(Compiler):
 		self.constants[-1] += f"struct {instruction_params[0]}" + " {\n"
 		for param in params:
 			self.constants[-1] += self.tab_char * (len(self.instructions_stack) + 1) + param + ";\n"
-		self.constants[-1] += self.tab_char * len(self.instructions_stack) + "}"
+		self.constants[-1] += self.tab_char * len(self.instructions_stack) + "};"
 		self.instructions_list[line_number] = ""
 
 
