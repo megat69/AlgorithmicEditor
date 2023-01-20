@@ -709,7 +709,7 @@ class App:
 
 
 		# Finds all instances of built-in functions to color them green
-		for builtin_function in ("puissance", "racine", "aleatoire", "alea"):
+		for builtin_function in ("puissance", "racine", "aleatoire", "alea", "len"):
 			for builtin_function_index in find_all(line, f"{builtin_function}("):
 				self.stdscr.addstr(
 					i, minlen + builtin_function_index,

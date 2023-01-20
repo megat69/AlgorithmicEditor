@@ -402,6 +402,35 @@ class CppCompiler(Compiler):
 		):
 			self.instructions_list[line_number] = self.instructions_list[line_number].replace(algo_function, cpp_function)
 
+		# Function to find all the instances of a substring in a string
+		def find_all(full_string: str, search: str):
+			"""
+			Finds all instances of a substring in a string.
+			:param full_string: The string to search into.
+			:param search: The string of whom to find all the instances.
+			:return: A generator containing all the indexes of the substring.
+			"""
+			start = 0
+			while True:
+				start = full_string.find(search, start)
+				if start == -1: return
+				yield start
+				start += len(search)
+
+		# Adds the len function
+		if "len(" in self.instructions_list[line_number]:
+			for index in find_all(self.instructions_list[line_number], "len("):
+				var_name = self.instructions_list[line_number][
+		           index + 4 :
+		           index + 4 + self.instructions_list[line_number][index + 4:].find(")")
+		        ]
+				self.instructions_list[line_number] = self.instructions_list[line_number].replace(
+					f"len({var_name})",
+					f"(sizeof({var_name})/sizeof({var_name}[0]))",
+					1
+				)
+
+
 		# Adds the correct tabbing (amount of tabs is equal to amount of instructions in the instructions stack,
 		# minus one if the current instruction is in the instruction names)
 		tab_amount = len(self.instructions_stack)
@@ -446,6 +475,10 @@ class CppCompiler(Compiler):
 		# If we use random in the code, we import stdlib.h and time.h
 		if 'aleatoire(' in self.app.current_text or 'alea(' in self.app.current_text:
 			final_compiled_code += "#include <stdlib.h>\n#include <time.h>\n"
+
+		# If we use len in the code, we import stdlib.h
+		if 'len(' in self.app.current_text:
+			final_compiled_code += "#include <stdlib.h>\n"
 
 		# If we use the std namespace, we put it there
 		if self.app.using_namespace_std:
