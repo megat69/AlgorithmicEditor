@@ -337,7 +337,7 @@ class AlgorithmicCompiler(Compiler):
 		""" Analyzes the structure initialization. """
 		if len(instruction_params) < 2:  # Error for missing parameters
 			self.error(f"Error on line {line_number + 1} : Structure initialization should take at least two arguments "
-			           f": 'structure_type' and 'var_name', yet took {len(instruction_params)}.")
+			           f": 'structure_type' and 'var_name', yet took only {len(instruction_params)}.")
 		elif len(instruction_params) % 2 == 1:  # Error for missing parameters
 			self.error(f"Error on line {line_number + 1} : Structure initialization arguments number should be even.")
 		else:
