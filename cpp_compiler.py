@@ -328,6 +328,10 @@ class CppCompiler(Compiler):
 			# We write the line as a procedure
 			self.instructions_list[line_number] = f"void {instruction_params[1]}({params}) " + "{"
 
+		# If the name of the function/procedure is 'main', we error out
+		if instruction_params[1] == "main":
+			self.error(f"Error on line {line_number + 1} : Cannot name function/procedure 'main'.")
+
 
 
 	def analyze_struct(self, instruction_name:str, instruction_params:list, line_number:int):
