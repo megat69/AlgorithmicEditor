@@ -31,6 +31,9 @@ class Compiler:
 		Dispatches the compilation to the correct functions based on the instruction params.
 		:param instructions_list: The list of instructions, a list of strings.
 		"""
+		# Resets the errored state
+		self.errored = False
+
 		# Calls the pre-compilation cleaning method
 		self.prepare_new_compilation()
 
