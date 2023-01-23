@@ -1,0 +1,17 @@
+{
+	"commands": {
+		"q": "Quit",
+		"c": "Compile",
+		"t": "Modify tab char",
+		"s": "Save",
+		"qs": "Quicksave",
+		"o": "Open",
+		"p": "Compile to C++",
+		"j": "Toggle namespace std",
+		"st": "Toggle struct keyword use",
+		"h": "Commands list",
+		"cl": "Clear editor",
+		"is": "Insert file",
+		"rlt": "Reload theme"
+	}
+}

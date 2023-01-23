@@ -16,25 +16,38 @@ from utils import display_menu, input_text, get_screen_middle_coords, browse_fil
 
 class App:
 	def __init__(self, command_symbol: str = ":", logs: bool = True):
+		# Loads the config
+		with open("plugins_config.json", "r", encoding="utf-8") as f:
+			self.plugins_config = json.load(f)  # The configuration of the plugins
+
+		# Loads the translations
+		self.translations = {}  # Contains all the translations in all the translation files
+		self.language = self.plugins_config["BASE_CONFIG"]["language"]  # Contains the language code of the chosen language (e.g. 'en' or 'fr').
+		for translation_file in os.listdir("translations/"):
+			with open(f"translations/{translation_file}", "r", encoding="utf8") as f:
+				# Loads the translations as dictionaries,
+				# e.g. translation_file = 'translations_en.json', self.translations['en'] = {...}
+				self.translations[translation_file[13:15]] = json.load(f)
+
 		self.current_text = ""  # The text being displayed in the window
 		self.stdscr: _curses.window = None  # The standard screen (see curses library)
 		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
 		self.lines = 1  # The number of lines containing text in the window
 		self.current_index = 0  # The current index of the cursor
 		self.commands = {
-			"q": (self.quit, "Quit", False),
-			"c": (self.compile, "Compile", False),
-			"t": (self.modify_tab_char, "Modify tab char", True),
-			"s": (self.save, "Save", False),
-			"qs": (partial(self.save, quick_save=True), "Quicksave", False),
-			"o": (self.open, "Open", False),
-			"p": (self.compile_to_cpp, "Compile to C++", False),
-			"j": (self.toggle_std_use, "Toggle namespace std", True),
-			"st": (self.toggle_struct_use, "Toggle struct keyword use", True),
-			"h": (self.display_commands, "Commands list", False),
-			"cl": (self.clear_text, "Clear editor", True),
-			"is": (self.insert_text, "Insert file", True),
-			"rlt": (self.reload_theme, "Reload theme", True),
+			"q": (self.quit, self.get_translation("commands", "q"), False),
+			"c": (self.compile, self.get_translation("commands", "c"), False),
+			"t": (self.modify_tab_char, self.get_translation("commands", "t"), True),
+			"s": (self.save, self.get_translation("commands", "s"), False),
+			"qs": (partial(self.save, quick_save=True), self.get_translation("commands", "qs"), False),
+			"o": (self.open, self.get_translation("commands", "o"), False),
+			"p": (self.compile_to_cpp, self.get_translation("commands", "p"), False),
+			"j": (self.toggle_std_use, self.get_translation("commands", "j"), True),
+			"st": (self.toggle_struct_use, self.get_translation("commands", "st"), True),
+			"h": (self.display_commands, self.get_translation("commands", "h"), False),
+			"cl": (self.clear_text, self.get_translation("commands", "cl"), True),
+			"is": (self.insert_text, self.get_translation("commands", "is"), True),
+			"rlt": (self.reload_theme, self.get_translation("commands", "rlt"), True),
 			# To add the command symbol to the text
 			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
@@ -49,8 +62,6 @@ class App:
 		self.min_display_char = 0  # Useless at the moment
 		self.last_save_action = "clipboard"  # What the user did the last time he saved some code from the editor ; can be 'clipboard' or the pah to a file.
 		self.compilers = {}  # A dictionary of compilers for the editor
-		with open("plugins_config.json", "r", encoding="utf-8") as f:
-			self.plugins_config = json.load(f)  # The configuration of the plugins
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -339,6 +350,30 @@ class App:
 					getattr(curses, f"COLOR_{current_pair[0]}"),
 					getattr(curses, f"COLOR_{current_pair[1]}")
 				)
+
+
+	def get_translation(self, *args: str, language: str = None) -> str:
+		"""
+		Returns the translation of the given string.
+		:param args: Every key, in order, towards the translation.
+		:param language: The language in which to translate in. If None (by default), the value of self.language is used.
+		:return: The translation.
+		"""
+		# Tries to reach the correct translation
+		try:
+			# Loads the translation in the given language
+			string = self.translations[self.language if language is None else language]
+
+			# Loads, key by key, the contents of the translation
+			for key in args:
+				string = string[key]
+
+		# If anything happens, we fall back to english.
+		except KeyError:
+			string = self.get_translation(*args, language="en")
+
+		# We return the given string
+		return string
 
 
 	def quit(self) -> None:

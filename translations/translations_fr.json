@@ -1,0 +1,17 @@
+{
+	"commands": {
+		"q": "Quitter",
+		"c": "Compiler",
+		"t": "Mofifier le caractère de tabulation",
+		"s": "Enregistrer",
+		"qs": "Enregistrement rapide",
+		"o": "Ouvrir",
+		"p": "Compiler vers C++",
+		"j": "Activer/Désactiver l'utilisation du namespace std",
+		"st": "Activer/Désactiver l'utilisation du mot clé struct",
+		"h": "Liste des commandes",
+		"cl": "Vider l'éditeur",
+		"is": "Insérer un fichier",
+		"rlt": "Actualiser le thème"
+	}
+}
