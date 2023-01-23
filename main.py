@@ -1141,24 +1141,25 @@ class App:
 		# Compiles the code through the Compiler class's compile method
 		final_compiled_code = self.compilers["algorithmic"].compile(self.instructions_list)
 
-		if noshow is False and final_compiled_code is not None:
-			# Shows the compilation result to the user
-			self.stdscr.clear()
-			try:
-				self.stdscr.addstr(0, 0, final_compiled_code)
+		if noshow is False:
+			if final_compiled_code is not None:
+				# Shows the compilation result to the user
+				self.stdscr.clear()
+				try:
+					self.stdscr.addstr(0, 0, final_compiled_code)
 
-				# Calls each plugins' update_on_compilation method
-				for plugin in self.plugins.values():
-					if hasattr(plugin[1], "update_on_compilation"):
-						plugin[1].update_on_compilation(final_compiled_code, "algo")
+					# Calls each plugins' update_on_compilation method
+					for plugin in self.plugins.values():
+						if hasattr(plugin[1], "update_on_compilation"):
+							plugin[1].update_on_compilation(final_compiled_code, "algo")
 
-				# Refreshes the screen and awaits user input (pause)
-				self.stdscr.refresh()
-				self.stdscr.getch()
-			except curses.error: pass
+					# Refreshes the screen and awaits user input (pause)
+					self.stdscr.refresh()
+					self.stdscr.getch()
+				except curses.error: pass
 
-			# Saves the compiled code based on the user's choice
-			self.save(final_compiled_code)
+				# Saves the compiled code based on the user's choice
+				self.save(final_compiled_code)
 
 			# Clears the screen and reapplies each stylings
 			self.stdscr.clear()
@@ -1182,23 +1183,25 @@ class App:
 		# Compiles the code through the Compiler class's compile method
 		final_compiled_code = self.compilers["C++"].compile(self.instructions_list)
 
-		# Shows the compilation result to the user
-		self.stdscr.clear()
-		self.stdscr.refresh()
-		try:
-			self.stdscr.addstr(0, 0, final_compiled_code)
-		except curses.error: pass
+		# Only does this part if no error was raised (if final_compiled_code is not None)
+		if final_compiled_code is not None:
+			# Shows the compilation result to the user
+			self.stdscr.clear()
+			self.stdscr.refresh()
+			try:
+				self.stdscr.addstr(0, 0, final_compiled_code)
+			except curses.error: pass
 
-		# Calls each plugins' update_on_compilation method
-		for plugin in self.plugins.values():
-			if hasattr(plugin[1], "update_on_compilation"):
-				plugin[1].update_on_compilation(final_compiled_code, "cpp")
+			# Calls each plugins' update_on_compilation method
+			for plugin in self.plugins.values():
+				if hasattr(plugin[1], "update_on_compilation"):
+					plugin[1].update_on_compilation(final_compiled_code, "cpp")
 
-		# Adds a pause
-		self.stdscr.getch()
+			# Adds a pause
+			self.stdscr.getch()
 
-		# Saves the compiled code based on the user's choice
-		self.save(final_compiled_code)
+			# Saves the compiled code based on the user's choice
+			self.save(final_compiled_code)
 
 		# Clears the screen and reapplies each stylings
 		self.stdscr.clear()
