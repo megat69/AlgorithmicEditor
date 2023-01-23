@@ -26,7 +26,7 @@
 		"quit_message": "-- QUITTER --"
 	},
 	"commands_list": {
-		"commands_list": "liste des commandes",
+		"commands_list": "Liste des commandes",
 		"plugin_commands": "Commandes de plugins"
 	},
 	"save": {
