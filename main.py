@@ -405,11 +405,11 @@ class App:
 		display_menu(
 			self.stdscr,
 			(
-				("Quit without Saving", quit),
-				("Save and Quit", save_and_quit),
-				("Cancel", cancel)
+				(self.get_translation("quit", "quit_without_save"), quit),
+				(self.get_translation("quit", "save_and_quit"), save_and_quit),
+				(self.get_translation("quit", "cancel"), cancel)
 			),
-			1, "-- QUIT --"
+			1, self.get_translation("quit", "quit_message")
 		)
 
 
@@ -520,7 +520,7 @@ class App:
 		}
 		self._declare_color_pairs()
 		# Adds a message at the bottom to warn the theme was reloaded
-		self.stdscr.addstr(self.rows - 1, 4, "The theme was reloaded.")
+		self.stdscr.addstr(self.rows - 1, 4, self.get_translation("theme_reloaded"))
 
 
 	def load_plugins(self):
@@ -591,10 +591,10 @@ class App:
 			self.current_index = 0
 
 		display_menu(self.stdscr, (
-			("Yes", _clear_text),
-			("No", lambda: None)
+			(self.get_translation("yes"), _clear_text),
+			(self.get_translation("no"), lambda: None)
 		),
-		label="Confirm clearing editor ?")
+		label=self.get_translation("editor_clear_confirm"))
 
 
 	def insert_text(self):
@@ -624,7 +624,7 @@ class App:
 		middle_y, middle_x = get_screen_middle_coords(self.stdscr)
 
 		# Creates the label
-		generated_str = "----- Commands list -----"
+		generated_str = f"----- {self.get_translation('commands_list', 'commands_list')} -----"
 		self.stdscr.addstr(
 			middle_y - len(self.commands) // 2 - 1,
 			middle_x - len(generated_str) // 2,
@@ -639,7 +639,7 @@ class App:
 			if key_name != self.command_symbol:
 				generated_str = f"{self.command_symbol}{key_name} - {name}"
 			else:
-				generated_str = f"---- Plugin commands : ----"
+				generated_str = f"---- {self.get_translation('commands_list', 'plugin_commands')} : ----"
 				in_plugins_section = True
 
 			self.stdscr.addstr(

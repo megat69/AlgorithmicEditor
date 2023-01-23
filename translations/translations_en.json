@@ -14,11 +14,25 @@
 		"is": "Insert file",
 		"rlt": "Reload theme"
 	},
-	"crash_recovery": "Data has been found from the last crash. Do you want to recover it ?",
-	"loaded_plugin": "Loaded plugin {plugin_name}",
 	"errors": {
 		"unknown": "A curses error occurred",
 		"color_pair_creation_error": "Error in theme pair_{i} : Pairs in should be composed of two colors separated by a comma (',') ; found {current_pair}",
 		"not_curses_color": "Error in theme pair_{i} color {color} : {current_pair_element} is not a curses color."
+	},
+	"quit": {
+		"quit_without_save": "Quit without Saving",
+		"save_and_quit": "Save and Quit",
+		"cancel": "Cancel",
+		"quit_message": "-- QUIT --"
+	},
+	"crash_recovery": "Data has been found from the last crash. Do you want to recover it ?",
+	"loaded_plugin": "Loaded plugin {plugin_name}",
+	"theme_reloaded": "The theme was reloaded.",
+	"yes": "Yes",
+	"no": "No",
+	"editor_clear_confirm": "Confirm clearing editor ?",
+	"commands_list": {
+		"commands_list": "Commands list",
+		"plugin_commands": "Plugin commands"
 	}
 }

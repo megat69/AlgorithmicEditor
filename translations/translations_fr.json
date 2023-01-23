@@ -14,11 +14,25 @@
 		"is": "Insérer un fichier",
 		"rlt": "Actualiser le thème"
 	},
-	"crash_recovery": "Des données du document ont été trouvées après le dernier crash. Voulez-vous les récupérer ?",
-	"loaded_plugin": "Plugin {plugin_name} chargé",
 	"errors": {
 		"unknown": "Une erreur de curses est survenue",
 		"color_pair_creation_error": "Erreur dans l'attribut pair_{i} du thème : Les paires doivent être composées de deux couleurs séparées par une virgule (',') ; {current_pair} éléments trouvés",
 		"not_curses_color": "Erreur dans la paire pair_{i}, couleur {color} : {current_pair_element} n'est pas une couleur définie par curses."
+	},
+	"quit": {
+		"quit_without_save": "Quitter sans enregistrer",
+		"save_and_quit": "Sauvegarder et Quitter",
+		"cancel": "Annuler",
+		"quit_message": "-- QUITTER --"
+	},
+	"crash_recovery": "Des données du document ont été trouvées après le dernier crash. Voulez-vous les récupérer ?",
+	"loaded_plugin": "Plugin {plugin_name} chargé",
+	"theme_reloaded": "Le thème a été mis à jour.",
+	"yes": "Oui",
+	"no": "Non",
+	"editor_clear_confirm": "Confirmer l'effacement du contenu de l'éditeur ?",
+	"commands_list": {
+		"commands_list": "liste des commandes",
+		"plugin_commands": "Commandes de plugins"
 	}
 }
