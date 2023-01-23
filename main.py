@@ -138,7 +138,7 @@ class App:
 					("Yes", recover_crash_data),
 					("No", lambda: None)
 				),
-				label = "Data has been found from the last crash. Do you want to recover it ?",
+				label = self.get_translation("crash_recovery"),
 				clear = False
 			)
 			os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
@@ -370,7 +370,10 @@ class App:
 
 		# If anything happens, we fall back to english.
 		except KeyError:
-			string = self.get_translation(*args, language="en")
+			if language != "en":
+				string = self.get_translation(*args, language="en")
+			else:
+				raise Exception(f"Translation for {args} not found !")
 
 		# We return the given string
 		return string
