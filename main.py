@@ -150,7 +150,7 @@ class App:
 		self._declare_color_pairs()
 
 		# Initializes each plugin, if they have an init function
-		msg_string = "Loaded plugin {}"
+		msg_string = self.get_translation("loaded_plugin").format(plugin_name="{}")
 		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
 			if hasattr(plugin[1], "init"):
 				plugin[1].init()
@@ -229,7 +229,7 @@ class App:
 					try:
 						function()
 					except curses.error as e:
-						self.stdscr.addstr(self.rows - 1, 5, "A curses error occured")
+						self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
 						self.log(e)
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
@@ -333,8 +333,9 @@ class App:
 
 				# We check that this is indeed a pair, otherwise raise an error
 				if len(current_pair) != 2:
-					raise Exception(f"Error in theme pair_{i} : Pairs in should be composed of two colors separated by "
-					                f"a comma (',') ; found {current_pair}")
+					raise Exception(self.get_translation("errors", "color_pair_creation_error").format(
+						i=i, current_pair=current_pair
+					))
 
 				# Then we sanitize the values by stripping them from whitespaces and putting them in uppercase
 				for j in range(2):
@@ -342,7 +343,9 @@ class App:
 
 					# We also check if this color exists in curses, and otherwise raise an exception
 					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
-						raise Exception(f"Error in theme pair_{i} color {j} : {current_pair[j]} is not a curses color.")
+						raise Exception(self.get_translation("errors", "not_curses_color").format(
+							i=i, color=j, current_pair_element=current_pair[j]
+						))
 
 				# We then initialize the pair by finding the corresponding curses color
 				curses.init_pair(

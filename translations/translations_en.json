@@ -13,5 +13,12 @@
 		"cl": "Clear editor",
 		"is": "Insert file",
 		"rlt": "Reload theme"
+	},
+	"crash_recovery": "Data has been found from the last crash. Do you want to recover it ?",
+	"loaded_plugin": "Loaded plugin {plugin_name}",
+	"errors": {
+		"unknown": "A curses error occurred",
+		"color_pair_creation_error": "Error in theme pair_{i} : Pairs in should be composed of two colors separated by a comma (',') ; found {current_pair}",
+		"not_curses_color": "Error in theme pair_{i} color {color} : {current_pair_element} is not a curses color."
 	}
 }
