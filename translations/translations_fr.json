@@ -55,6 +55,25 @@
 		"open_from_file": "Ouvrir depuis un fichier",
 		"open_menu": "-- OUVRIR --"
 	},
+	"compilers": {
+		"cpp": {
+			"errors": {
+				"case_outside_switch": "Erreur sur la ligne {line_number} : 'case' en dehors d'un 'switch'.",
+				"default_outside_switch": "Erreur sur la ligne {line_number} : 'default' en dehors d'un 'switch'.",
+				"return_in_procedure": "Erreur sur la ligne {line_number} : 'return' dans une procédure.",
+				"return_outside_function": "Erreur sur la ligne {line_number} : 'return' en dehors d'une fonction.",
+				"arr_missing_params": "Erreur sur la ligne {line_number} : {type} n'est pas reconnu comme un type de variable.",
+				"unrecognized_var_type": "Erreur sur la ligne {line_number} : {type} n'est pas un type de variable reconnu.",
+				"struct_missing_args": "Erreur sur la ligne {line_number} : Une initialisation de structure prend au moins deux arguments : 'type_structure' et 'nom_variable', et en a pourtant reçu {param_amount}.",
+				"struct_args_not_even": "Erreur sur la ligne {line_number} : le nombre d'arguments d'une initialisation de structure doit être pair, donc pas {param_amount}."
+			}
+		},
+		"algo": {
+			"errors": {
+				"structure_def_unnamed_param": "Erreur sur la ligne {line_number} : La définition de la structure contient un paramètre non nommé."
+			}
+		}
+	},
 	"crash_recovery": "Des données du document ont été trouvées après le dernier crash. Voulez-vous les récupérer ?",
 	"loaded_plugin": "Plugin {plugin_name} chargé",
 	"theme_reloaded": "Le thème a été mis à jour.",

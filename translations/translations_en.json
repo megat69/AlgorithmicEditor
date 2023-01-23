@@ -55,6 +55,25 @@
 		"open_from_file": "Open from file",
 		"open_menu": "-- OPEN --"
 	},
+	"compilers": {
+		"cpp": {
+			"errors": {
+				"case_outside_switch": "Error on line {line_number} : 'case' statement outside of a 'switch'.",
+				"default_outside_switch": "Error on line {line_number} : 'default' statement outside of a 'switch'.",
+				"return_in_procedure": "Error on line {line_number} : 'return' statement in a procedure.",
+				"return_outside_function": "Error on line {line_number} : 'return' statement outside a function.",
+				"arr_missing_params": "Error on line {line_number} : 'arr' statement does not have all its parameters set.",
+				"unrecognized_var_type": "Error on line {line_number} : {type} is not a recognized variable type",
+				"struct_missing_args": "Error on line {line_number} : Structure initialization should take at least two arguments : 'structure_type' and 'var_name', yet took {param_amount}.",
+				"struct_args_not_even": "Error on line {line_number} : Structure initialization arguments number should be even, so not {param_amount}."
+			}
+		},
+		"algo": {
+			"errors": {
+				"structure_def_unnamed_param": "Error on line {line_number} : The structure definition contains an unnamed parameter."
+			}
+		}
+	},
 	"crash_recovery": "Data has been found from the last crash. Do you want to recover it ?",
 	"loaded_plugin": "Loaded plugin {plugin_name}",
 	"theme_reloaded": "The theme was reloaded.",

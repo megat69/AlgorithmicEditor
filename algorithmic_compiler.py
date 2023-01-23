@@ -5,8 +5,8 @@ from compiler import Compiler
 
 
 class AlgorithmicCompiler(Compiler):
-	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:tuple, stdscr, tab_char:str="\t"):
-		super().__init__(instruction_names, var_types, other_instructions, stdscr, tab_char)
+	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:tuple, stdscr, translations, translate_method, tab_char:str="\t"):
+		super().__init__(instruction_names, var_types, other_instructions, stdscr, translations, translate_method, tab_char)
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -101,7 +101,9 @@ class AlgorithmicCompiler(Compiler):
 		""" Cas element """
 		# If there is no switch in the instruction stack, we error out to the user
 		if "switch" not in self.instructions_stack:
-			self.error(f"Error on line {line_number + 1} : 'case' statement outside of a 'switch'.")
+			self.error(self.tranlate_method("compiler", "cpp", "errors", "case_outside_switch").format(
+				line_number=line_number + 1
+			))
 
 		# If there is no error, we continue
 		else:
@@ -113,7 +115,9 @@ class AlgorithmicCompiler(Compiler):
 		""" Autrement : """
 		# If there is no switch in the instruction stack, we error out to the user
 		if "switch" not in self.instructions_stack:
-			self.error(f"Error on line {line_number + 1} : 'default' statement outside of a 'switch'.")
+			self.error(self.tranlate_method("compiler", "cpp", "errors", "default_outside_switch").format(
+				line_number=line_number + 1
+			))
 
 		# If there is no error, we continue
 		else:
@@ -160,11 +164,15 @@ class AlgorithmicCompiler(Compiler):
 		""" Retourner elements """
 		# Checks we're not in a procedure
 		if "proc" in self.instructions_stack:
-			self.error(f"Error on line {line_number + 1} : 'return' statement in a procedure.")
+			self.error(self.tranlate_method("compiler", "cpp", "errors", "return_in_procedure").format(
+				line_number=line_number + 1
+			))
 
 		# Checks we're inside a function
 		elif "fx" not in self.instructions_stack:
-			self.error(f"Error on line {line_number + 1} : 'return' statement outside of a function.")
+			self.error(self.tranlate_method("compiler", "cpp", "errors", "return_outside_function").format(
+				line_number=line_number + 1
+			))
 
 		# Writes the line correctly
 		else:
@@ -203,11 +211,15 @@ class AlgorithmicCompiler(Compiler):
 
 		# If the statement does not have all its parameters set
 		except IndexError:
-			self.error(f"Error on line {line_number + 1} : 'arr' statement does not have all its parameters set")
+			self.error(self.tranlate_method("compiler", "cpp", "errors", "arr_missing_params").format(
+				line_number=line_number + 1
+			))
 
 		# If the variable type doesn't exist
 		except KeyError:
-			self.error(f"Error on line {line_number + 1} : {instruction_params[0]} is not a recognized variable type")
+			self.error(self.tranlate_method("compiler", "cpp", "errors", "unrecognized_var_type").format(
+				line_number=line_number + 1, type=instruction_params[0]
+			))
 
 
 	def analyze_fx(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -291,7 +303,9 @@ class AlgorithmicCompiler(Compiler):
 				try:
 					params.append(f"{instruction_params[i + 1]} : ")
 				except IndexError:
-					self.error(f"Error on line {line_number} : The structure definition contains an unnamed parameter.")
+					self.error(self.tranlate_method("compiler", "algo", "errors", "structure_def_unnamed_param").format(
+						line_number=line_number + 1
+					))
 					return []
 
 				# Try block in case there is an IndexError
@@ -336,10 +350,13 @@ class AlgorithmicCompiler(Compiler):
 	def analyze_init(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Analyzes the structure initialization. """
 		if len(instruction_params) < 2:  # Error for missing parameters
-			self.error(f"Error on line {line_number + 1} : Structure initialization should take at least two arguments "
-			           f": 'structure_type' and 'var_name', yet took {len(instruction_params)}.")
+			self.error(self.tranlate_method("compiler", "algo", "errors", "struct_missing_args").format(
+				line_number=line_number + 1
+			))
 		elif len(instruction_params) % 2 == 1:  # Error for missing parameters
-			self.error(f"Error on line {line_number + 1} : Structure initialization arguments number should be even.")
+			self.error(self.tranlate_method("compiler", "algo", "errors", "struct_args_not_even").format(
+				line_number=line_number + 1
+			))
 		else:
 			# Creates the structure initialization
 			self.instructions_list[line_number] = f"{instruction_params[1]} : Structure {instruction_params[0]}"

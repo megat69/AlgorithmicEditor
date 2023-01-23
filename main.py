@@ -191,6 +191,8 @@ class App:
 			},
 			("print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct"),
 			self.stdscr,
+			self.translations,
+			self.get_translation,
 			self.tab_char
 		)
 		self.compilers["C++"] = CppCompiler(
