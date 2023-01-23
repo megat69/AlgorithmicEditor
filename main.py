@@ -949,7 +949,9 @@ class App:
 		Toggles the use of the std namespace in the C++ compilation.
 		"""
 		self.using_namespace_std = not self.using_namespace_std
-		self.stdscr.addstr(self.rows - 1, 4, f"Toggled namespace std use to {self.using_namespace_std} ")
+		self.stdscr.addstr(self.rows - 1, 4, self.get_translation("toggle_namespace_std").format(
+			state=self.using_namespace_std
+		))
 		self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = self.using_namespace_std
 
 
@@ -958,7 +960,9 @@ class App:
 		Toggles the use of the struct keyword in the function's return type during the C++ compilation.
 		"""
 		self.use_struct_keyword = not self.use_struct_keyword
-		self.stdscr.addstr(self.rows - 1, 4, f"Toggled struct keyword use to {self.use_struct_keyword} ")
+		self.stdscr.addstr(self.rows - 1, 4, self.get_translation("toggle_struct_use").format(
+			state=self.use_struct_keyword
+		))
 		self.plugins_config["BASE_CONFIG"]["use_struct_keyword"] = self.use_struct_keyword
 
 
@@ -988,12 +992,9 @@ class App:
 			Saves the code to a file.
 			"""
 			# Creates and displays a few messages to the user
-			msg = (
-				"Enter the absolute path to the file you want to",
-				"save the code to, including the filename and extension.",
-				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard",
-				f"or type {self.command_symbol}b open the file browser."
-			)
+			msg = tuple(elem.format(command_symbol=self.command_symbol) for elem in self.get_translation(
+				"save", "save_browse_msg"
+			))
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
 
@@ -1020,9 +1021,9 @@ class App:
 						nonlocal confirm
 						confirm = b
 					display_menu(self.stdscr, (
-						("Yes", partial(set_confirm, True)),
-						("No", partial(set_confirm, False))
-					), label = "This file already exists. Do you want to overwrite it ?")
+						(self.get_translation("yes"), partial(set_confirm, True)),
+						(self.get_translation("no"), partial(set_confirm, False))
+					), label = self.get_translation("save", "overwrite_file"))
 					# If the user didn't confirm, we don't save.
 					if confirm is not True:
 						return
@@ -1044,10 +1045,10 @@ class App:
 			display_menu(
 				self.stdscr,
 				(
-					("Save to clipboard", save_to_clipboard),
-					("Save to file", save_to_file),
-					("Cancel", lambda: None)
-				), label = "-- SAVE --"
+					(self.get_translation("save", "save_to_clipboard"), save_to_clipboard),
+					(self.get_translation("save", "save_to_file"), save_to_file),
+					(self.get_translation("cancel"), lambda: None)
+				), label = self.get_translation("save", "save_menu")
 			)
 			self.stdscr.clear()
 
@@ -1062,7 +1063,11 @@ class App:
 				with open(self.last_save_action, "w", encoding="utf-8") as f:
 					f.write(text_to_save)
 
-			self.stdscr.addstr(self.rows - 1, 4, f"Quicksaved to {self.last_save_action}")
+			self.stdscr.addstr(self.rows - 1, 4, self.get_translation("save", "quicksaved").format(
+				destination=self.last_save_action \
+					if self.last_save_action != "clipboard" else \
+					self.get_translation("save", "clipboard")
+			))
 
 
 	def open(self):
@@ -1082,11 +1087,10 @@ class App:
 			"""
 			Saves the code to a file.
 			"""
-			msg = (
-				"Enter the absolute path to the file you want to",
-				"open the code from, including the filename and extension.",
-				f"Leave empty to cancel or type {self.command_symbol}v to paste the path from the clipboard.",
-				f"or type {self.command_symbol}b to open the file browser."
+			msg = tuple(
+				elem.format(command_symbol=self.command_symbol) for elem in self.get_translation(
+				"open", "open_browse_msg"
+			)
 			)
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
@@ -1102,16 +1106,16 @@ class App:
 						nonlocal opened_code
 						opened_code = True
 				else:
-					msg = "This file doesn't seem to exist."
+					msg = self.get_translation("open", "nonexistent_file")
 					self.stdscr.addstr(self.rows // 2, self.cols // 2 - len(msg), msg)
 
 		display_menu(
 			self.stdscr,
 			(
-				("Open from clipboard", open_from_clipboard),
-				("Open from file", open_from_file),
-				("Cancel", lambda: None)
-			), label = "-- OPEN --"
+				(self.get_translation("open", "open_from_clipboard"), open_from_clipboard),
+				(self.get_translation("open", "open_from_file"), open_from_file),
+				(self.get_translation("cancel"), lambda: None)
+			), label = self.get_translation("open", "open_menu")
 		)
 
 		self.stdscr.clear()

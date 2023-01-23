@@ -25,14 +25,43 @@
 		"cancel": "Annuler",
 		"quit_message": "-- QUITTER --"
 	},
+	"commands_list": {
+		"commands_list": "liste des commandes",
+		"plugin_commands": "Commandes de plugins"
+	},
+	"save": {
+		"save_browse_msg": [
+			"Entrez le chemin absolu vers le fichier dans lequel vous souhaitez",
+			"enregistrer le code, en incluant son nom et son extension.",
+			"Laissez vide pour annuler ou tapez {command_symbol}v pour coller le chemin depuis le presse-papiers",
+			"ou tapez {command_symbol}b pour ouvrir l'explorateur de fichiers."
+		],
+		"overwrite_file": "Ce fichier existe déjà. Voulez-vous le remplacer ?",
+		"save_to_clipboard": "Copier dans le presse-papiers",
+		"save_to_file": "Enregistrer dans un fichier",
+		"save_menu": "-- ENREGISTRER --",
+		"quicksaved": "Enregistré rapidement vers {destination}",
+		"clipboard": "presse-papiers"
+	},
+	"open": {
+		"open_browse_msg": [
+			"Entrez le chemin absolu vers le fichier que vous souhaitez ouvrir, ",
+			"en incluant son nom et son extension.",
+			"Laissez vide pour annuler ou tapez {command_symbol}v pour coller le chemin depuis le presse-papiers",
+			"ou tapez {command_symbol}b pour ouvrir l'explorateur de fichiers."
+		],
+		"nonexistent_file": "Ce fichier n'a pas l'air d'exister.",
+		"open_from_clipboard": "Ouvrir depuis le presse-papiers",
+		"open_from_file": "Ouvrir depuis un fichier",
+		"open_menu": "-- OUVRIR --"
+	},
 	"crash_recovery": "Des données du document ont été trouvées après le dernier crash. Voulez-vous les récupérer ?",
 	"loaded_plugin": "Plugin {plugin_name} chargé",
 	"theme_reloaded": "Le thème a été mis à jour.",
 	"yes": "Oui",
 	"no": "Non",
 	"editor_clear_confirm": "Confirmer l'effacement du contenu de l'éditeur ?",
-	"commands_list": {
-		"commands_list": "liste des commandes",
-		"plugin_commands": "Commandes de plugins"
-	}
+	"toggle_namespace_std": "Utilisation du namespace std basculé sur {state} ",
+	"toggle_struct_use": "Utilisation du mot-clé struct basculé sur {state} ",
+	"cancel": "Annuler"
 }

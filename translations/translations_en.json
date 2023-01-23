@@ -25,14 +25,43 @@
 		"cancel": "Cancel",
 		"quit_message": "-- QUIT --"
 	},
+	"commands_list": {
+		"commands_list": "Commands list",
+		"plugin_commands": "Plugin commands"
+	},
+	"save": {
+		"save_browse_msg": [
+			"Enter the absolute path to the file you want to",
+			"save the code to, including the filename and extension.",
+			"Leave empty to cancel or type {command_symbol}v to paste the path from the clipboard",
+			"or type {command_symbol}b open the file browser."
+		],
+		"overwrite_file": "This file already exists. Do you want to overwrite it ?",
+		"save_to_clipboard": "Save to clipboard",
+		"save_to_file": "Save to file",
+		"save_menu": "-- SAVE --",
+		"quicksaved": "Quicksaved to {destination}",
+		"clipboard": "clipboard"
+	},
+	"open": {
+		"open_browse_msg": [
+			"Enter the absolute path to the file you want to",
+			"open the code from, including the filename and extension.",
+			"Leave empty to cancel or type {command_symbol}v to paste the path from the clipboard",
+			"or type {command_symbol}b open the file browser."
+		],
+		"nonexistent_file": "This file doesn't seem to exist.",
+		"open_from_clipboard": "Open from clipboard",
+		"open_from_file": "Open from file",
+		"open_menu": "-- OPEN --"
+	},
 	"crash_recovery": "Data has been found from the last crash. Do you want to recover it ?",
 	"loaded_plugin": "Loaded plugin {plugin_name}",
 	"theme_reloaded": "The theme was reloaded.",
 	"yes": "Yes",
 	"no": "No",
 	"editor_clear_confirm": "Confirm clearing editor ?",
-	"commands_list": {
-		"commands_list": "Commands list",
-		"plugin_commands": "Plugin commands"
-	}
+	"toggle_namespace_std": "Toggled namespace std use to {state} ",
+	"toggle_struct_use": "Toggled struct keyword use to {state} ",
+	"cancel": "Cancel"
 }
