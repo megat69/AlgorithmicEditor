@@ -7,6 +7,7 @@ class Plugin:
 		self.app = app  # An instance of the app
 		self.plugin_name: str = ""  # The name of the plugin
 		self.config: dict = {}  # The config data of the plugin
+		self.translations: dict = {}  # The translations of your app
 
 	def init(self):
 		"""
@@ -35,6 +36,35 @@ class Plugin:
 		:param compilation_type: The language in which the code was compiled. Can be either "cpp" or "algo".
 		"""
 		pass
+
+
+	def translate(self, *keys: str, language: str = None) -> str:
+		"""
+		Gives you the translation of the string found at the key with the given language.
+		If language is None, the app's language will be used.
+		:param keys: The keys to the translation.
+		:param language: The language to be used to translate. If None (default), the app's language.
+		:return: The translated string.
+		"""
+		# Tries to reach the correct translation
+		try:
+			# Loads the translation in the given language
+			string = self.translations[self.app.language if language is None else language]
+
+			# Loads, key by key, the contents of the translation
+			for key in keys:
+				string = string[key]
+
+		# If anything happens, we fall back to english.
+		except KeyError:
+			if language != "en":
+				string = self.translate(*keys, language="en")
+			else:
+				raise Exception(f"Translation for {keys} not found !")
+
+		# We return the given string
+		return string
+
 
 	def add_command(self, character: str, function: Callable, description: str, hidden: bool = False):
 		"""
