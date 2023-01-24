@@ -8,6 +8,7 @@ import importlib
 import json
 from typing import Union
 from configparser import ConfigParser
+from collections import deque
 
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
@@ -41,6 +42,7 @@ class App:
 			"s": (self.save, self.get_translation("commands", "s"), False),
 			"qs": (partial(self.save, quick_save=True), self.get_translation("commands", "qs"), False),
 			"o": (self.open, self.get_translation("commands", "o"), False),
+			"z": (self.undo, self.get_translation("commands", "z"), False),
 			"p": (self.compile_to_cpp, self.get_translation("commands", "p"), False),
 			"j": (self.toggle_std_use, self.get_translation("commands", "j"), True),
 			"st": (self.toggle_struct_use, self.get_translation("commands", "st"), True),
@@ -62,6 +64,7 @@ class App:
 		self.min_display_char = 0  # Useless at the moment
 		self.last_save_action = "clipboard"  # What the user did the last time he saved some code from the editor ; can be 'clipboard' or the pah to a file.
 		self.compilers = {}  # A dictionary of compilers for the editor
+		self.undo_actions = deque([], maxlen=20)  # All the actions that can be used to undo
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -86,6 +89,12 @@ class App:
 			self.tab_char = self.plugins_config["BASE_CONFIG"]["tab_char"]
 		else:
 			self.plugins_config["BASE_CONFIG"]["tab_char"] = self.tab_char
+
+		# Creates a maximum length for the queue of the undo actions based on the config
+		if "max_undo_size" in self.plugins_config["BASE_CONFIG"].keys():
+			self.undo_actions = deque([], maxlen=self.plugins_config["BASE_CONFIG"]["max_undo_size"])
+		else:
+			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = self.undo_actions.maxlen
 
 
 		# Getting the theme
@@ -243,10 +252,30 @@ class App:
 				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
 					if key in ("KEY_BACKSPACE", "\b", "\0"):
 						if self.current_index > 0:
+							# Makes the action undoable
+							self.undo_actions.append(
+								{
+									"action_type": "removed_char",
+									"char": self.current_text[self.current_index - 1],
+									"index": self.current_index - 1,
+									"adder": -1
+								}
+							)
+							# Removes the character from the text
 							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
 							self.current_index -= 1
-					elif key == "KEY_DC":
+					elif key == "KEY_DC":  # Delete key
 						if self.current_index < len(self.current_text):
+							# Makes the action undoable
+							self.undo_actions.append(
+								{
+									"action_type": "removed_char",
+									"char": self.current_text[self.current_index],
+									"index": self.current_index,
+									"adder": 0
+								}
+							)
+							# Removes the character from the text
 							self.current_text = self.current_text[:self.current_index] + self.current_text[self.current_index+1:]
 					elif key in ("KEY_UP", "KEY_DOWN"):
 						text = self.current_text + "\n"
@@ -389,6 +418,54 @@ class App:
 
 		# We return the given string
 		return string
+
+
+	def undo(self):
+		"""
+		Undoes the last action.
+		"""
+		# Checks if there are actions that can be undone, otherwise just leaves there
+		if len(self.undo_actions) == 0: return None
+
+		# Looks at the last action while removing it from the queue
+		last_action = self.undo_actions.pop()
+
+		# Remembers if an action was undone for later
+		undone_action = False
+
+		# If the last action is a character addition
+		if last_action["action_type"] == "added_char":
+			self.current_text = self.current_text[:last_action["index"]] + \
+									self.current_text[last_action["index"] + len(last_action["char"]):]
+			# Also refreshes the screen
+			undone_action = True
+
+		# If the last action was to remove a character, we add it back
+		elif last_action["action_type"] == "removed_char":
+			# Inserting the character back into the text
+			current_text = list(self.current_text)
+			current_text.insert(
+				last_action["index"], last_action["char"]
+			)
+			current_text = "".join(current_text)
+			self.current_text = current_text
+
+			# Putting the cursor back to where the character was
+			self.current_index = last_action["index"] + last_action["adder"]
+
+			# Refreshes the screen
+			undone_action = True
+
+		# If unknown, logs the action and recursively calls the function
+		else:
+			self.log(f"Unknown action : {last_action}")
+			# Tries to undo another action
+			self.undo()
+
+		# Refreshes the screen
+		if undone_action:
+			self.stdscr.clear()
+			self.display_text()
 
 
 	def quit(self) -> None:
@@ -621,6 +698,16 @@ class App:
 		Adds the given character at the end of the text.
 		:param key: A character to add to the text.
 		"""
+		# Remembers the action as an undoable action
+		self.undo_actions.append(
+			{
+				"action_type": "added_char",
+				"char": key,
+				"index": self.current_index
+			}
+		)
+
+		# Adds the given character to the text
 		self.current_text = self.current_text[:self.current_index] + key + self.current_text[self.current_index:]
 		self.current_index += len(key)
 

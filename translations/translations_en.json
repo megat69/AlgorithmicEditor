@@ -6,6 +6,7 @@
 		"s": "Save",
 		"qs": "Quicksave",
 		"o": "Open",
+		"z": "Undo",
 		"p": "Compile to C++",
 		"j": "Toggle namespace std",
 		"st": "Toggle struct keyword use",
