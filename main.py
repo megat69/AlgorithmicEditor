@@ -64,7 +64,7 @@ class App:
 		self.min_display_char = 0  # Useless at the moment
 		self.last_save_action = "clipboard"  # What the user did the last time he saved some code from the editor ; can be 'clipboard' or the pah to a file.
 		self.compilers = {}  # A dictionary of compilers for the editor
-		self.undo_actions = deque([], maxlen=20)  # All the actions that can be used to undo
+		self.undo_actions = deque([], maxlen=21)  # All the actions that can be used to undo
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -92,9 +92,9 @@ class App:
 
 		# Creates a maximum length for the queue of the undo actions based on the config
 		if "max_undo_size" in self.plugins_config["BASE_CONFIG"].keys():
-			self.undo_actions = deque([], maxlen=self.plugins_config["BASE_CONFIG"]["max_undo_size"])
+			self.undo_actions = deque([], maxlen=self.plugins_config["BASE_CONFIG"]["max_undo_size"] + 1)
 		else:
-			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = self.undo_actions.maxlen
+			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = self.undo_actions.maxlen - 1
 
 
 		# Getting the theme
@@ -230,6 +230,10 @@ class App:
 			# Key input
 			key = self.stdscr.getkey()
 
+			# If the undo is full, dumping the earliest element of queue
+			if len(self.undo_actions) == self.undo_actions.maxlen:
+				self.undo_actions.popleft()
+
 			# If system key is pressed
 			if key == self.command_symbol:
 				# Writes the command symbol to the command area row
@@ -286,7 +290,7 @@ class App:
 									"action_type": "removed_char",
 									"char": self.current_text[self.current_index - 1],
 									"index": self.current_index - 1,
-									"adder": -1
+									"adder": 0
 								}
 							)
 							# Removes the character from the text
