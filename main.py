@@ -232,16 +232,44 @@ class App:
 
 			# If system key is pressed
 			if key == self.command_symbol:
+				# Writes the command symbol to the command area row
 				self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
+				# Awaits the user's full command
 				key = input_text(self.stdscr, 1, self.rows - 1)
+
+				# If the command exists
 				if key in self.commands.keys():
+					# We get the command information
 					key_name, (function, name, hidden) = key, self.commands[key]
+
+					# We add the full command name to the command area row
 					self.stdscr.addstr(self.rows - 1, 1, key_name)
+
+					# We launch the command
 					try:
+						# Remembering the current state of the text so the command can be undone
+						# However, not doing this if this is the undo command
+						if key != "z":
+							self.undo_actions.append(
+								{
+									"action_type": "command",
+									"current_text": self.current_text,
+									"current_index": self.current_index
+								}
+							)
+
+						# Actually launching the command
 						function()
+
+					# If a curses error happens, we warn the user and log the error
 					except curses.error as e:
 						self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
 						self.log(e)
+						# We also undo the action just in case
+						if key != "z":
+							self.undo()
+
+				# Add a few spaces to clear the command name
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 			# If it is a regular key
 			else:
@@ -452,6 +480,15 @@ class App:
 
 			# Putting the cursor back to where the character was
 			self.current_index = last_action["index"] + last_action["adder"]
+
+			# Refreshes the screen
+			undone_action = True
+
+		# If the last action was a command launch
+		elif last_action["action_type"] == "command":
+			# Resetting the current text and current index
+			self.current_text = last_action["current_text"]
+			self.current_index = last_action["current_index"]
 
 			# Refreshes the screen
 			undone_action = True
