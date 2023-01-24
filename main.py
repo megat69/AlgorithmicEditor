@@ -361,9 +361,9 @@ class App:
 	def get_translation(self, *keys: str, language: str = None, **format_keys) -> str:
 		"""
 		Returns the translation of the given string.
-		:param **format_keys:
 		:param keys: Every key, in order, towards the translation.
 		:param language: The language in which to translate in. If None (by default), the value of self.language is used.
+		:param format_keys: Parameters that would be used in the str.format() method.
 		:return: The translation.
 		"""
 		# Tries to reach the correct translation
