@@ -38,12 +38,13 @@ class Plugin:
 		pass
 
 
-	def translate(self, *keys: str, language: str = None) -> str:
+	def translate(self, *keys: str, language: str = None, **format_keys) -> str:
 		"""
 		Gives you the translation of the string found at the key with the given language.
 		If language is None, the app's language will be used.
 		:param keys: The keys to the translation.
 		:param language: The language to be used to translate. If None (default), the app's language.
+		:param format_keys: Parameters that would be used in the str.format() method.
 		:return: The translated string.
 		"""
 		# Tries to reach the correct translation
@@ -61,6 +62,10 @@ class Plugin:
 				string = self.translate(*keys, language="en")
 			else:
 				raise Exception(f"Translation for {keys} not found !")
+
+		# We format the string based on the given format_keys
+		if format_keys:
+			string = string.format(**format_keys)
 
 		# We return the given string
 		return string
