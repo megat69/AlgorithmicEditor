@@ -138,7 +138,7 @@ class App:
 					("Yes", recover_crash_data),
 					("No", lambda: None)
 				),
-				label = self.get_translation("crash_recovery"),
+				label =self.get_translation("crash_recovery"),
 				clear = False
 			)
 			os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
@@ -150,7 +150,7 @@ class App:
 		self._declare_color_pairs()
 
 		# Initializes each plugin, if they have an init function
-		msg_string = self.get_translation("loaded_plugin").format(plugin_name="{}")
+		msg_string = self.get_translation("loaded_plugin", plugin_name="{}")
 		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
 			if hasattr(plugin[1], "init"):
 				plugin[1].init()
@@ -335,8 +335,8 @@ class App:
 
 				# We check that this is indeed a pair, otherwise raise an error
 				if len(current_pair) != 2:
-					raise Exception(self.get_translation("errors", "color_pair_creation_error").format(
-						i=i, current_pair=current_pair
+					raise Exception(self.get_translation(
+						"errors", "color_pair_creation_error", i=i, current_pair=current_pair
 					))
 
 				# Then we sanitize the values by stripping them from whitespaces and putting them in uppercase
@@ -345,7 +345,8 @@ class App:
 
 					# We also check if this color exists in curses, and otherwise raise an exception
 					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
-						raise Exception(self.get_translation("errors", "not_curses_color").format(
+						raise Exception(self.get_translation(
+							"errors", "not_curses_color",
 							i=i, color=j, current_pair_element=current_pair[j]
 						))
 
@@ -357,10 +358,11 @@ class App:
 				)
 
 
-	def get_translation(self, *args: str, language: str = None) -> str:
+	def get_translation(self, *keys: str, language: str = None, **format_keys) -> str:
 		"""
 		Returns the translation of the given string.
-		:param args: Every key, in order, towards the translation.
+		:param **format_keys:
+		:param keys: Every key, in order, towards the translation.
 		:param language: The language in which to translate in. If None (by default), the value of self.language is used.
 		:return: The translation.
 		"""
@@ -370,15 +372,20 @@ class App:
 			string = self.translations[self.language if language is None else language]
 
 			# Loads, key by key, the contents of the translation
-			for key in args:
+			for key in keys:
 				string = string[key]
 
 		# If anything happens, we fall back to english.
 		except KeyError:
 			if language != "en":
-				string = self.get_translation(*args, language="en")
+				string = self.get_translation(*keys, language="en")
 			else:
-				raise Exception(f"Translation for {args} not found !")
+				raise Exception(f"Translation for {keys} not found !")
+
+
+		# We format the string based on the given format_keys
+		if format_keys:
+			string = string.format(**format_keys)
 
 		# We return the given string
 		return string
@@ -596,7 +603,7 @@ class App:
 			(self.get_translation("yes"), _clear_text),
 			(self.get_translation("no"), lambda: None)
 		),
-		label=self.get_translation("editor_clear_confirm"))
+		             label=self.get_translation("editor_clear_confirm"))
 
 
 	def insert_text(self):
@@ -951,8 +958,8 @@ class App:
 		Toggles the use of the std namespace in the C++ compilation.
 		"""
 		self.using_namespace_std = not self.using_namespace_std
-		self.stdscr.addstr(self.rows - 1, 4, self.get_translation("toggle_namespace_std").format(
-			state=self.using_namespace_std
+		self.stdscr.addstr(self.rows - 1, 4, self.get_translation(
+			"toggle_namespace_std", state=self.using_namespace_std
 		))
 		self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = self.using_namespace_std
 
@@ -962,8 +969,8 @@ class App:
 		Toggles the use of the struct keyword in the function's return type during the C++ compilation.
 		"""
 		self.use_struct_keyword = not self.use_struct_keyword
-		self.stdscr.addstr(self.rows - 1, 4, self.get_translation("toggle_struct_use").format(
-			state=self.use_struct_keyword
+		self.stdscr.addstr(self.rows - 1, 4, self.get_translation(
+			"toggle_struct_use", state=self.use_struct_keyword
 		))
 		self.plugins_config["BASE_CONFIG"]["use_struct_keyword"] = self.use_struct_keyword
 
@@ -994,9 +1001,8 @@ class App:
 			Saves the code to a file.
 			"""
 			# Creates and displays a few messages to the user
-			msg = tuple(elem.format(command_symbol=self.command_symbol) for elem in self.get_translation(
-				"save", "save_browse_msg"
-			))
+			msg = tuple(elem.format(command_symbol=self.command_symbol) for elem in
+			            self.get_translation("save", "save_browse_msg"))
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
 
@@ -1025,7 +1031,7 @@ class App:
 					display_menu(self.stdscr, (
 						(self.get_translation("yes"), partial(set_confirm, True)),
 						(self.get_translation("no"), partial(set_confirm, False))
-					), label = self.get_translation("save", "overwrite_file"))
+					), label =self.get_translation("save", "overwrite_file"))
 					# If the user didn't confirm, we don't save.
 					if confirm is not True:
 						return
@@ -1050,7 +1056,7 @@ class App:
 					(self.get_translation("save", "save_to_clipboard"), save_to_clipboard),
 					(self.get_translation("save", "save_to_file"), save_to_file),
 					(self.get_translation("cancel"), lambda: None)
-				), label = self.get_translation("save", "save_menu")
+				), label =self.get_translation("save", "save_menu")
 			)
 			self.stdscr.clear()
 
@@ -1065,7 +1071,8 @@ class App:
 				with open(self.last_save_action, "w", encoding="utf-8") as f:
 					f.write(text_to_save)
 
-			self.stdscr.addstr(self.rows - 1, 4, self.get_translation("save", "quicksaved").format(
+			self.stdscr.addstr(self.rows - 1, 4, self.get_translation(
+				"save", "quicksaved",
 				destination=self.last_save_action \
 					if self.last_save_action != "clipboard" else \
 					self.get_translation("save", "clipboard")
@@ -1090,9 +1097,8 @@ class App:
 			Saves the code to a file.
 			"""
 			msg = tuple(
-				elem.format(command_symbol=self.command_symbol) for elem in self.get_translation(
-				"open", "open_browse_msg"
-			)
+				elem.format(command_symbol=self.command_symbol) for elem in
+				self.get_translation("open", "open_browse_msg")
 			)
 			for i in range(len(msg)):
 				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
@@ -1117,7 +1123,7 @@ class App:
 				(self.get_translation("open", "open_from_clipboard"), open_from_clipboard),
 				(self.get_translation("open", "open_from_file"), open_from_file),
 				(self.get_translation("cancel"), lambda: None)
-			), label = self.get_translation("open", "open_menu")
+			), label =self.get_translation("open", "open_menu")
 		)
 
 		self.stdscr.clear()
