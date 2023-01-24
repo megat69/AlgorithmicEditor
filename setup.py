@@ -14,7 +14,9 @@ if not os.path.exists("plugins_config.json"):
 	with open("plugins_config.json", "w", encoding="utf-8") as f:
 		f.write(
 			'{\n\t"BASE_CONFIG": {\n\t\t"default_save_location": "%%",\n\t\t"language": "%%"\n\t}\n}'.replace(
-				"%%", os.path.normpath(os.path.join(os.path.dirname(__file__), "../")), 1
+				"%%", os.path.normpath(os.path.join(os.path.dirname(__file__), "../")).replace(
+					"\\", "/"
+				), 1
 			).replace("%%", language, 1)
 		)
 
