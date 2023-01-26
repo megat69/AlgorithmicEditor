@@ -4,6 +4,7 @@ A collection of utility functions for the editor.
 import curses
 import os
 from functools import partial
+from math import ceil
 
 
 def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True):
@@ -29,6 +30,14 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	if clear:
 		stdscr.clear()
 
+	# Gets the rows and columns
+	rows, cols = stdscr.getmaxyx()
+
+	# Keeps in mind the amount of pages and the current page
+	max_items_per_page = rows - 5
+	current_page = 0
+	total_pages = ceil(cmd_len / max_items_per_page)
+
 	# Initializing the key
 	key = ""
 
@@ -36,21 +45,41 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	while key not in ("\n", "\t"):
 		# Displays the menu title
 		if label is not None:
+			# Checking for the horizontal size
+			if len(label) > cols - 5:
+				label = label[:cols - 5] + "..."
+			# Displaying label
 			stdscr.addstr(
-				screen_middle_y - cmd_len // 2 - 2,
+				screen_middle_y - min(max_items_per_page, cmd_len) // 2 - 2,
 				screen_middle_x - len(label) // 2,
 				label
 			)
 
+		# Remembering the length of the selected slice
+		current_command_len = lambda: len(
+			commands[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+		)
+
 		# Displays the menu
-		for i, command in enumerate(commands):
+		for i, command in enumerate(
+			# Only displays the menu elements from the current page
+			commands[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+		):
+			# Checking for the horizontal size
+			if len(command[0]) > cols - 5:
+				command[0] = command[0][:cols - 5] + "..."
 			# Displays the menu item
 			stdscr.addstr(
-				screen_middle_y - cmd_len // 2 + i,
+				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i,
 				screen_middle_x - len(command[0]) // 2,
 				command[0],
 				curses.A_NORMAL if i != selected_element else curses.A_REVERSE  # Reverses the color if the item is selected
 			)
+
+		# Displays at the bottom right how many pages are available
+		if total_pages > 1:
+			page_left_str = f"Page {current_page + 1}/{total_pages}"
+			stdscr.addstr(rows - 3, cols - len(page_left_str) - 3, page_left_str, curses.A_REVERSE)
 
 		# Fetches a key
 		key = stdscr.getkey()
@@ -60,17 +89,40 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 			selected_element -= 1
 		elif key == "KEY_DOWN":
 			selected_element += 1
+		elif key == "KEY_LEFT":
+			# If this is the first page, we get to the last one
+			if current_page == 0:
+				current_page = total_pages - 1
+				# Putting the cursor at the end if there are fewer elements on this page
+				if selected_element >= current_command_len():
+					selected_element = current_command_len() - 1
+			# Otherwise, we get to the previous
+			else:
+				current_page -= 1
+			stdscr.clear()
+		elif key == "KEY_RIGHT":
+			# If this is the last page, we get to the first one
+			if current_page == total_pages - 1:
+				current_page = 0
+			# Otherwise, we get to the next
+			else:
+				current_page += 1
+				# Putting the cursor at the end if there are fewer elements on this page
+				if selected_element >= current_command_len():
+					selected_element = current_command_len() - 1
+			stdscr.clear()
+
 		# Wrap-around
 		if selected_element < 0:
-			selected_element = cmd_len - 1
-		elif selected_element > cmd_len - 1:
+			selected_element = current_command_len() - 1
+		elif selected_element >= current_command_len():
 			selected_element = 0
 
 	# Clears the screen
 	stdscr.clear()
 
 	# Calls the function from the appropriate item
-	return commands[selected_element][1]()
+	return commands[selected_element + current_page * max_items_per_page][1]()
 
 
 

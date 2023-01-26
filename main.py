@@ -9,6 +9,7 @@ import json
 from typing import Union
 from configparser import ConfigParser
 from collections import deque
+from traceback import print_exception
 
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
@@ -269,6 +270,7 @@ class App:
 					except curses.error as e:
 						self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
 						self.log(e)
+						print_exception(e)
 						# We also undo the action just in case
 						if key != "z":
 							self.undo()
