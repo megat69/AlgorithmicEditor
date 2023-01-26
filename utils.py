@@ -194,6 +194,8 @@ class browse_files:
 
 	def __call__(self, stdscr=None, given_path:str=None) -> str:
 		self.path = browse_files.last_browsed_path if given_path is None else os.path.normpath(given_path)
+		if self.path == "":
+			self.path = os.path.normpath(os.path.join(os.path.dirname(__file__), "../"))
 		if stdscr is not None:
 			self.stdscr = stdscr
 		folders_list = []
