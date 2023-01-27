@@ -298,7 +298,7 @@ class CppCompiler(Compiler):
 					# If the param is an array, we parse it correctly
 					if instruction_params[i].startswith("arr"):
 						current_array_param = instruction_params[i].split("_")
-						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
+						params[-1] += f"{self.var_types[current_array_param[1]]} {instruction_params[i + 1]}[{']['.join(current_array_param[2:])}]"
 
 					# If the param is a structure, we parse it correctly
 					elif instruction_params[i].startswith("struct_"):
