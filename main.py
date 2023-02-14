@@ -159,25 +159,6 @@ class App:
 		# Declaring the color pairs
 		self._declare_color_pairs()
 
-		# Initializes each plugin, if they have an init function
-		msg_string = self.get_translation("loaded_plugin", plugin_name="{}")
-		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
-			if hasattr(plugin[1], "init"):
-				plugin[1].init()
-			# Writes a message to the screen showing all imported plugins
-			self.stdscr.addstr(
-				self.rows - 4 - i,
-				self.cols - (len(msg_string.format(plugin_name)) + 2),
-				msg_string.format(plugin_name)
-			)
-		msg_string = "Loaded {} plugins"
-		self.stdscr.addstr(
-			self.rows - 4 - len(self.plugins.keys()),
-			self.cols - (len(msg_string.format(len(self.plugins.keys()))) + 2),
-			msg_string.format(len(self.plugins.keys())), curses.color_pair(3)
-		)
-		del msg_string
-
 		# Initializes the compilers
 		self.compilers["algorithmic"] = AlgorithmicCompiler(
 			{
@@ -199,7 +180,7 @@ class App:
 				"bool": "Booléen",
 				"char": "Caractère"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct"),
+			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct", "const"],
 			self.stdscr,
 			self.translations,
 			self.get_translation,
@@ -214,10 +195,29 @@ class App:
 				"bool": "bool",
 				"char": "char"
 			},
-			("print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init"),
+			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "const"],
 			self.stdscr,
 			self
 		)
+
+		# Initializes each plugin, if they have an init function
+		msg_string = self.get_translation("loaded_plugin", plugin_name="{}")
+		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
+			if hasattr(plugin[1], "init"):
+				plugin[1].init()
+			# Writes a message to the screen showing all imported plugins
+			self.stdscr.addstr(
+				self.rows - 4 - i,
+				self.cols - (len(msg_string.format(plugin_name)) + 2),
+				msg_string.format(plugin_name)
+			)
+		msg_string = "Loaded {} plugins"
+		self.stdscr.addstr(
+			self.rows - 4 - len(self.plugins.keys()),
+			self.cols - (len(msg_string.format(len(self.plugins.keys()))) + 2),
+			msg_string.format(len(self.plugins.keys())), curses.color_pair(3)
+		)
+		del msg_string
 
 
 		# Displays the text
