@@ -14,7 +14,7 @@ def ifsanitize(string:str) -> str:
 
 
 class CppCompiler(Compiler):
-	def __init__(self, instruction_names:tuple, var_types:dict, other_instructions:tuple, stdscr, app,
+	def __init__(self, instruction_names:tuple, var_types:dict, other_instructions:list, stdscr, app,
 	                use_struct_keyword:bool=True):
 		super().__init__(instruction_names, var_types, other_instructions, stdscr, app.translations, app.get_translation, app.tab_char)
 
@@ -44,7 +44,7 @@ class CppCompiler(Compiler):
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Constante : Nom : Paramètres """
 		# Adds a constant to the list of constants
-		self.constants.append(f"const {' '.join(instruction_params)}")
+		self.constants.append(f"const {' '.join(instruction_params)};")
 
 		# Empties the line
 		self.instructions_list[line_number] = ""
@@ -90,8 +90,8 @@ class CppCompiler(Compiler):
 		if last_elem in ("case", "default"):
 			self.instructions_list[line_number] = self.tab_char + "break;"
 
-		elif last_elem == "fx":
-			self.fxtext.append("}")
+		elif last_elem in ("fx", "proc"):
+			self.fxtext.append("}\n")
 			self.instructions_list[line_number] = ""
 
 		# Otherwise it's just a curly bracket
@@ -369,7 +369,11 @@ class CppCompiler(Compiler):
 					# If the param is an array, we parse it correctly
 					if instruction_params[i].startswith("arr"):
 						current_array_param = instruction_params[i].split("_")
-						params[-1] += f"{self.var_types[current_array_param[1]]} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
+						try:
+							vtype = self.var_types[instruction_params[i].split('_')[1]]
+						except KeyError:
+							vtype = instruction_params[i].split('_')[1]
+						params[-1] += f"{vtype} {current_array_param[2]}[{']['.join(current_array_param[2:])}]"
 
 					# If the param is a structure, we parse it correctly
 					elif instruction_params[i].startswith("struct_"):
@@ -474,7 +478,8 @@ class CppCompiler(Compiler):
 		# Adds it to fxtext if necessary
 		if len(self.instructions_stack) != 0 and (
 			"fx" in self.instructions_stack or
-			(instruction_name == "end" and self.instructions_stack[-1] == "fx")
+			"proc" in self.instructions_stack or
+			(instruction_name == "end" and self.instructions_stack[-1] in ("fx", "proc"))
 		):
 			self.fxtext.append(self.instructions_list[line_number])
 			if instruction_name == "end":
