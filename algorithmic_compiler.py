@@ -271,15 +271,33 @@ class AlgorithmicCompiler(Compiler):
 			# We write the line as a function
 			self.instructions_list[line_number] = f"Fonction {instruction_params[1]} ({params}) : "
 
-			# If the return type is not a structure
-			if not instruction_params[0].startswith("struct_"):
-				# We add the return type
-				self.instructions_list[line_number] += self.var_types[instruction_params[0]]
-
 			# If the return type is a structure
-			else:
+			if instruction_params[0].startswith("struct_"):
 				# We add the structure message followed by the return type
 				self.instructions_list[line_number] += "Structure " + instruction_params[0][7:]
+
+			elif instruction_params[0].startswith("arr_"):
+				# We add the array message
+				instruction_params[0] = instruction_params[0][4:]
+
+				# We split the param into a type followed by dimensions
+				instruction_params[0] = instruction_params[0].split("_")
+
+				# We generate the message
+				try:
+					self.instructions_list[line_number] += f"Tableau de {self.var_types[instruction_params[0][0]]}"
+					for e in instruction_params[0][1:]:
+						self.instructions_list += f"[{e}]"
+				except KeyError:
+					self.error(f"Error on line {line_number + 1} : Var type '{instruction_params[0][0]}' unknown.")
+
+			# If the return type is not a structure
+			else:
+				# We add the return type
+				try:
+					self.instructions_list[line_number] += self.var_types[instruction_params[0]]
+				except KeyError:
+					self.error(f"Error on line {line_number + 1} : Var type '{instruction_params[0]}' unknown.")
 
 		else:  # Procedure
 			self.instructions_stack.append("proc")
