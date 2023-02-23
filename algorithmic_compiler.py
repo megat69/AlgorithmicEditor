@@ -5,7 +5,7 @@ from compiler import Compiler
 
 
 class AlgorithmicCompiler(Compiler):
-	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:tuple, stdscr, translations, translate_method, tab_char:str="\t"):
+	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:list, stdscr, translations, translate_method, tab_char:str="\t"):
 		super().__init__(instruction_names, var_types, other_instructions, stdscr, translations, translate_method, tab_char)
 
 
@@ -312,8 +312,12 @@ class AlgorithmicCompiler(Compiler):
 				try:
 					# If the param is an array, we parse it correctly
 					if instruction_params[i].startswith("arr"):
+						try:
+							vtype = self.var_types[instruction_params[i].split('_')[1]]
+						except KeyError:
+							vtype = instruction_params[i].split('_')[1]
 						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
-						              f"{self.var_types[instruction_params[i].split('_')[1]]}s"
+						              f"{vtype}s"
 
 					# If the param is a structure, we parse it correctly
 					elif instruction_params[i].startswith("struct_"):

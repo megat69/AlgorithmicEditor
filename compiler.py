@@ -3,7 +3,7 @@ from typing import Union
 
 
 class Compiler:
-	def __init__(self, instruction_names: Union[dict, tuple], var_types:dict, other_instructions:tuple, stdscr, translations: dict, translate_method, tab_char:str= "\t"):
+	def __init__(self, instruction_names: Union[dict, tuple], var_types:dict, other_instructions:list, stdscr, translations: dict, translate_method, tab_char:str= "\t"):
 		"""
 		Initializes a new compiler.
 		:param instruction_names: Dictionaries containing the translation of the instructions
