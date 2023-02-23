@@ -319,7 +319,10 @@ class App:
 						closest_index = closest_index + (-1)**(key == "KEY_UP")
 						try:
 							if closest_index <= 0:
-								self.current_index = 0
+								if "\n" in self.current_text:
+									self.current_index = self.current_text.index("\n")
+								else:
+									self.current_index = len(self.current_text)
 							else:
 								self.current_index = indexes[closest_index]
 						except IndexError: pass
