@@ -61,7 +61,7 @@ class Plugin:
 			if language != "en":
 				string = self.translate(*keys, language="en")
 			else:
-				raise Exception(f"Translation for {keys} not found !")
+				raise KeyError(f"Translation for {keys} not found !")
 
 		# We format the string based on the given format_keys
 		if format_keys:

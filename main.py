@@ -401,7 +401,7 @@ class App:
 
 				# We check that this is indeed a pair, otherwise raise an error
 				if len(current_pair) != 2:
-					raise Exception(self.get_translation(
+					raise KeyError(self.get_translation(
 						"errors", "color_pair_creation_error", i=i, current_pair=current_pair
 					))
 
@@ -411,7 +411,7 @@ class App:
 
 					# We also check if this color exists in curses, and otherwise raise an exception
 					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
-						raise Exception(self.get_translation(
+						raise KeyError(self.get_translation(
 							"errors", "not_curses_color",
 							i=i, color=j, current_pair_element=current_pair[j]
 						))
@@ -446,7 +446,7 @@ class App:
 			if language != "en":
 				string = self.get_translation(*keys, language="en")
 			else:
-				raise Exception(f"Translation for {keys} not found !")
+				raise KeyError(f"Translation for {keys} not found !")
 
 
 		# We format the string based on the given format_keys
@@ -836,14 +836,14 @@ class App:
 					self.stdscr.addstr(
 						i,
 						minlen + index, line[index:quotes_indexes[j + 1] + 1],
-						curses.color_pair(self.color_pairs["strings"] if not "=" in splitted_line[1] else 5)
+						curses.color_pair(self.color_pairs["strings"] if "=" not in splitted_line[1] else 5)
 					)
 				except IndexError:
 					if len(splitted_line) > 1:
 						self.stdscr.addstr(
 							i,
 							minlen + index, line[index:],
-							curses.color_pair(self.color_pairs["strings"] if not "=" in splitted_line[1] else 5)
+							curses.color_pair(self.color_pairs["strings"] if "=" not in splitted_line[1] else 5)
 						)
 
 		# Finds all equal signs to highlight them in statement color
