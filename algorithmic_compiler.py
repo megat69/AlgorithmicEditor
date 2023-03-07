@@ -101,7 +101,7 @@ class AlgorithmicCompiler(Compiler):
 		""" Cas element """
 		# If there is no switch in the instruction stack, we error out to the user
 		if "switch" not in self.instructions_stack:
-			self.error(self.tranlate_method("compiler", "cpp", "errors", "case_outside_switch").format(
+			self.error(self.translate_method("compiler", "cpp", "errors", "case_outside_switch").format(
 				line_number=line_number + 1
 			))
 
@@ -115,7 +115,7 @@ class AlgorithmicCompiler(Compiler):
 		""" Autrement : """
 		# If there is no switch in the instruction stack, we error out to the user
 		if "switch" not in self.instructions_stack:
-			self.error(self.tranlate_method("compiler", "cpp", "errors", "default_outside_switch").format(
+			self.error(self.translate_method("compiler", "cpp", "errors", "default_outside_switch").format(
 				line_number=line_number + 1
 			))
 
@@ -164,13 +164,13 @@ class AlgorithmicCompiler(Compiler):
 		""" Retourner elements """
 		# Checks we're not in a procedure
 		if "proc" in self.instructions_stack:
-			self.error(self.tranlate_method("compiler", "cpp", "errors", "return_in_procedure").format(
+			self.error(self.translate_method("compiler", "cpp", "errors", "return_in_procedure").format(
 				line_number=line_number + 1
 			))
 
 		# Checks we're inside a function
 		elif "fx" not in self.instructions_stack:
-			self.error(self.tranlate_method("compiler", "cpp", "errors", "return_outside_function").format(
+			self.error(self.translate_method("compiler", "cpp", "errors", "return_outside_function").format(
 				line_number=line_number + 1
 			))
 
@@ -211,13 +211,13 @@ class AlgorithmicCompiler(Compiler):
 
 		# If the statement does not have all its parameters set
 		except IndexError:
-			self.error(self.tranlate_method("compiler", "cpp", "errors", "arr_missing_params").format(
+			self.error(self.translate_method("compiler", "cpp", "errors", "arr_missing_params").format(
 				line_number=line_number + 1
 			))
 
 		# If the variable type doesn't exist
 		except KeyError:
-			self.error(self.tranlate_method("compiler", "cpp", "errors", "unrecognized_var_type").format(
+			self.error(self.translate_method("compiler", "cpp", "errors", "unrecognized_var_type").format(
 				line_number=line_number + 1, type=instruction_params[0]
 			))
 
@@ -321,7 +321,7 @@ class AlgorithmicCompiler(Compiler):
 				try:
 					params.append(f"{instruction_params[i + 1]} : ")
 				except IndexError:
-					self.error(self.tranlate_method("compiler", "algo", "errors", "structure_def_unnamed_param").format(
+					self.error(self.translate_method("compiler", "algo", "errors", "structure_def_unnamed_param").format(
 						line_number=line_number + 1
 					))
 					return []
@@ -372,11 +372,11 @@ class AlgorithmicCompiler(Compiler):
 	def analyze_init(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Analyzes the structure initialization. """
 		if len(instruction_params) < 2:  # Error for missing parameters
-			self.error(self.tranlate_method("compiler", "algo", "errors", "struct_missing_args").format(
+			self.error(self.translate_method("compiler", "algo", "errors", "struct_missing_args").format(
 				line_number=line_number + 1
 			))
 		elif len(instruction_params) % 2 == 1:  # Error for missing parameters
-			self.error(self.tranlate_method("compiler", "algo", "errors", "struct_args_not_even").format(
+			self.error(self.translate_method("compiler", "algo", "errors", "struct_args_not_even").format(
 				line_number=line_number + 1
 			))
 		else:

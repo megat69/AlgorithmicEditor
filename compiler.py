@@ -25,7 +25,7 @@ class Compiler:
 		self.errored = False
 		self.tab_char = tab_char
 		self.translations = translations
-		self.tranlate_method = translate_method
+		self.translate_method = translate_method
 
 
 	def compile(self, instructions_list:list):
