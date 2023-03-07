@@ -211,7 +211,7 @@ class browse_files:
 			self.path = new_path
 
 
-		menu_items = [(f"📁 ../", partial(self, self.stdscr, os.path.join(self.path, "../")))]
+		menu_items = [("📁 ../", partial(self, self.stdscr, os.path.join(self.path, "../")))]
 		menu_items.extend([
 			(f"📁 {name}", partial(self, self.stdscr, os.path.join(self.path, name))) \
 			for name in folders_list

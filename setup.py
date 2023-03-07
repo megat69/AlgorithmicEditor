@@ -86,7 +86,7 @@ if platform.system() == "Windows":
 
 		# Runs the commands to create the default extension
 		os.system(f"ftype AlgoEditorFile=\"{os.getcwd()}/AlgoEditorOpen.bat\" %1")
-		os.system(f"assoc .algo=AlgoEditorFile")
+		os.system("assoc .algo=AlgoEditorFile")
 
 # Prints the line saying the setup finished
 print(translations[language]["setup_finished"])
