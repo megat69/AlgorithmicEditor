@@ -659,6 +659,7 @@ class App:
 		"""
 		Loads all the plugins.
 		"""
+		from plugin import Plugin  # Note : A bit dirty to put an import here, but required for it to work
 		# Creating the plugins folder if it does not exist
 		if not os.path.exists(os.path.join(os.path.dirname(__file__), "plugins")):
 			os.mkdir(os.path.join(os.path.dirname(__file__), "plugins"))
@@ -684,11 +685,20 @@ class App:
 
 			# Initializes the plugins init function
 			try:
+				# Appends a new plugin to the list of plugins, by initializing the given plugin
 				plugins[plugin].append(plugins[plugin][0].init(self))
+				# Checks if we correctly received a plugin
+				if not isinstance(plugins[plugin][-1], Plugin):
+					raise TypeError(f"Plugin '{plugin}' init method did not return a Plugin subclass.")
+				# Stores the plugin name
 				plugins[plugin][-1].plugin_name = plugin
+				# If the plugin does not have a config, creates one
 				if plugin not in self.plugins_config.keys():
 					self.plugins_config[plugin] = {}
+				# Grants the plugin its config
 				plugins[plugin][-1].config = self.plugins_config[plugin]
+
+			# If an error occurred during plugin loading, we unimport the plugin and log the error
 			except Exception as e:
 				del plugins[plugin]
 				self.log(f"An error occurred while importing the plugin '{plugin}' :\n{e}")
