@@ -1,10 +1,12 @@
 from typing import Callable
 import json
 
+import __main__
+
 
 class Plugin:
-	def __init__(self, app):
-		self.app = app  # An instance of the app
+	def __init__(self, app: __main__.App):
+		self.app: __main__.App = app  # An instance of the app
 		self.plugin_name: str = ""  # The name of the plugin
 		self.config: dict = {}  # The config data of the plugin
 		self.translations: dict = {}  # The translations of your app
