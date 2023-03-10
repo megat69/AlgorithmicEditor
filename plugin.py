@@ -1,6 +1,11 @@
+"""
+Contains the Plugin base class, which allows developers to create their own plugins.
+The Plugin class should be inherited from, rather than used as-is.
+"""
 from typing import Callable
 import json
 
+# Imports the main.py file. If another file is used as top-level import, the program will crash.
 import __main__
 
 
