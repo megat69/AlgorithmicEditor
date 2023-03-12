@@ -2,18 +2,19 @@
 	"commands": {
 		"q": "Quitter",
 		"c": "Compiler",
-		"t": "Mofifier le caractère de tabulation",
 		"s": "Enregistrer",
 		"qs": "Enregistrement rapide",
 		"o": "Ouvrir",
 		"z": "Annuler",
 		"p": "Compiler vers C++",
-		"j": "Activer/Désactiver l'utilisation du namespace std",
-		"st": "Activer/Désactiver l'utilisation du mot clé struct",
+		"op": "Options",
 		"h": "Liste des commandes",
 		"cl": "Vider l'éditeur",
 		"is": "Insérer un fichier",
-		"rlt": "Actualiser le thème"
+		"std_use": "Activer/Désactiver l'utilisation du namespace std",
+		"rlt": "Actualiser le thème",
+		"struct_use": "Activer/Désactiver l'utilisation du mot clé struct",
+		"modify_tab_char": "Modifier le caractère de tabulation"
 	},
 	"errors": {
 		"unknown": "Une erreur de curses est survenue",
@@ -55,6 +56,15 @@
 		"open_from_clipboard": "Ouvrir depuis le presse-papiers",
 		"open_from_file": "Ouvrir depuis un fichier",
 		"open_menu": "-- OUVRIR --"
+	},
+	"change_max_undo_size": {
+		"max_undo": "Nombre max d'annulations",
+		"input": "Veuillez entrer le nombre maximum d'annulations :",
+		"not_a_number": "'{given_size}' n'est pas un nombre."
+	},
+	"language": {
+		"language": "Langue",
+		"label": "Veuillez choisir entre ces langues"
 	},
 	"compilers": {
 		"cpp": {

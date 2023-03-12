@@ -51,16 +51,17 @@ class App:
 		self.command_symbol = ":"  # The symbol triggering a command
 		self.commands = {
 			"q": (self.quit, self.get_translation("commands", "q"), False),
-			"c": (self.compile, self.get_translation("commands", "c"), False),
-			"t": (self.modify_tab_char, self.get_translation("commands", "t"), True),
 			"s": (self.save, self.get_translation("commands", "s"), False),
 			"qs": (partial(self.save, quick_save=True), self.get_translation("commands", "qs"), False),
 			"o": (self.open, self.get_translation("commands", "o"), False),
-			"z": (self.undo, self.get_translation("commands", "z"), False),
+			"c": (self.compile, self.get_translation("commands", "c"), False),
 			"p": (self.compile_to_cpp, self.get_translation("commands", "p"), False),
-			"j": (self.toggle_std_use, self.get_translation("commands", "j"), True),
-			"st": (self.toggle_struct_use, self.get_translation("commands", "st"), True),
+			"op": (self.options, self.get_translation("commands", "op"), False),
 			"h": (self.display_commands, self.get_translation("commands", "h"), False),
+			"z": (self.undo, self.get_translation("commands", "z"), False),
+			# "t": (self.modify_tab_char, self.get_translation("commands", "t"), True),
+			# "j": (self.toggle_std_use, self.get_translation("commands", "j"), True),
+			# "st": (self.toggle_struct_use, self.get_translation("commands", "st"), True),
 			"cl": (self.clear_text, self.get_translation("commands", "cl"), True),
 			"is": (self.insert_text, self.get_translation("commands", "is"), True),
 			"rlt": (self.reload_theme, self.get_translation("commands", "rlt"), True),
@@ -1276,6 +1277,77 @@ class App:
 			self.current_index = 0
 			self.stdscr.refresh()
 			self.apply_stylings()
+
+
+	def change_max_undo_size(self):
+		"""
+		Changes the maximum depth of the undo method.
+		"""
+		# Requests user input for a size
+		self.stdscr.addstr(self.rows - 2, 0, self.get_translation("change_max_undo_size", "input"))
+		given_size = input_text(self.stdscr)
+
+		# Tests if the input is a valid number
+		if given_size.isdigit():
+			# Converts the input to a number, saves it into the config, then regenerates the undo stack
+			new_size = int(given_size)
+			self.undo_actions = deque(self.undo_actions, maxlen=new_size + 1)
+			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = new_size
+
+
+		# Warns the user it is not a valid number
+		else:
+			self.stdscr.clear()
+			self.stdscr.addstr(self.rows - 2, 0, self.get_translation("change_max_undo_size", "not_a_number").format(
+				given_size=given_size
+			))
+			self.stdscr.getch()
+
+
+
+	def change_language(self):
+		"""
+		Allows the user to change language.
+		"""
+		def select_language(lang: str):
+			# Changes the language to the given one
+			self.plugins_config["BASE_CONFIG"]["language"] = lang
+			self.language = self.plugins_config["BASE_CONFIG"]["language"]
+
+		# Asks the user to choose a language between all the available languages.
+		display_menu(
+			self.stdscr,
+			tuple(
+				[(translation_file[13:15].capitalize(), partial(select_language, translation_file[13:15]))
+				for translation_file in os.listdir("translations/")]
+				+ [(self.get_translation("quit", "cancel"), lambda: None)]
+			),
+			label = f"-- {self.get_translation('language', 'label')} --"
+		)
+
+
+	def options(self):
+		"""
+		Allows the user to set some options.
+		"""
+		do_loop = True
+		def end_loop():
+			nonlocal do_loop
+			do_loop = False
+
+		while do_loop:
+			display_menu(
+				self.stdscr,
+				(
+					(f"{self.get_translation('commands', 'std_use')} : {self.using_namespace_std}", self.toggle_std_use),
+					(f"{self.get_translation('commands', 'struct_use')} : {self.use_struct_keyword}", self.use_struct_keyword),
+					(f"{self.get_translation('commands', 'modify_tab_char')} : {self.tab_char!r}", self.modify_tab_char),
+					(f"{self.get_translation('language', 'language')} : {self.language}", self.change_language),
+					(f"{self.get_translation('change_max_undo_size', 'max_undo')} : {self.plugins_config['BASE_CONFIG']['max_undo_size']}", self.change_max_undo_size),
+					(self.get_translation("quit", "save_and_quit"), end_loop),
+				),
+				label = "-- Options --"
+			)
 
 
 	def compile(self, noshow:bool=False) -> Union[None, str]:
