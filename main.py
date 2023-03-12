@@ -17,7 +17,19 @@ from utils import display_menu, input_text, get_screen_middle_coords, browse_fil
 
 
 class App:
-	def __init__(self, command_symbol: str = ":", logs: bool = True):
+	__singleton = None
+
+
+	def __new__(cls, *args, **kwargs):
+		"""
+		Creates a singleton of the class.
+		"""
+		if cls.__singleton is None:
+			cls.__singleton = super().__new__(cls)
+		return cls.__singleton
+
+
+	def __init__(self):
 		# Loads the config
 		with open("plugins_config.json", "r", encoding="utf-8") as f:
 			self.plugins_config = json.load(f)  # The configuration of the plugins
@@ -36,6 +48,7 @@ class App:
 		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
 		self.lines = 1  # The number of lines containing text in the window
 		self.current_index = 0  # The current index of the cursor
+		self.command_symbol = ":"  # The symbol triggering a command
 		self.commands = {
 			"q": (self.quit, self.get_translation("commands", "q"), False),
 			"c": (self.compile, self.get_translation("commands", "c"), False),
@@ -52,14 +65,13 @@ class App:
 			"is": (self.insert_text, self.get_translation("commands", "is"), True),
 			"rlt": (self.reload_theme, self.get_translation("commands", "rlt"), True),
 			# To add the command symbol to the text
-			command_symbol: (partial(self.add_char_to_text, command_symbol), command_symbol, True)
+			self.command_symbol: (partial(self.add_char_to_text, self.command_symbol), self.command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
 		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
 		self.tab_char = "\t"  # The tab character
-		self.command_symbol = command_symbol  # The symbol triggering a command
 		self.using_namespace_std = False  # Whether to use the std namespace during the C++ compilation
 		self.use_struct_keyword = False  # Whether to use the struct keyword in the functions' return type during the C++ compilation
-		self.logs = logs  # Whether to log
+		self.logs = True  # Whether to log
 		self.min_display_line = 0  # The minimum line displayed on the window (scroll)
 		self.cur = tuple()  # The cursor
 		self.min_display_char = 0  # Useless at the moment
@@ -1364,10 +1376,15 @@ if __name__ == "__main__":
 
 	try:
 		# Instantiates the app
-		app = App(
-			command_symbol=":" if "--command_symbol" not in sys.argv else sys.argv[sys.argv.index("--command_symbol") + 1],
-			logs="--nologs" not in sys.argv
-		)
+		app = App()
+
+		# Sets up the command symbol
+		if "--command_symbol" in sys.argv:
+			app.command_symbol = sys.argv[sys.argv.index("--command_symbol") + 1]
+
+		# Defines whether to display logs
+		if "--nologs" in sys.argv:
+			app.logs = False
 
 		# Setting the use for the std namespace if there was an argument for it
 		if "--using_namespace_std" in sys.argv:
