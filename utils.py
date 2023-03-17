@@ -7,15 +7,15 @@ from functools import partial
 from math import ceil
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True):
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True, space_out_last_option: bool = False):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
 	:param commands: A tuple of commands.
-	:param default_selected_element: The menu element selected by default. 0 by default.
-	It is composed of tuples of 2 elements : the command name, and the function to call upon selection.
+	:param default_selected_element: The menu element selected by default. 0 by default. It is composed of tuples of 2 elements : the command name, and the function to call upon selection.
 	:param label: Displays a title above the menu. None by default.
 	:param clear: Whether to clear the screen before creating the menu. True by default.
+	:param space_out_last_option: Adds a newline before the last option of the menu.
 	"""
 	# Gets the middle of the screen coordinates
 	screen_middle_y, screen_middle_x = get_screen_middle_coords(stdscr)
@@ -70,7 +70,8 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 				command[0] = command[0][:cols - 5] + "..."
 			# Displays the menu item
 			stdscr.addstr(
-				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i,
+				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i + \
+				((max_items_per_page * current_page + i == len(commands) - 1) * space_out_last_option),
 				screen_middle_x - len(command[0]) // 2,
 				command[0],
 				curses.A_NORMAL if i != selected_element else curses.A_REVERSE  # Reverses the color if the item is selected

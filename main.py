@@ -554,7 +554,8 @@ class App:
 				(self.get_translation("quit", "save_and_quit"), save_and_quit),
 				(self.get_translation("quit", "cancel"), cancel)
 			),
-			1, self.get_translation("quit", "quit_message")
+			1, self.get_translation("quit", "quit_message"),
+			space_out_last_option = True
 		)
 
 
@@ -1202,7 +1203,8 @@ class App:
 					(self.get_translation("save", "save_to_clipboard"), save_to_clipboard),
 					(self.get_translation("save", "save_to_file"), save_to_file),
 					(self.get_translation("cancel"), lambda: None)
-				), label =self.get_translation("save", "save_menu")
+				), label =self.get_translation("save", "save_menu"),
+				space_out_last_option = True
 			)
 			self.stdscr.clear()
 
@@ -1269,7 +1271,8 @@ class App:
 				(self.get_translation("open", "open_from_clipboard"), open_from_clipboard),
 				(self.get_translation("open", "open_from_file"), open_from_file),
 				(self.get_translation("cancel"), lambda: None)
-			), label =self.get_translation("open", "open_menu")
+			), label =self.get_translation("open", "open_menu"),
+			space_out_last_option = True
 		)
 
 		self.stdscr.clear()
@@ -1322,7 +1325,8 @@ class App:
 				for translation_file in os.listdir("translations/")]
 				+ [(self.get_translation("quit", "cancel"), lambda: None)]
 			),
-			label = f"-- {self.get_translation('language', 'label')} --"
+			label = f"-- {self.get_translation('language', 'label')} --",
+			space_out_last_option = True
 		)
 
 
@@ -1346,7 +1350,8 @@ class App:
 					(f"{self.get_translation('change_max_undo_size', 'max_undo')} : {self.plugins_config['BASE_CONFIG']['max_undo_size']}", self.change_max_undo_size),
 					(self.get_translation("quit", "save_and_quit"), end_loop),
 				),
-				label = "-- Options --"
+				label = "-- Options --",
+				space_out_last_option = True
 			)
 
 
