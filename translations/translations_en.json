@@ -2,18 +2,19 @@
 	"commands": {
 		"q": "Quit",
 		"c": "Compile",
-		"t": "Modify tab char",
 		"s": "Save",
 		"qs": "Quicksave",
 		"o": "Open",
 		"z": "Undo",
 		"p": "Compile to C++",
-		"j": "Toggle namespace std",
-		"st": "Toggle struct keyword use",
+		"op": "Options",
 		"h": "Commands list",
 		"cl": "Clear editor",
 		"is": "Insert file",
-		"rlt": "Reload theme"
+		"rlt": "Reload theme",
+		"std_use": "Toggle namespace std",
+		"struct_use": "Toggle struct keyword use",
+		"modify_tab_char": "Modify tab char"
 	},
 	"errors": {
 		"unknown": "A curses error occurred",
@@ -55,6 +56,15 @@
 		"open_from_clipboard": "Open from clipboard",
 		"open_from_file": "Open from file",
 		"open_menu": "-- OPEN --"
+	},
+	"change_max_undo_size": {
+		"max_undo": "Max undo",
+		"input": "Please input the maximum number of undos :",
+		"not_a_number": "'{given_size}' is not a number."
+	},
+	"language": {
+		"language": "Language",
+		"label": "Please choose between these languages"
 	},
 	"compilers": {
 		"cpp": {
