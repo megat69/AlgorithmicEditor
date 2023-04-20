@@ -90,3 +90,14 @@ class Plugin:
 		# If a command with the same prefix exists, it replaces it
 		self.app.commands[character] = (function, description, hidden)
 
+
+	def add_option(self, name: str, current_value: Callable, callback: Callable):
+		"""
+		Adds a new option to the app that the user can access from the options command.
+		:param name: The name of the config option (preferably translated), as indicative as possible.
+		:param current_value: A callback function returning the current value of the config option, generally a lambda.
+		:param callback: A function to be called when the user chooses to change the config for the new option.
+		"""
+		# If a command with the same prefix exists, it replaces it
+		self.app.options_list.append((name, current_value, callback))
+
