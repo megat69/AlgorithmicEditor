@@ -110,6 +110,16 @@ class App:
 		else:
 			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = self.undo_actions.maxlen - 1
 
+		# Generates the list of options the user has access to
+		self.options_list = [
+			(self.get_translation('commands', 'std_use'), lambda: self.using_namespace_std, self.toggle_std_use),
+			(self.get_translation('commands', 'struct_use'), lambda: self.use_struct_keyword, self.use_struct_keyword),
+			(self.get_translation('commands', 'modify_tab_char'), lambda: repr(self.tab_char), self.modify_tab_char),
+			(self.get_translation('language', 'language'), lambda: self.language, self.change_language),
+			(self.get_translation('change_max_undo_size', 'max_undo'),
+			 lambda: self.plugins_config['BASE_CONFIG']['max_undo_size'], self.change_max_undo_size),
+		]  # The list of options the user has access to ; Follows the scheme <name> <current_state> <callback_trigger>
+
 
 		# Getting the theme
 		self._theme_parser = ConfigParser()
@@ -1353,11 +1363,10 @@ class App:
 			display_menu(
 				self.stdscr,
 				(
-					(f"{self.get_translation('commands', 'std_use')} : {self.using_namespace_std}", self.toggle_std_use),
-					(f"{self.get_translation('commands', 'struct_use')} : {self.use_struct_keyword}", self.use_struct_keyword),
-					(f"{self.get_translation('commands', 'modify_tab_char')} : {self.tab_char!r}", self.modify_tab_char),
-					(f"{self.get_translation('language', 'language')} : {self.language}", self.change_language),
-					(f"{self.get_translation('change_max_undo_size', 'max_undo')} : {self.plugins_config['BASE_CONFIG']['max_undo_size']}", self.change_max_undo_size),
+					*[  # Renders the text for each option
+						(f"{option[0]} : {option[1]()}", option[2])
+						for option in self.options_list
+					],
 					(self.get_translation("quit", "save_and_quit"), end_loop),
 				),
 				label = "-- Options --",
