@@ -20,7 +20,7 @@ def _return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> t
 	else:
 		new_lst = []
 		for element in lst:
-			if substring in element[0]:
+			if substring.lower() in element[0].lower():
 				new_lst.append(element)
 		return tuple(new_lst)
 
