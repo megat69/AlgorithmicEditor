@@ -1370,7 +1370,8 @@ class App:
 					(self.get_translation("quit", "save_and_quit"), end_loop),
 				),
 				label = "-- Options --",
-				space_out_last_option = True
+				space_out_last_option = True,
+				allow_key_input = True
 			)
 
 
