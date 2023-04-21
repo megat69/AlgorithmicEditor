@@ -7,7 +7,7 @@ from functools import partial
 from math import ceil
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True, space_out_last_option: bool = False):
+def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True, space_out_last_option: bool = False, allow_key_input: bool = False):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
@@ -16,6 +16,7 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	:param label: Displays a title above the menu. None by default.
 	:param clear: Whether to clear the screen before creating the menu. True by default.
 	:param space_out_last_option: Adds a newline before the last option of the menu.
+	:param allow_key_input: If true, allows the user to type in a string. The menu will only show the elements containing the string.
 	"""
 	# Gets the middle of the screen coordinates
 	screen_middle_y, screen_middle_x = get_screen_middle_coords(stdscr)
@@ -34,12 +35,25 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	rows, cols = stdscr.getmaxyx()
 
 	# Keeps in mind the amount of pages and the current page
-	max_items_per_page = rows - 5
+	max_items_per_page = rows - 5 - allow_key_input
 	current_page = 0
 	total_pages = ceil(cmd_len / max_items_per_page)
 
 	# Initializing the key
 	key = ""
+
+	# Initializing the string to search for
+	string_to_search_for = ""
+
+	# Function returning only the elements of the list that contain the given substring
+	def return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> tuple:
+		if not enabled : return lst
+		else:
+			new_lst = []
+			for element in lst:
+				if substring in element[0]:
+					new_lst.append(element)
+			return tuple(new_lst)
 
 	# Looping until the user selects an item
 	while key not in ("\n", "\t"):
@@ -54,16 +68,27 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 				screen_middle_x - len(label) // 2,
 				label
 			)
+		# Displays the current string
+		if allow_key_input:
+			# Checking for the horizontal size
+			if len(repr(string_to_search_for)) > cols - 5:
+				string_to_search_for = string_to_search_for[:cols - 5] + "..."
+			# Displaying label
+			stdscr.addstr(
+				screen_middle_y - min(max_items_per_page, cmd_len) // 2 - 1,
+				screen_middle_x - len(repr(string_to_search_for)) // 2,
+				repr(string_to_search_for)
+			)
 
 		# Remembering the length of the selected slice
 		current_command_len = lambda: len(
-			commands[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+			return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
 		)
 
 		# Displays the menu
 		for i, command in enumerate(
 			# Only displays the menu elements from the current page
-			commands[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+			return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
 		):
 			# Checking for the horizontal size
 			if len(command[0]) > cols - 5:
@@ -71,7 +96,7 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 			# Displays the menu item
 			stdscr.addstr(
 				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i + \
-				((max_items_per_page * current_page + i == len(commands) - 1) * space_out_last_option),
+				((max_items_per_page * current_page + i == len(return_list_with_substrings(commands, string_to_search_for, allow_key_input)) - 1) * space_out_last_option) + allow_key_input,
 				screen_middle_x - len(command[0]) // 2,
 				command[0],
 				curses.A_NORMAL if i != selected_element else curses.A_REVERSE  # Reverses the color if the item is selected
@@ -113,6 +138,17 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 					selected_element = current_command_len() - 1
 			stdscr.clear()
 
+		elif key in ("\n", "\t"): pass
+
+		elif allow_key_input:
+			if key == "\b":
+				if string_to_search_for != "":
+					string_to_search_for = string_to_search_for[:-1]
+			else:
+				string_to_search_for += key
+			selected_element = 0
+			stdscr.clear()
+
 		# Wrap-around
 		if selected_element < 0:
 			selected_element = current_command_len() - 1
@@ -123,7 +159,10 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	stdscr.clear()
 
 	# Calls the function from the appropriate item
-	return commands[selected_element + current_page * max_items_per_page][1]()
+	try:
+		return return_list_with_substrings(commands, string_to_search_for, allow_key_input)[selected_element + current_page * max_items_per_page][1]()
+	except IndexError:
+		return 0
 
 
 
