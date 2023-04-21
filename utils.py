@@ -7,6 +7,24 @@ from functools import partial
 from math import ceil
 
 
+def _return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> tuple:
+	"""
+	Function returning only the elements of the list that contain the given substring.
+	:param lst: A tuple of commands for the display_menu function.
+	:param substring: A string to look for, that has to be in the menu item's name.
+	:param enabled: Whether to enable the function. If false, will return lst.
+	:return: A tuple of commands for the display_menu function.
+	"""
+	if not enabled:
+		return lst
+	else:
+		new_lst = []
+		for element in lst:
+			if substring in element[0]:
+				new_lst.append(element)
+		return tuple(new_lst)
+
+
 def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True, space_out_last_option: bool = False, allow_key_input: bool = False):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
@@ -45,16 +63,6 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 	# Initializing the string to search for
 	string_to_search_for = ""
 
-	# Function returning only the elements of the list that contain the given substring
-	def return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> tuple:
-		if not enabled : return lst
-		else:
-			new_lst = []
-			for element in lst:
-				if substring in element[0]:
-					new_lst.append(element)
-			return tuple(new_lst)
-
 	# Looping until the user selects an item
 	while key not in ("\n", "\t"):
 		# Displays the menu title
@@ -68,7 +76,8 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 				screen_middle_x - len(label) // 2,
 				label
 			)
-		# Displays the current string
+
+		# Displays the current search string
 		if allow_key_input:
 			# Checking for the horizontal size
 			if len(repr(string_to_search_for)) > cols - 5:
@@ -82,13 +91,13 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 
 		# Remembering the length of the selected slice
 		current_command_len = lambda: len(
-			return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+			_return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page: max_items_per_page * (current_page + 1)]
 		)
 
 		# Displays the menu
 		for i, command in enumerate(
 			# Only displays the menu elements from the current page
-			return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+				_return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
 		):
 			# Checking for the horizontal size
 			if len(command[0]) > cols - 5:
@@ -96,7 +105,9 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 			# Displays the menu item
 			stdscr.addstr(
 				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i + \
-				((max_items_per_page * current_page + i == len(return_list_with_substrings(commands, string_to_search_for, allow_key_input)) - 1) * space_out_last_option) + allow_key_input,
+				((max_items_per_page * current_page + i == len(_return_list_with_substrings(commands,
+				                                                                            string_to_search_for,
+				                                                                            allow_key_input)) - 1) * space_out_last_option) + allow_key_input,
 				screen_middle_x - len(command[0]) // 2,
 				command[0],
 				curses.A_NORMAL if i != selected_element else curses.A_REVERSE  # Reverses the color if the item is selected
@@ -160,7 +171,7 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 
 	# Calls the function from the appropriate item
 	try:
-		return return_list_with_substrings(commands, string_to_search_for, allow_key_input)[selected_element + current_page * max_items_per_page][1]()
+		return _return_list_with_substrings(commands, string_to_search_for, allow_key_input)[selected_element + current_page * max_items_per_page][1]()
 	except IndexError:
 		return 0
 
