@@ -79,6 +79,7 @@ class App:
 		self.last_save_action = "clipboard"  # What the user did the last time he saved some code from the editor ; can be 'clipboard' or the pah to a file.
 		self.compilers = {}  # A dictionary of compilers for the editor
 		self.undo_actions = deque([], maxlen=21)  # All the actions that can be used to undo
+		self.is_crash_reboot = False  # Whether the editor has been rebooted from a crash. Can only be used through a plugin's init() method, will always be False otherwise.
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -164,6 +165,7 @@ class App:
 				with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
 					self.current_text = f.read()
 				self.display_text()
+				self.is_crash_reboot = True
 
 			display_menu(
 				self.stdscr,
