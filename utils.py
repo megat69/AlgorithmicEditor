@@ -212,6 +212,15 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 			# Removes the character from the screen
 			stdscr.addstr(position_y, position_x + len(final_text), " ")
 
+		elif key == "SHF_PADSLASH":  # Fix for '!' character
+			final_text += "!"
+
+		elif key == "KEY_SEND":  # Fix for '<' character
+			final_text += "<"
+
+		elif key == "CTL_END":  # Fix for '<' character
+			final_text += ">"
+
 		elif key.startswith("KEY_") or (key.startswith("^") and key != "^") or key == "\n":
 			# Does nothing if it is a special key
 			pass
