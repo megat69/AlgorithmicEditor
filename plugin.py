@@ -43,6 +43,12 @@ class Plugin:
 		"""
 		pass
 
+	def on_crash(self):
+		"""
+		Gets called in case of a crash. Lets the plugin do some work in order to save necessary or important data.
+		"""
+		pass
+
 
 	def translate(self, *keys: str, language: str = None, **format_keys) -> str:
 		"""

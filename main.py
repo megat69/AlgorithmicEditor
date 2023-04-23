@@ -1465,8 +1465,14 @@ def generate_crash_file(app:App, *args):
 	Generates a .crash file.
 	:param app: The application instance.
 	"""
+	# Saves a crash file with the contents of the current code
 	with open(".crash", "w", encoding="utf-8") as f:
 		f.write(app.current_text)
+
+	# If the app has loaded plugins, we call their on_crash function
+	if hasattr(app, "plugins"):
+		for plugin_name, (_, plugin_instance) in app.plugins.items():
+			plugin_instance.on_crash()
 
 
 if __name__ == "__main__":
