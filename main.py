@@ -1466,7 +1466,7 @@ def generate_crash_file(app:App, *args):
 	:param app: The application instance.
 	"""
 	# Saves a crash file with the contents of the current code
-	with open(".crash", "w", encoding="utf-8") as f:
+	with open(os.path.join(os.path.dirname(__file__), ".crash"), "w", encoding="utf-8") as f:
 		f.write(app.current_text)
 
 	# If the app has loaded plugins, we call their on_crash function
