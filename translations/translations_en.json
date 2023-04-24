@@ -1,6 +1,8 @@
 {
 	"commands": {
 		"q": "Quit",
+		"q!": "Quit without saving",
+		"qs!": "Quit with quicksave",
 		"c": "Compile",
 		"s": "Save",
 		"qs": "Quicksave",

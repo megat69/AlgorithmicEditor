@@ -1,6 +1,8 @@
 {
 	"commands": {
 		"q": "Quitter",
+		"q!": "Quitter sans enregistrer",
+		"qs!": "Quitter après enregistrement rapide",
 		"c": "Compiler",
 		"s": "Enregistrer",
 		"qs": "Enregistrement rapide",

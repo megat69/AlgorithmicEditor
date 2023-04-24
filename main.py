@@ -51,6 +51,8 @@ class App:
 		self.command_symbol = ":"  # The symbol triggering a command
 		self.commands = {
 			"q": (self.quit, self.get_translation("commands", "q"), False),
+			"q!": (partial(self.quit, True), self.get_translation("commands", "q!"), True),
+			"qs!": (partial(self.quit, True, True), self.get_translation("commands", "qs!"), True),
 			"s": (self.save, self.get_translation("commands", "s"), False),
 			"qs": (partial(self.save, quick_save=True), self.get_translation("commands", "qs"), False),
 			"o": (self.open, self.get_translation("commands", "o"), False),
@@ -539,9 +541,11 @@ class App:
 			self.display_text()
 
 
-	def quit(self) -> None:
+	def quit(self, force_quit: bool = False, auto_quicksave: bool = False) -> None:
 		"""
 		Exits the app.
+		:param force_quit: If set to True, will automatically quit without saving. Default is False.
+		:param auto_quicksave: If set to True, will automatically quicksave. Default is False.
 		"""
 		def quit():
 			# Saves the plugin config, after saving the base config
@@ -558,17 +562,28 @@ class App:
 		def cancel():
 			pass
 
+
+		# If we have been asked to, we quicksave
+		if auto_quicksave:
+			self.save(quick_save=True)
+
+
 		# Provides the option to save and quit, quit without saving, or cancel quitting.
-		display_menu(
-			self.stdscr,
-			(
-				(self.get_translation("quit", "quit_without_save"), quit),
-				(self.get_translation("quit", "save_and_quit"), save_and_quit),
-				(self.get_translation("quit", "cancel"), cancel)
-			),
-			1, self.get_translation("quit", "quit_message"),
-			space_out_last_option = True
-		)
+		if force_quit is False:
+			display_menu(
+				self.stdscr,
+				(
+					(self.get_translation("quit", "quit_without_save"), quit),
+					(self.get_translation("quit", "save_and_quit"), save_and_quit),
+					(self.get_translation("quit", "cancel"), cancel)
+				),
+				1, self.get_translation("quit", "quit_message"),
+				space_out_last_option = True
+			)
+
+		# If we have been asked to force quit, we just quit without asking the user
+		else:
+			quit()
 
 
 	def display_text(self):
