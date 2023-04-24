@@ -2,14 +2,19 @@
 Contains the Plugin base class, which allows developers to create their own plugins.
 The Plugin class should be inherited from, rather than used as-is.
 """
-from typing import Callable
+from typing import Callable, Type, Any
 
 # Imports the main.py file. If another file is used as top-level import, the program will crash.
 import __main__
 
+if hasattr(__main__, "App"):
+	AppType = Type[__main__.App]
+else:
+	AppType = Any
+
 
 class Plugin:
-	def __init__(self, app: __main__.App):
+	def __init__(self, app: AppType):
 		self.app: __main__.App = app  # An instance of the app
 		self.plugin_name: str = ""  # The name of the plugin
 		self.config: dict = {}  # The config data of the plugin
