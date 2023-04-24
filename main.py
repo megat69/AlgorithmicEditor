@@ -239,6 +239,13 @@ class App:
 				self.cols - (len(msg_string.format(plugin_name)) + 2),
 				msg_string.format(plugin_name)
 			)
+			# Highlights the plugin name
+			self.stdscr.addstr(
+				self.rows - 4 - i,
+				self.cols - (len(msg_string.format(plugin_name)) - msg_string.find("{") + 2),
+				plugin_name,
+				curses.color_pair(self.color_pairs["instruction"])
+			)
 		msg_string = "Loaded {} plugins"
 		self.stdscr.addstr(
 			self.rows - 4 - len(self.plugins.keys()),
