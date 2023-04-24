@@ -246,7 +246,7 @@ class App:
 				plugin_name,
 				curses.color_pair(self.color_pairs["instruction"])
 			)
-		msg_string = "Loaded {} plugins"
+		msg_string = self.get_translation("loaded_n_plugins")
 		self.stdscr.addstr(
 			self.rows - 4 - len(self.plugins.keys()),
 			self.cols - (len(msg_string.format(len(self.plugins.keys()))) + 2),

@@ -95,5 +95,6 @@
 	"editor_clear_confirm": "Confirm clearing editor ?",
 	"toggle_namespace_std": "Toggled namespace std use to {state} ",
 	"toggle_struct_use": "Toggled struct keyword use to {state} ",
-	"cancel": "Cancel"
+	"cancel": "Cancel",
+	"loaded_n_plugins": "Loaded {} plugins"
 }

@@ -95,5 +95,6 @@
 	"editor_clear_confirm": "Confirmer l'effacement du contenu de l'éditeur ?",
 	"toggle_namespace_std": "Utilisation du namespace std basculé sur {state} ",
 	"toggle_struct_use": "Utilisation du mot-clé struct basculé sur {state} ",
-	"cancel": "Annuler"
+	"cancel": "Annuler",
+	"loaded_n_plugins": "{} plugins chargés"
 }
