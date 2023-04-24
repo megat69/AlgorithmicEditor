@@ -10,6 +10,7 @@ from typing import Union
 from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
+import re
 
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
@@ -269,6 +270,16 @@ class App:
 				# Awaits the user's full command
 				key = input_text(self.stdscr, 1, self.rows - 1)
 
+				# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
+				repeat_count = 1
+				if key != "" and key[0].isdigit():
+					# Finds the number before the command
+					repeat_count_str = re.search(r'\d+', key).group()
+					repeat_count = int(repeat_count_str)
+
+					# Removes the number from the command name so we can actually find the correct command
+					key = key[len(repeat_count_str):]
+
 				# If the command exists
 				if key in self.commands.keys():
 					# We get the command information
@@ -277,30 +288,31 @@ class App:
 					# We add the full command name to the command area row
 					self.stdscr.addstr(self.rows - 1, 1, key_name)
 
-					# We launch the command
-					try:
-						# Remembering the current state of the text so the command can be undone
-						# However, not doing this if this is the undo command
-						if key != "z":
-							self.undo_actions.append(
-								{
-									"action_type": "command",
-									"current_text": self.current_text,
-									"current_index": self.current_index
-								}
-							)
+					# We launch the command as many times as needed
+					for _ in range(repeat_count):
+						try:
+							# Remembering the current state of the text so the command can be undone
+							# However, not doing this if this is the undo command
+							if key != "z":
+								self.undo_actions.append(
+									{
+										"action_type": "command",
+										"current_text": self.current_text,
+										"current_index": self.current_index
+									}
+								)
 
-						# Actually launching the command
-						function()
+							# Actually launching the command
+							function()
 
-					# If a curses error happens, we warn the user and log the error
-					except curses.error as e:
-						self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
-						self.log(e)
-						print_exception(e)
-						# We also undo the action just in case
-						if key != "z":
-							self.undo()
+						# If a curses error happens, we warn the user and log the error
+						except curses.error as e:
+							self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
+							self.log(e)
+							print_exception(e)
+							# We also undo the action just in case
+							if key != "z":
+								self.undo()
 
 				# Add a few spaces to clear the command name
 				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
