@@ -147,6 +147,9 @@ class App:
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input", "arr", "init")
 		}  # What each type of statement corresponds to
+		self.theme_scheme = self._theme_parser["SCHEME"].get("scheme", "DARK")
+		self.default_bg = curses.COLOR_BLACK
+		self.default_fg = curses.COLOR_WHITE
 
 		# Loads all the plugins
 		self.plugins = self.load_plugins()  # A dict containing all the plugins as list of [module, instance]
@@ -435,6 +438,18 @@ class App:
 		"""
 		Declares all the curses color pairs based on the theme.
 		"""
+		# Sets the default colors
+		if hasattr(curses, f"COLOR_{self._theme_parser['SCHEME'].get('default_bg', 'BLACK')}"):
+			self.default_bg = getattr(curses, f"COLOR_{self._theme_parser['SCHEME'].get('default_bg', 'BLACK')}")
+		else:
+			self.default_bg = curses.COLOR_BLACK
+		if hasattr(curses, f"COLOR_{self._theme_parser['SCHEME'].get('default_fg', 'WHITE')}"):
+			self.default_fg = getattr(curses, f"COLOR_{self._theme_parser['SCHEME'].get('default_fg', 'WHITE')}")
+		else:
+			self.default_fg = curses.COLOR_WHITE
+		curses.init_pair(255, self.default_fg, self.default_bg)
+		self.stdscr.attron(curses.color_pair(255))
+
 		# Fetches all the possible color pair numbers in the theme
 		for i in range(1, 9):
 			# Finds each pair of colors in the theme
@@ -455,8 +470,15 @@ class App:
 				for j in range(2):
 					current_pair[j] = current_pair[j].strip().upper()
 
+					# If it is the default color, we define it as such
+					if current_pair[j].lower().startswith("def"):
+						if j == 0:  # Foreground
+							current_pair[j] = self._theme_parser['SCHEME'].get('default_fg', 'WHITE')
+						if j == 1:  # Background
+							current_pair[j] = self._theme_parser['SCHEME'].get('default_bg', 'BLACK')
+
 					# We also check if this color exists in curses, and otherwise raise an exception
-					if not hasattr(curses, f"COLOR_{current_pair[j]}"):
+					elif not hasattr(curses, f"COLOR_{current_pair[j]}"):
 						raise KeyError(self.get_translation(
 							"errors", "not_curses_color",
 							i=i, color=j, current_pair_element=current_pair[j]
@@ -468,6 +490,9 @@ class App:
 					getattr(curses, f"COLOR_{current_pair[0]}"),
 					getattr(curses, f"COLOR_{current_pair[1]}")
 				)
+
+		# Sets the background color
+		self.stdscr.bkgd(' ', curses.color_pair(255))
 
 
 	def get_translation(self, *keys: str, language: str = None, **format_keys) -> str:
