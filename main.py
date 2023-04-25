@@ -88,7 +88,7 @@ class App:
 		self.compilers = {}  # A dictionary of compilers for the editor
 		self.undo_actions = deque([], maxlen=21)  # All the actions that can be used to undo
 		self.is_crash_reboot = False  # Whether the editor has been rebooted from a crash. Can only be used through a plugin's init() method, will always be False otherwise.
-		self.marked_lines = []
+		self.marked_lines = []  # Which lines are currently marked by the user
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
