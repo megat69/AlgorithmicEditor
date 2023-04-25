@@ -6,7 +6,7 @@ from functools import partial
 import os
 import importlib
 import json
-from typing import Union
+from typing import Union, Optional
 from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
@@ -45,7 +45,7 @@ class App:
 				self.translations[translation_file[13:15]] = json.load(f)
 
 		self.current_text = ""  # The text being displayed in the window
-		self.stdscr: _curses.window = None  # The standard screen (see curses library)
+		self.stdscr: Optional[_curses.window] = None  # The standard screen (see curses library)
 		self.rows, self.cols = 0, 0  # The number of rows and columns in the window
 		self.lines = 1  # The number of lines containing text in the window
 		self.current_index = 0  # The current index of the cursor
@@ -167,22 +167,7 @@ class App:
 		# If a .crash file exists, we show a message asking if they want their data to be recovered,
 		# then we set current_text to its contents and delete it
 		if ".crash" in os.listdir(os.path.dirname(__file__)) and "--file" not in sys.argv:
-			def recover_crash_data():
-				with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
-					self.current_text = f.read()
-				self.display_text()
-				self.is_crash_reboot = True
-
-			display_menu(
-				self.stdscr,
-				(
-					("Yes", recover_crash_data),
-					("No", lambda: None)
-				),
-				label =self.get_translation("crash_recovery"),
-				clear = False
-			)
-			os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
+			self._on_crash_recover()
 
 		self.apply_stylings()
 		self.stdscr.refresh()
@@ -191,47 +176,207 @@ class App:
 		self._declare_color_pairs()
 
 		# Initializes the compilers
-		self.compilers["algorithmic"] = AlgorithmicCompiler(
-			{
-				"for": "Pour",
-				"if": "Si",
-				"while": "Tant Que",
-				"switch": "Selon",
-				"arr": "Tableau",
-				"case": "Cas",
-				"default": "Autrement",
-				"fx": "Fonction",
-				"proc": "Procédure",
-				"const": "Constante"
-			},
-			{
-				"int": "Entier",
-				"float": "Réel",
-				"string": "Chaîne de caractères",
-				"bool": "Booléen",
-				"char": "Caractère"
-			},
-			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "struct", "const"],
-			self.stdscr,
-			self.translations,
-			self.get_translation,
-			self.tab_char
-		)
-		self.compilers["C++"] = CppCompiler(
-			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc', 'struct'),
-			{
-				"int": "int",
-				"float": "float",
-				"string": "std::string",
-				"bool": "bool",
-				"char": "char"
-			},
-			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result", "return", "desc", "CODE_RETOUR", "init", "const"],
-			self.stdscr,
-			self
-		)
+		self._load_compilers()
 
 		# Initializes each plugin, if they have an init function
+		self._init_plugins()
+
+		# Displays the text
+		self.display_text()
+
+		# App main loop
+		while True:
+			# Gets the current screen size
+			self.rows, self.cols = self.stdscr.getmaxyx()
+
+			# Key input
+			key = self.stdscr.getkey()
+
+			# If the undo is full, dumping the earliest element of queue
+			if len(self.undo_actions) == self.undo_actions.maxlen:
+				self.undo_actions.popleft()
+
+			# If system key is pressed
+			if key == self.command_symbol:
+				self.handle_command_key(key)
+
+			# If it is a regular key
+			else:
+				# Screen clearing
+				self.stdscr.clear()
+
+				# Handles the input as regular keys
+				self.handle_regular_key(key)
+
+				# Calls the plugins update_on_keypress function
+				for plugin in self.plugins.values():
+					if hasattr(plugin[1], "update_on_keypress"):
+						plugin[1].update_on_keypress(key)
+
+				# Clamping the index
+				self.current_index = max(min(self.current_index, len(self.current_text)), 0)
+
+			# Displays the current text
+			# TODO Longer lines
+			self.display_text()
+
+			# Visual stylings, e.g. adds a full line over the input
+			self.apply_stylings()
+
+			# Screen refresh after input
+			self.stdscr.refresh()
+
+
+	def handle_regular_key(self, key: str):
+		"""
+		Handles the regular input.
+		:param key: The key pressed by the user.
+		"""
+		# If the key IS a backspace character, we remove the last character from the text
+		if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
+			if key in ("KEY_BACKSPACE", "\b", "\0"):
+				if self.current_index > 0:
+					# Makes the action undoable
+					self.undo_actions.append(
+						{
+							"action_type": "removed_char",
+							"char": self.current_text[self.current_index - 1],
+							"index": self.current_index - 1,
+							"adder": 0
+						}
+					)
+					# Removes the character from the text
+					self.current_text = self.current_text[:self.current_index - 1] + self.current_text[
+					                                                                 self.current_index:]
+					self.current_index -= 1
+			elif key == "KEY_DC":  # Delete key
+				if self.current_index < len(self.current_text):
+					# Makes the action undoable
+					self.undo_actions.append(
+						{
+							"action_type": "removed_char",
+							"char": self.current_text[self.current_index],
+							"index": self.current_index,
+							"adder": 0
+						}
+					)
+					# Removes the character from the text
+					self.current_text = self.current_text[:self.current_index] + self.current_text[
+					                                                             self.current_index + 1:]
+			elif key in ("KEY_UP", "KEY_DOWN"):
+				text = self.current_text + "\n"
+				indexes = tuple(index for index in range(len(text)) if text.startswith('\n', index))
+				closest_index = min(indexes, key=lambda x: abs(x - self.current_index))
+				closest_index = indexes.index(closest_index)
+				closest_index = closest_index + (-1) ** (key == "KEY_UP")
+				try:
+					if closest_index <= 0:
+						if "\n" in self.current_text:
+							self.current_index = self.current_text.index("\n")
+						else:
+							self.current_index = len(self.current_text)
+					else:
+						self.current_index = indexes[closest_index]
+				except IndexError:
+					pass
+			elif key == "KEY_LEFT":
+				self.current_index -= 1
+			elif key == "KEY_RIGHT":
+				self.current_index += 1
+			elif key == "CTL_LEFT":
+				self.current_index -= 1
+				while self.current_index >= 0 and self.current_text[self.current_index] in string.ascii_letters:
+					self.current_index -= 1
+			elif key == "CTL_RIGHT":
+				self.current_index += 1
+				while self.current_index < len(self.current_text) and self.current_text[
+					self.current_index] in string.ascii_letters:
+					self.current_index += 1
+			elif key == "KEY_NPAGE":
+				self.min_display_line -= 1
+				if self.min_display_line < 0:
+					self.min_display_line = 0
+			elif key == "KEY_PPAGE":
+				self.min_display_line += 1
+				if self.min_display_line > self.lines - 1:
+					self.min_display_line = self.lines - 1
+			elif key == "KEY_F(1)":
+				self.commands["h"][0]()
+			elif key == "KEY_F(4)":
+				self.commands["q"][0]()
+			elif key == "KEY_SEND":  # The key used to type '<', for some reason
+				self.add_char_to_text("<")
+			elif key == "CTL_END":  # The key used to type '>', for some reason
+				self.add_char_to_text(">")
+			elif key == "SHF_PADSLASH":  # The key used to type '!', for some reason
+				self.add_char_to_text("!")
+			"""elif key == "KEY_HOME":
+				self.min_display_char -= 1
+				if self.min_display_char < 0:
+					self.min_display_char = 0
+			elif key == "KEY_END":
+				self.min_display_char += 1"""
+		else:
+			# If the key is NOT a backspace character, we add the new character to the text
+			self.add_char_to_text(key)
+
+	def handle_command_key(self, key: str):
+		"""
+		Handles a command.
+		"""
+		# Writes the command symbol to the command area row
+		self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
+		# Awaits the user's full command
+		key = input_text(self.stdscr, 1, self.rows - 1)
+		# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
+		repeat_count = 1
+		if key != "" and key[0].isdigit():
+			# Finds the number before the command
+			repeat_count_str = re.search(r'\d+', key).group()
+			repeat_count = int(repeat_count_str)
+
+			# Removes the number from the command name so we can actually find the correct command
+			key = key[len(repeat_count_str):]
+		# If the command exists
+		if key in self.commands.keys():
+			# We get the command information
+			key_name, (function, name, hidden) = key, self.commands[key]
+
+			# We add the full command name to the command area row
+			self.stdscr.addstr(self.rows - 1, 1, key_name)
+
+			# We launch the command as many times as needed
+			for _ in range(repeat_count):
+				try:
+					# Remembering the current state of the text so the command can be undone
+					# However, not doing this if this is the undo command
+					if key != "z":
+						self.undo_actions.append(
+							{
+								"action_type": "command",
+								"current_text": self.current_text,
+								"current_index": self.current_index
+							}
+						)
+
+					# Actually launching the command
+					function()
+
+				# If a curses error happens, we warn the user and log the error
+				except curses.error as e:
+					self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
+					self.log(e)
+					print_exception(e)
+					# We also undo the action just in case
+					if key != "z":
+						self.undo()
+		# Add a few spaces to clear the command name
+		self.stdscr.addstr(self.rows - 1, 0, " " * 4)
+
+	def _init_plugins(self):
+		"""
+		Inits once every plugin that was loaded.
+		"""
 		msg_string = self.get_translation("loaded_plugin", plugin_name="{}")
 		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
 			if hasattr(plugin[1], "init"):
@@ -255,184 +400,73 @@ class App:
 			self.cols - (len(msg_string.format(len(self.plugins.keys()))) + 2),
 			msg_string.format(len(self.plugins.keys())), curses.color_pair(3)
 		)
-		del msg_string
 
+	def _load_compilers(self):
+		"""
+		Loads the base compilers.
+		"""
+		self.compilers["algorithmic"] = AlgorithmicCompiler(
+			{
+				"for": "Pour",
+				"if": "Si",
+				"while": "Tant Que",
+				"switch": "Selon",
+				"arr": "Tableau",
+				"case": "Cas",
+				"default": "Autrement",
+				"fx": "Fonction",
+				"proc": "Procédure",
+				"const": "Constante"
+			},
+			{
+				"int": "Entier",
+				"float": "Réel",
+				"string": "Chaîne de caractères",
+				"bool": "Booléen",
+				"char": "Caractère"
+			},
+			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result",
+			 "return", "desc", "CODE_RETOUR", "init", "struct", "const"],
+			self.stdscr,
+			self.translations,
+			self.get_translation,
+			self.tab_char
+		)
+		self.compilers["C++"] = CppCompiler(
+			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc', 'struct'),
+			{
+				"int": "int",
+				"float": "float",
+				"string": "std::string",
+				"bool": "bool",
+				"char": "char"
+			},
+			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result",
+			 "return", "desc", "CODE_RETOUR", "init", "const"],
+			self.stdscr,
+			self
+		)
 
-		# Displays the text
-		self.display_text()
-
-		# App main loop
-		while True:
-			# Gets the current screen size
-			self.rows, self.cols = self.stdscr.getmaxyx()
-
-			# Key input
-			key = self.stdscr.getkey()
-
-			# If the undo is full, dumping the earliest element of queue
-			if len(self.undo_actions) == self.undo_actions.maxlen:
-				self.undo_actions.popleft()
-
-			# If system key is pressed
-			if key == self.command_symbol:
-				# Writes the command symbol to the command area row
-				self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
-				# Awaits the user's full command
-				key = input_text(self.stdscr, 1, self.rows - 1)
-
-				# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
-				repeat_count = 1
-				if key != "" and key[0].isdigit():
-					# Finds the number before the command
-					repeat_count_str = re.search(r'\d+', key).group()
-					repeat_count = int(repeat_count_str)
-
-					# Removes the number from the command name so we can actually find the correct command
-					key = key[len(repeat_count_str):]
-
-				# If the command exists
-				if key in self.commands.keys():
-					# We get the command information
-					key_name, (function, name, hidden) = key, self.commands[key]
-
-					# We add the full command name to the command area row
-					self.stdscr.addstr(self.rows - 1, 1, key_name)
-
-					# We launch the command as many times as needed
-					for _ in range(repeat_count):
-						try:
-							# Remembering the current state of the text so the command can be undone
-							# However, not doing this if this is the undo command
-							if key != "z":
-								self.undo_actions.append(
-									{
-										"action_type": "command",
-										"current_text": self.current_text,
-										"current_index": self.current_index
-									}
-								)
-
-							# Actually launching the command
-							function()
-
-						# If a curses error happens, we warn the user and log the error
-						except curses.error as e:
-							self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
-							self.log(e)
-							print_exception(e)
-							# We also undo the action just in case
-							if key != "z":
-								self.undo()
-
-				# Add a few spaces to clear the command name
-				self.stdscr.addstr(self.rows - 1, 0, " " * 4)
-			# If it is a regular key
-			else:
-				# Screen clearing
-				self.stdscr.clear()
-
-				# If the key IS a backspace character, we remove the last character from the text
-				if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
-					if key in ("KEY_BACKSPACE", "\b", "\0"):
-						if self.current_index > 0:
-							# Makes the action undoable
-							self.undo_actions.append(
-								{
-									"action_type": "removed_char",
-									"char": self.current_text[self.current_index - 1],
-									"index": self.current_index - 1,
-									"adder": 0
-								}
-							)
-							# Removes the character from the text
-							self.current_text = self.current_text[:self.current_index - 1] + self.current_text[self.current_index:]
-							self.current_index -= 1
-					elif key == "KEY_DC":  # Delete key
-						if self.current_index < len(self.current_text):
-							# Makes the action undoable
-							self.undo_actions.append(
-								{
-									"action_type": "removed_char",
-									"char": self.current_text[self.current_index],
-									"index": self.current_index,
-									"adder": 0
-								}
-							)
-							# Removes the character from the text
-							self.current_text = self.current_text[:self.current_index] + self.current_text[self.current_index+1:]
-					elif key in ("KEY_UP", "KEY_DOWN"):
-						text = self.current_text + "\n"
-						indexes = tuple(index for index in range(len(text)) if text.startswith('\n', index))
-						closest_index = min(indexes, key=lambda x:abs(x-self.current_index))
-						closest_index = indexes.index(closest_index)
-						closest_index = closest_index + (-1)**(key == "KEY_UP")
-						try:
-							if closest_index <= 0:
-								if "\n" in self.current_text:
-									self.current_index = self.current_text.index("\n")
-								else:
-									self.current_index = len(self.current_text)
-							else:
-								self.current_index = indexes[closest_index]
-						except IndexError: pass
-					elif key == "KEY_LEFT":
-						self.current_index -= 1
-					elif key == "KEY_RIGHT":
-						self.current_index += 1
-					elif key == "CTL_LEFT":
-						self.current_index -= 1
-						while self.current_index >= 0 and self.current_text[self.current_index] in string.ascii_letters:
-							self.current_index -= 1
-					elif key == "CTL_RIGHT":
-						self.current_index += 1
-						while self.current_index < len(self.current_text) and self.current_text[self.current_index] in string.ascii_letters:
-							self.current_index += 1
-					elif key == "KEY_NPAGE":
-						self.min_display_line -= 1
-						if self.min_display_line < 0:
-							self.min_display_line = 0
-					elif key == "KEY_PPAGE":
-						self.min_display_line += 1
-						if self.min_display_line > self.lines - 1:
-							self.min_display_line = self.lines - 1
-					elif key == "KEY_F(1)":
-						self.commands["h"][0]()
-					elif key == "KEY_F(4)":
-						self.commands["q"][0]()
-					elif key == "KEY_SEND":  # The key used to type '<', for some reason
-						self.add_char_to_text("<")
-					elif key == "CTL_END":  # The key used to type '>', for some reason
-						self.add_char_to_text(">")
-					elif key == "SHF_PADSLASH":  # The key used to type '!', for some reason
-						self.add_char_to_text("!")
-					"""elif key == "KEY_HOME":
-						self.min_display_char -= 1
-						if self.min_display_char < 0:
-							self.min_display_char = 0
-					elif key == "KEY_END":
-						self.min_display_char += 1"""
-				else:
-					# If the key is NOT a backspace character, we add the new character to the text
-					self.add_char_to_text(key)
-
-				# Calls the plugins update_on_keypress function
-				for plugin in self.plugins.values():
-					if hasattr(plugin[1], "update_on_keypress"):
-						plugin[1].update_on_keypress(key)
-
-				# Clamping the index
-				self.current_index = max(min(self.current_index, len(self.current_text)), 0)
-
-			# Displays the current text
-			# TODO Longer lines
+	def _on_crash_recover(self):
+		"""
+		If a crash file exists, asks the user if they want to recover.
+		"""
+		def recover_crash_data():
+			with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
+				self.current_text = f.read()
 			self.display_text()
+			self.is_crash_reboot = True
 
-			# Visual stylings, e.g. adds a full line over the input
-			self.apply_stylings()
-
-			# Screen refresh after input
-			self.stdscr.refresh()
-
+		display_menu(
+			self.stdscr,
+			(
+				("Yes", recover_crash_data),
+				("No", lambda: None)
+			),
+			label=self.get_translation("crash_recovery"),
+			clear=False
+		)
+		os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
 
 	def _declare_color_pairs(self):
 		"""
