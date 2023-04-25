@@ -17,6 +17,10 @@ from cpp_compiler import CppCompiler
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
 
 
+# Constants
+CRASH_FILE_NAME = ".crash"
+
+
 class App:
 	__singleton = None
 
@@ -166,7 +170,7 @@ class App:
 
 		# If a .crash file exists, we show a message asking if they want their data to be recovered,
 		# then we set current_text to its contents and delete it
-		if ".crash" in os.listdir(os.path.dirname(__file__)) and "--file" not in sys.argv:
+		if CRASH_FILE_NAME in os.listdir(os.path.dirname(__file__)) and "--file" not in sys.argv:
 			self._on_crash_recover()
 
 		self.apply_stylings()
@@ -198,7 +202,7 @@ class App:
 
 			# If system key is pressed
 			if key == self.command_symbol:
-				self.handle_command_key(key)
+				self.handle_command_key()
 
 			# If it is a regular key
 			else:
@@ -320,7 +324,8 @@ class App:
 			# If the key is NOT a backspace character, we add the new character to the text
 			self.add_char_to_text(key)
 
-	def handle_command_key(self, key: str):
+
+	def handle_command_key(self):
 		"""
 		Handles a command.
 		"""
@@ -452,7 +457,7 @@ class App:
 		If a crash file exists, asks the user if they want to recover.
 		"""
 		def recover_crash_data():
-			with open(os.path.join(os.path.dirname(__file__), ".crash"), "r", encoding="utf-8") as f:
+			with open(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME), "r", encoding="utf-8") as f:
 				self.current_text = f.read()
 			self.display_text()
 			self.is_crash_reboot = True
@@ -466,7 +471,8 @@ class App:
 			label=self.get_translation("crash_recovery"),
 			clear=False
 		)
-		os.remove(os.path.join(os.path.dirname(__file__), ".crash"))
+		os.remove(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME))
+
 
 	def _declare_color_pairs(self):
 		"""
@@ -1570,7 +1576,7 @@ def generate_crash_file(app:App, *args):
 	:param app: The application instance.
 	"""
 	# Saves a crash file with the contents of the current code
-	with open(os.path.join(os.path.dirname(__file__), ".crash"), "w", encoding="utf-8") as f:
+	with open(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME), "w", encoding="utf-8") as f:
 		f.write(app.current_text)
 
 	# If the app has loaded plugins, we call their on_crash function
