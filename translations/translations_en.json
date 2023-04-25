@@ -97,5 +97,14 @@
 	"toggle_namespace_std": "Toggled namespace std use to {state} ",
 	"toggle_struct_use": "Toggled struct keyword use to {state} ",
 	"cancel": "Cancel",
-	"loaded_n_plugins": "Loaded {} plugins"
+	"loaded_n_plugins": "Loaded {} plugins",
+	"welcome_page": [
+		"Algorithmic Editor",
+		"",
+		"Welcome !",
+		"Press '{help_key}' to get a list of the available commands.",
+		"Reminder that, at any moment, you can use the '{command_symbol}' key to type a command !",
+		"",
+		"This software is free and open source on GitHub : https://github.com/megat69/AlgorithmicEditor"
+	]
 }

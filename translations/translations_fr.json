@@ -97,5 +97,14 @@
 	"toggle_namespace_std": "Utilisation du namespace std basculé sur {state} ",
 	"toggle_struct_use": "Utilisation du mot-clé struct basculé sur {state} ",
 	"cancel": "Annuler",
-	"loaded_n_plugins": "{} plugins chargés"
+	"loaded_n_plugins": "{} plugins chargés",
+	"welcome_page": [
+		"Éditeur Algorithmique",
+		"",
+		"Bienvenue !",
+		"Utilisez '{help_key}' pour obtenir une liste des commandes disponibles.",
+		"Rappelez-vous qu'a n'importe quel moment, vous pouvez utiliser la touche '{command_symbol}' pour entrer une commande !",
+		"",
+		"Ce logiciel est gratuit et open source sur GitHub : https://github.com/megat69/AlgorithmicEditor"
+	]
 }
