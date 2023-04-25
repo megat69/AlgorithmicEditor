@@ -630,35 +630,41 @@ class App:
 			quit()
 
 
+	def get_lineno_length(self) -> int:
+		"""
+		Returns the space taken by the line numbers?
+		"""
+		return len(str(self.lines)) + 1
+
+
 	def display_text(self):
 		"""
 		Displays the text in current_text.
 		"""
-		idx = 0
-		self.cur = tuple()
+		self.cur = (
+			self.current_text[:self.current_index].count('\n') - self.min_display_line,
+			self.current_index - (self.current_text[:self.current_index].rfind('\n')) + self.get_lineno_length() - 1,
+			self.current_text[self.current_index]
+				if
+					self.current_index < len(self.current_text)  # If the current index is after the end of the text
+					and self.current_text[self.current_index].isprintable()  # Or if the character is not printable
+				else
+			" "
+		)
 		for i, line in enumerate(
-				self.current_text.split("\n")[self.min_display_line:self.min_display_line + (self.rows - 3)]):
+				self.current_text.split("\n")[self.min_display_line:self.min_display_line + (self.rows - 3)]
+		):
 			line = line[self.min_display_char:]
 			# Getting the splitted line for syntax highlighting
 			splitted_line = line.split(" ")
 
-			# Getting the cursor position
-			if idx + len(line) > self.current_index and idx <= self.current_index:
-				self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx),
-				            line[self.current_index - idx])
-			elif idx + len(line) == self.current_index:
-				self.cur = (i - self.min_display_line, len(str(self.lines)) + 1 + (self.current_index - idx), " ")
-
 			# Writing the line to the screen
-			if len(str(self.lines)) + 1 + len(line) < self.cols:
+			if self.get_lineno_length() + len(line) < self.cols:
 				# If the line's length does not overflow off the screen, we write it entirely
-				self.stdscr.addstr(i, len(str(self.lines)) + 1, line)
+				self.stdscr.addstr(i, self.get_lineno_length(), line)
 			else:
 				# If the line's length overflows off the screen, we write only the part that stays in the screen
-				self.stdscr.addstr(i, len(str(self.lines)) + 1, line[:self.cols - (len(str(self.lines)) + 1)])
-
-			# Updating the amount of characters in the line
-			idx += len(line) + 1 + self.min_display_char
+				self.stdscr.addstr(i, self.get_lineno_length(), line[:self.cols - (len(str(self.lines)) + 1)])
 
 			# Tests the beginning of the line to add a color, syntax highlighting
 			self.syntax_highlighting(line, splitted_line, i)
@@ -672,7 +678,7 @@ class App:
 					del self.plugins[plugin_name]
 
 		# Placing cursor
-		if self.cur != tuple() and self.cur[1] < self.cols:
+		if 0 <= self.cur[1] < self.cols and 0 <= self.cur[0] < self.rows - 3:
 			try:
 				self.stdscr.addstr(*self.cur, curses.A_REVERSE)
 			except curses.error:
