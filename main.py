@@ -187,6 +187,10 @@ class App:
 		# Initializes each plugin, if they have an init function
 		self._init_plugins()
 
+		# If the app had not previously crashed, we display the welcome page
+		if self.is_crash_reboot is False:
+			self.show_welcome_page()
+
 		# Displays the text
 		self.display_text()
 
@@ -1442,6 +1446,33 @@ class App:
 				given_size=given_size
 			))
 			self.stdscr.getch()
+
+
+	def show_welcome_page(self):
+		"""
+		Simply shows a message to the user welcoming him to the app.
+		"""
+		for i, line in enumerate(self.get_translation("welcome_page")):
+			self.stdscr.addstr(
+				5 + i,
+				self.cols // 2 - len(line) // 2,
+				line.format(help_key=f"{self.command_symbol}h", command_symbol=self.command_symbol),
+				(curses.A_REVERSE | curses.color_pair(self.color_pairs["instruction"])) * (i == 0)
+			)
+			if "{help_key}" in line:
+				self.stdscr.addstr(
+					5 + i,
+					self.cols // 2 - len(line) // 2 + line.find("{"),
+					f"{self.command_symbol}h",
+					curses.color_pair(self.color_pairs["variable"])
+				)
+			if "{command_symbol}" in line:
+				self.stdscr.addstr(
+					5 + i,
+					self.cols // 2 - len(line) // 2 + line.find("{"),
+					self.command_symbol,
+					curses.color_pair(self.color_pairs["statement"])
+				)
 
 
 
