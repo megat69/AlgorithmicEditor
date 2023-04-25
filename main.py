@@ -1312,7 +1312,7 @@ class App:
 						(self.get_translation("no"), partial(set_confirm, False))
 					), label =self.get_translation("save", "overwrite_file"))
 					# If the user didn't confirm, we don't save.
-					if confirm is not True:
+					if confirm is False:
 						return
 
 				# If the filename is a valid path, we dump the code into the requested file
@@ -1629,6 +1629,8 @@ if __name__ == "__main__":
 	# If a crash occurs, generates a .crash file
 	except Exception as e:
 		# In the event of a crash, saves the current_text to a .crash file
-		generate_crash_file(app)
+		try:
+			generate_crash_file(app)
+		except NameError: pass
 		# Then raises the exception again
 		raise e
