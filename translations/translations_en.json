@@ -13,6 +13,7 @@
 		"h": "Commands list",
 		"cl": "Clear editor",
 		"is": "Insert file",
+		"m": "Mark line",
 		"rlt": "Reload theme",
 		"std_use": "Toggle namespace std",
 		"struct_use": "Toggle struct keyword use",

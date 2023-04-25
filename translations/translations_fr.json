@@ -13,6 +13,7 @@
 		"h": "Liste des commandes",
 		"cl": "Vider l'éditeur",
 		"is": "Insérer un fichier",
+		"m": "Marquer la ligne",
 		"std_use": "Activer/Désactiver l'utilisation du namespace std",
 		"rlt": "Actualiser le thème",
 		"struct_use": "Activer/Désactiver l'utilisation du mot clé struct",

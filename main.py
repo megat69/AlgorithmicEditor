@@ -72,6 +72,7 @@ class App:
 			"cl": (self.clear_text, self.get_translation("commands", "cl"), True),
 			"is": (self.insert_text, self.get_translation("commands", "is"), True),
 			"rlt": (self.reload_theme, self.get_translation("commands", "rlt"), True),
+			"m": (self.mark_line, self.get_translation("commands", "m"), True),
 			# To add the command symbol to the text
 			self.command_symbol: (partial(self.add_char_to_text, self.command_symbol), self.command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
@@ -87,6 +88,7 @@ class App:
 		self.compilers = {}  # A dictionary of compilers for the editor
 		self.undo_actions = deque([], maxlen=21)  # All the actions that can be used to undo
 		self.is_crash_reboot = False  # Whether the editor has been rebooted from a crash. Can only be used through a plugin's init() method, will always be False otherwise.
+		self.marked_lines = []
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -769,7 +771,10 @@ class App:
 		self.calculate_line_numbers()
 		# Puts the line numbers at the edge of the screen
 		for i in range(self.min_display_line, min(self.lines, self.min_display_line+(self.rows-3))):
-			self.stdscr.addstr(i - self.min_display_line, 0, str(i + 1).zfill(len(str(self.lines))), curses.A_REVERSE)
+			style = curses.A_REVERSE
+			if i in self.marked_lines:
+				style |= curses.color_pair(self.color_pairs["statement"])
+			self.stdscr.addstr(i - self.min_display_line, 0, str(i + 1).zfill(len(str(self.lines))), style)
 
 
 	def reload_theme(self):
@@ -1485,6 +1490,21 @@ class App:
 				space_out_last_option = True,
 				allow_key_input = True
 			)
+
+
+
+	def mark_line(self):
+		"""
+		Allows the user to mark a line.
+		"""
+		# Finds the index of the current line
+		current_line_index = self.current_text[:self.current_index].count('\n')
+
+		# Toggles the mark on this line
+		if current_line_index in self.marked_lines:
+			self.marked_lines.remove(current_line_index)
+		else:
+			self.marked_lines.append(current_line_index)
 
 
 	def compile(self, noshow:bool=False) -> Union[None, str]:
