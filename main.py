@@ -89,6 +89,7 @@ class App:
 		self.undo_actions = deque([], maxlen=21)  # All the actions that can be used to undo
 		self.is_crash_reboot = False  # Whether the editor has been rebooted from a crash. Can only be used through a plugin's init() method, will always be False otherwise.
 		self.marked_lines = []  # Which lines are currently marked by the user
+		self.left_placement_shift = 0  # By how many columns the line numbers should be shifted to the right
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -680,7 +681,7 @@ class App:
 		"""
 		Returns the space taken by the line numbers?
 		"""
-		return len(str(self.lines)) + 1
+		return len(str(self.lines)) + 1 + self.left_placement_shift
 
 
 	def display_text(self):
@@ -776,9 +777,9 @@ class App:
 		# Puts the line numbers at the edge of the screen
 		for i in range(self.min_display_line, min(self.lines, self.min_display_line+(self.rows-3))):
 			style = curses.A_REVERSE
-			if i in self.marked_lines:
+			if i in self.marked_lines:  # Gives the line a different color if it marked
 				style |= curses.color_pair(self.color_pairs["statement"])
-			self.stdscr.addstr(i - self.min_display_line, 0, str(i + 1).zfill(len(str(self.lines))), style)
+			self.stdscr.addstr(i - self.min_display_line, self.left_placement_shift, str(i + 1).zfill(len(str(self.lines))), style)
 
 
 	def reload_theme(self):
@@ -957,7 +958,7 @@ class App:
 		:param i: The index of the line in the window.
 		"""
 		# Caches the amount of needed spaces on the left side of the screen
-		minlen = len(str(self.lines)) + 1
+		minlen = self.get_lineno_length()
 
 		# Colors the statement
 		start_statement = splitted_line[0]
