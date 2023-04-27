@@ -90,6 +90,7 @@ class App:
 		self.is_crash_reboot = False  # Whether the editor has been rebooted from a crash. Can only be used through a plugin's init() method, will always be False otherwise.
 		self.marked_lines = []  # Which lines are currently marked by the user
 		self.left_placement_shift = 0  # By how many columns the line numbers should be shifted to the right
+		self.input_locked = False  # If True, will disable all keyboard input except for commands and plugins
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -217,7 +218,8 @@ class App:
 				self.stdscr.clear()
 
 				# Handles the input as regular keys
-				self.handle_regular_key(key)
+				if not self.input_locked:
+					self.handle_regular_key(key)
 
 				# Calls the plugins update_on_keypress function
 				for plugin in self.plugins.values():
