@@ -392,7 +392,9 @@ class App:
 		msg_string = self.get_translation("loaded_plugin", plugin_name="{}")
 		for i, (plugin_name, plugin) in enumerate(self.plugins.items()):
 			if hasattr(plugin[1], "init"):
-				plugin[1].init()
+				if not plugin[1].was_initialized:
+					plugin[1].init()
+					plugin[1].was_initialized = True
 			# Writes a message to the screen showing all imported plugins
 			self.stdscr.addstr(
 				self.rows - 4 - i,

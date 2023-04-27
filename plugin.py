@@ -19,6 +19,7 @@ class Plugin:
 		self.plugin_name: str = ""  # The name of the plugin
 		self.config: dict = {}  # The config data of the plugin
 		self.translations: dict = {}  # The translations of your app
+		self.was_initialized: bool = False  # Whether the init() method was called. If True, will not call the method. If False, will turn to True upon call of init().
 
 	def init(self):
 		"""
