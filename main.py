@@ -1373,7 +1373,7 @@ class App:
 			))
 
 
-	def open(self):
+	def open(self, filename: str = None):
 		"""
 		Opens a code session.
 		"""
@@ -1386,17 +1386,18 @@ class App:
 			nonlocal opened_code
 			opened_code = True
 
-		def open_from_file():
+		def open_from_file(filename: str = None):
 			"""
 			Saves the code to a file.
 			"""
-			msg = tuple(
-				elem.format(command_symbol=self.command_symbol) for elem in
-				self.get_translation("open", "open_browse_msg")
-			)
-			for i in range(len(msg)):
-				self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
-			filename = input_text(self.stdscr, self.cols // 10, self.rows // 2 + len(msg))
+			if filename is None:
+				msg = tuple(
+					elem.format(command_symbol=self.command_symbol) for elem in
+					self.get_translation("open", "open_browse_msg")
+				)
+				for i in range(len(msg)):
+					self.stdscr.addstr(self.rows // 2 + i, self.cols // 2 - len(msg[i]) // 2, msg[i])
+				filename = input_text(self.stdscr, self.cols // 10, self.rows // 2 + len(msg))
 			if filename != "":
 				if filename == self.command_symbol + "v":
 					filename = pyperclip.paste()
@@ -1411,15 +1412,18 @@ class App:
 					msg = self.get_translation("open", "nonexistent_file")
 					self.stdscr.addstr(self.rows // 2, self.cols // 2 - len(msg), msg)
 
-		display_menu(
-			self.stdscr,
-			(
-				(self.get_translation("open", "open_from_clipboard"), open_from_clipboard),
-				(self.get_translation("open", "open_from_file"), open_from_file),
-				(self.get_translation("cancel"), lambda: None)
-			), label =self.get_translation("open", "open_menu"),
-			space_out_last_option = True
-		)
+		if filename is None:
+			display_menu(
+				self.stdscr,
+				(
+					(self.get_translation("open", "open_from_clipboard"), open_from_clipboard),
+					(self.get_translation("open", "open_from_file"), partial(open_from_file, None)),
+					(self.get_translation("cancel"), lambda: None)
+				), label =self.get_translation("open", "open_menu"),
+				space_out_last_option = True
+			)
+		else:
+			open_from_file(filename)
 
 		self.stdscr.clear()
 		if opened_code:
