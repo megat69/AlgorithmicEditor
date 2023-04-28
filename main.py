@@ -715,7 +715,7 @@ class App:
 				self.stdscr.addstr(i, self.get_lineno_length(), line)
 			else:
 				# If the line's length overflows off the screen, we write only the part that stays in the screen
-				self.stdscr.addstr(i, self.get_lineno_length(), line[:self.cols - (len(str(self.lines)) + 1)])
+				self.stdscr.addstr(i, self.get_lineno_length(), line[:self.cols - self.get_lineno_length()])
 
 			# Tests the beginning of the line to add a color, syntax highlighting
 			self.syntax_highlighting(line, splitted_line, i)
