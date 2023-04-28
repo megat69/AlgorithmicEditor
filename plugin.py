@@ -14,7 +14,7 @@ else:
 	AppType = Any
 
 class Plugin:
-	next_pair_number = 10
+	_next_pair_number = 10
 
 	def __init__(self, app: AppType):
 		self.app: __main__.App = app  # An instance of the app
@@ -122,7 +122,7 @@ class Plugin:
 		:param bg: A curses color.
 		:return: The ID of the color pair.
 		"""
-		curses.init_pair(Plugin.next_pair_number, fg, bg)
-		Plugin.next_pair_number += 1
-		return Plugin.next_pair_number - 1
+		curses.init_pair(Plugin._next_pair_number, fg, bg)
+		Plugin._next_pair_number += 1
+		return Plugin._next_pair_number - 1
 
