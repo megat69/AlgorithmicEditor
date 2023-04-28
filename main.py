@@ -940,13 +940,13 @@ class App:
 				in_plugins_section = True
 
 			self.stdscr.addstr(
-				(middle_y - len(self.commands) // 2 + i + in_plugins_section) % (self.rows - 7),
+				(middle_y - len(self.commands) // 2 + i + in_plugins_section) % (self.rows - 3),
 				middle_x - len(generated_str) // 2,
 				generated_str, (curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL) \
 					if key_name != self.command_symbol else curses.color_pair(1) | curses.A_REVERSE
 			)
 
-			if middle_y - len(self.commands) // 2 + i + in_plugins_section == self.rows - 8:
+			if middle_y - len(self.commands) // 2 + i + in_plugins_section == self.rows - 4:
 				self.stdscr.getch()
 				self.stdscr.clear()
 
