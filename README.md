@@ -646,25 +646,26 @@ Trois fonctions sont disponibles et utilisables à travers votre code.
 You can use commands to have an effect on your code. These commands are triggered by using the command symbol key (`:` by default), followed by the key assigned to it, then hitting Enter.<br>
 The commands are, but not limited to (plugins can add some) :
 - `:q` - Quit : Exits the editor **without saving**.
-- `:c` - Compile : Compiles your code into algorithmic code. **Copies the program to the clipboard, overriding what may be inside.**
+- `:c` - Compile : Compiles your code into algorithmic code.
 - `:t` - Modify tab char : Allows you to type in a new string to replace the default tab character (`\t`) for the transpilations.
 - `:s` - Save : Saves the program.
 - `:qs` - Quicksave : Quicksaves the program to the last place is was saved to. Does not ask for confirmation.
 - `:o` - Open : Opens a program.
 - `:p` - Compile to C++ : Transpiles your code into C++. *Note that the transpilation isn't perfect, it is more of a means to test your algorithm quickly than having to rewrite it entirely in another language.*
-- `:j` - Toggle namespace std : Toggles whether to use the `std` namespace in the C++ code. If true, all `std::` calls will be replaced by a `using namespace std;` at the top of the program. False by default.
+- `:op` - Options : Opens the options menu, giving you more customization for each feature and plugin.
 - `:h` - Commands list : Lists all existing commands, either built-in or from plugins.
 
 ***FRANÇAIS***
 Vous pouvez utiliser des commandes qui auront un effet syr votre code. Ces commandes sont déclenchées par l'appui sur la touche du symbole de commande (`:` par défaut), suivi de la touche assignée, puis par l'appui sur la touche Entrée.<br>
 Les commades sont, mais pas limitées à (les plugins peuvent en ajouter) :
 - `:q` - Quitter : Ferme l'éditeur **sans sauvegarder**.
-- `:c` - Compiler : Transcrire le code en algorithmique. **Copie le programme dans le presse-papiers, réécrivant ce qui pourrait être dedans.**
+- `:c` - Compiler : Transcrire le code en algorithmique.
 - `:t` - Modifier le caractère de tabulation : Permet de taper un nouveau texte pour remplacer le caractère de tabulation par défaut (`\t`) pour les transcription.
 - `:s` - Sauvegarder : Sauvegarde le programme.
 - `:o` - Ouvrir : Ouvre le programme.
 - `:p` - Compiler vers C++ : Transcrit votre code en C++. *Notez que la transcription n'est pas parfaite, il s'agit plus de tester votre algorithme rapidement plutôt que d'avoir à le réécrire entièrement dans un autre langage.*
-- `:j` - Basculer namespace std : Bascule l'utilisation du namespace `std`dans le code C++. Si vrai, tous les appels à `std::` seront replacés par un `using namespace std;` au sommet du programme. Faux par défaut.
+- `:op` - Options : Ouvre le menu des options, vous donnant plus de customisation pour chaque fonctionnalité et plugin.
+  - Vous permet également de changer la langue
 - `:h` - Liste des commandes : Liste toutes les commandes existantes, qu'elles soient par défaut ou proviennent de plugins.
 
 ## Plugins
@@ -678,6 +679,8 @@ As of today, official plugins include, but are not restricted to :
 - `ctrl_del`, a plugin giving you access to a command able to erase the current word in one keystroke, like the Ctrl + Del keybind ;
 - `docstring`, which automatically setups information for functions in a single keybind ;
 - `paste`, which lets you paste anything from your clipboard to the editor ;
+- `tabs`, which lets you open different tabs for different files at once ;
+- `file_index`, which lets you browse files while in the editor (cross compatible with `tabs`) ;
 - **And most importantly,** `plugin_repo`, which is the heart of the plugins : it allows you to manage (enable/disable/delete/list) your plugins or download/updates new ones.
   - It is the only plugin downloaded by default (if you select so in the setup).
 
@@ -689,6 +692,8 @@ Au moment de l'écriture de ces lignes, les plugins officiels contiennent, mais 
 - `ctrl_del`, un plugin vous donnant accès à une commande capable d'effacer le mot sélectionné en une touche, comme le raccourci Ctrl + RetourArrière ;
 - `docstring`, qui vous met en place automatiquement les informations demandées pour la création de fonctions (Données, préconditions, etc.) en une seule touche ;
 - `paste`, qui vous permet de coller n'importe quoi de votre presse-papiers dans l'éditeur ;
+- `tabs`, qui vous permet d'ouvrir différents onglets pour différents fichiers en même temps ;
+- `file_index`, qui vous permet de parcourir les fichiers au coeur de l'éditeur (cross compatible avec `tabs`) ;
 - **Et le plus important,** `plugin_repo`, qui est au coeur de tous les plugins : il vous permet de gérer (activer/désactiver/supprimmer/lister) vos plugins, ou d'en télécharger/mettre à jour d'autres.
   - Il s'agit du seul plugin téléchargé par défaut (si vous acceptez durant le setup).
 
