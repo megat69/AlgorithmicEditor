@@ -43,7 +43,7 @@ translations = {
 		                        "Une bonne partie des fonctionnalités de l'éditeur sont implémentées par leur biais.\n"
 		                        "Le starter pack de plugins inclut :"
 		                        "{}"
-		                        "Voulez-vous les installer ? (y/n)",
+		                        "Voulez-vous les installer ? (o/n)",
 		"setup_finished": "C'est tout bon ! Setup terminé.",
 		"error_occured": "Une erreur s'est produite durant le téléchargement du plugin_repo.",
 		"associate_filetype": "Voulez-vous associer l'extension '.algo' avec ce logiciel ? (o/n) "
