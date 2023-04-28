@@ -2,6 +2,7 @@
 Contains the Plugin base class, which allows developers to create their own plugins.
 The Plugin class should be inherited from, rather than used as-is.
 """
+import curses
 from typing import Callable, Type, Any
 
 # Imports the main.py file. If another file is used as top-level import, the program will crash.
@@ -12,8 +13,9 @@ if hasattr(__main__, "App"):
 else:
 	AppType = Any
 
-
 class Plugin:
+	next_pair_number = 10
+
 	def __init__(self, app: AppType):
 		self.app: __main__.App = app  # An instance of the app
 		self.plugin_name: str = ""  # The name of the plugin
@@ -111,4 +113,16 @@ class Plugin:
 		"""
 		# If a command with the same prefix exists, it replaces it
 		self.app.options_list.append((name, current_value, callback))
+
+
+	def create_pair(self, fg: int, bg: int) -> int:
+		"""
+		Creates a new color pair with the given colors, and returns its ID.
+		:param fg: A curses color.
+		:param bg: A curses color.
+		:return: The ID of the color pair.
+		"""
+		curses.init_pair(Plugin.next_pair_number, fg, bg)
+		Plugin.next_pair_number += 1
+		return Plugin.next_pair_number - 1
 
