@@ -2,6 +2,14 @@ import os, platform
 import sys
 
 os.chdir(os.path.dirname(__file__))
+PLUGINS_STARTER_PACK = (
+	("autocomplete", {"fr": "Ajoute de l'autocomplétion", "en": "Adds autocompletion"}),
+	("copy", {"fr": "Permet de copier", "en": "Enables copying"}),
+	("paste", {"fr": "Permet de coller", "en": "Enables pasting"}),
+	("docstring", {"fr": "Rend la création de documentation plus simple", "en": "Makes documentation creation easier"}),
+	("file_index", {"fr": "Ajoute un index de fichiers dans l'éditeur", "en": "Adds a file index in the editor"}),
+	("tabs", {"fr": "Ajoute la possibilité d'avoir plusieurs onglets ouverts", "en": "Enables you to open multiple tabs at once"}),
+)
 
 # Asks the user their age
 language = "fr" if input("Choose a language (EN/FR) : ")[:2].lower() == "fr" else "en"
@@ -30,6 +38,12 @@ translations = {
 		"install_plugin_repo": "Voulez-vous installer le plugin 'plugin_repo' et ses dépendances ? "
 		                       "Il s'agit d'un excellent plugin pour vous aider à gérer et installer des plugins,"
 		                       " en plus d'être un très bonne exemple pour apprendre à créer le vôtre. (o/n)",
+		"install_starter_pack": "Voulez-vous installer un starter pack de plugins ? Ils sont faits pour rendre "
+		                        "votre vie plus facile, et son développés en même temps que le projet lui-même.\n"
+		                        "Une bonne partie des fonctionnalités de l'éditeur sont implémentées par leur biais.\n"
+		                        "Le starter pack de plugins inclut :"
+		                        "{}"
+		                        "Voulez-vous les installer ? (y/n)",
 		"setup_finished": "C'est tout bon ! Setup terminé.",
 		"error_occured": "Une erreur s'est produite durant le téléchargement du plugin_repo.",
 		"associate_filetype": "Voulez-vous associer l'extension '.algo' avec ce logiciel ? (o/n) "
@@ -40,6 +54,11 @@ translations = {
 		"install_plugin_repo": "Do you want to install the 'plugin_repo' plugin and its requirements ? "
 		                       "It is a great plugin to help you manage and install plugins, as well as being a great "
 		                       "example on how to create your own. (y/n)",
+		"install_starter_pack": "Do you want to install a starter pack of plugins ? They are intended to make "
+		                        "your life easier, and are developed alongside the project itself. A lot of "
+		                        "editor features are implemented through those. The plugins include :"
+		                        "{}"
+		                        "Do you want to install them ? (y/n)",
 		"setup_finished": "All done ! Setup complete.",
 		"error_occured": "An error occurred while trying to download the plugin_repo.",
 		"associate_filetype": "Do you want to associate the extension '.algo' with this software ? (y/n) "
@@ -67,15 +86,34 @@ if install_plugin_repo:
 
 	# Using requests, downloads the plugin repo
 	import requests
-	r = requests.get("https://raw.githubusercontent.com/megat69/AlgorithmicEditor_Plugins/main/plugin_repo.py")
-	if r.status_code == 200:
-		with open(os.path.join(os.path.dirname(__file__), "plugins", "plugin_repo.py"), "w", encoding="utf-8") as f:
-			f.write(r.text)
+	def download_plugin(name: str):
+		r = requests.get(f"https://raw.githubusercontent.com/megat69/AlgorithmicEditor_Plugins/main/{name}.py")
+		if r.status_code == 200:
+			with open(os.path.join(os.path.dirname(__file__), "plugins", f"{name}.py"), "w", encoding="utf-8") as f:
+				f.write(r.text)
+		# If an error happened (connection, server error...), it is printed out to the user and the
+		# plugin download is aborted
+		else:
+			print(translations[language]["error_occured"])
 
-	# If an error happened (connection, server error...), it is printed out to the user and the
-	# plugin repo download is aborted
-	else:
-		print(translations[language]["error_occured"])
+	# Downloads the plugin repo
+	download_plugin("plugin_repo")
+
+	# Asking the user if they want to install the starter pack plugin
+	install_starter_pack = input("\n"*2 + translations[language]["install_starter_pack"].format(
+		''.join([
+			f"\n- '{name}' : {description[language]}"
+			for name, description in PLUGINS_STARTER_PACK
+		])
+	))[0].lower() != "n"
+
+	# Installs the whole starter pack if the user said yes
+	if install_starter_pack:
+		for name, _ in PLUGINS_STARTER_PACK:
+			print(f"Downloading {name}...")
+			download_plugin(name)
+			print(f"Installed {name} !")
+		print("Starter pack installed !")
 
 # If the user is on Windows, we ask them if they want to associate the '.algo' filetype with the editor
 # This action needs setup.py to be run as administrator to function.
