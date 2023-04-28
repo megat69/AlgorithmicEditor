@@ -1,4 +1,6 @@
 import os, platform
+import sys
+
 os.chdir(os.path.dirname(__file__))
 
 # Asks the user their age
@@ -47,7 +49,7 @@ translations = {
 # Asks the user their PIP prefix
 pip_prefix = input(translations[language]["pip_prefix"] + "\n")
 if pip_prefix == "":
-	pip_prefix = "pip"
+	pip_prefix = f"\"{sys.executable}\" -m pip"
 
 # Installs the requirements
 print(translations[language]["requirements_install"])
