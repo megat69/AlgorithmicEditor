@@ -105,9 +105,11 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 			# Displays the menu item
 			stdscr.addstr(
 				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i + \
-				((max_items_per_page * current_page + i == len(_return_list_with_substrings(commands,
-				                                                                            string_to_search_for,
-				                                                                            allow_key_input)) - 1) * space_out_last_option) + allow_key_input,
+				((max_items_per_page * current_page + i == len(_return_list_with_substrings(
+					commands, string_to_search_for, allow_key_input)
+				) - 1) * (
+					space_out_last_option and ((not allow_key_input) or (allow_key_input and not bool(string_to_search_for))))
+				) + allow_key_input,
 				screen_middle_x - len(command[0]) // 2,
 				command[0],
 				curses.A_NORMAL if i != selected_element else curses.A_REVERSE  # Reverses the color if the item is selected
