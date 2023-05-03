@@ -7,6 +7,11 @@ from compiler import Compiler
 class AlgorithmicCompiler(Compiler):
 	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:list, stdscr, translations, translate_method, tab_char:str="\t"):
 		super().__init__(instruction_names, var_types, other_instructions, stdscr, translations, translate_method, tab_char)
+		self.fxtext = []
+
+
+	def prepare_new_compilation(self):
+		self.fxtext.clear()
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -63,6 +68,9 @@ class AlgorithmicCompiler(Compiler):
 		# If the last element is not "vars" (in the docstring), then we add "Fin names[elem]" to the line
 		if last_elem != "vars":
 			self.instructions_list[line_number] = f"Fin {self.instruction_names[last_elem]}"
+			if last_elem in ("fx", "proc"):
+				self.fxtext.append(self.instructions_list[line_number] + "\n" * 2)
+				self.instructions_list[line_number] = ""
 
 
 	def analyze_while(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -409,9 +417,24 @@ class AlgorithmicCompiler(Compiler):
 		tab_amount = len(self.instructions_stack)
 		if instruction_name in (*self.instruction_names.keys(), "else", "elif", "fx_start", "vars"):
 			tab_amount -= 1
-		self.instructions_list[line_number] = self.tab_char * tab_amount + self.instructions_list[line_number]
+		if len(self.instructions_stack) != 0 and (
+			"fx" in self.instructions_stack or
+			"proc" in self.instructions_stack or
+			(instruction_name == "end" and self.instructions_stack[-1] in ("fx", "proc"))
+		):
+			self.fxtext.append(self.tab_char * tab_amount + self.instructions_list[line_number])
+			if instruction_name == "end":
+				self.fxtext[-1] += "\n"
+			self.instructions_list[line_number] = ""
+		else:
+			self.instructions_list[line_number] = self.tab_char * tab_amount + self.instructions_list[line_number]
 
 
 	def final_touches(self):
 		""" Concatenates everything into one string """
-		return "Début\n" + "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list) + "Fin"
+		# Adds the function text
+		final_text = "".join(instruction + "\n" for instruction in self.fxtext)
+		# Adds the main
+		final_text += "Début\n"
+		final_text += "".join(self.tab_char + instruction + "\n" for instruction in self.instructions_list if instruction != "")
+		return final_text + "Fin"
