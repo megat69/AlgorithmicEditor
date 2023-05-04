@@ -294,7 +294,8 @@ class browse_files:
 		display_menu(
 			self.stdscr,
 			menu_items,
-			label=self.path
+			label=self.path,
+			allow_key_input=True
 		)
 
 		browse_files.last_browsed_path = os.path.dirname(self.path)
