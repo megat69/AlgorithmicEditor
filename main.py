@@ -178,9 +178,6 @@ class App:
 		if CRASH_FILE_NAME in os.listdir(os.path.dirname(__file__)) and "--file" not in sys.argv:
 			self._on_crash_recover()
 
-		self.apply_stylings()
-		self.stdscr.refresh()
-
 		# Declaring the color pairs
 		self._declare_color_pairs()
 
@@ -196,6 +193,8 @@ class App:
 
 		# Displays the text
 		self.display_text()
+		self.apply_stylings()
+		self.stdscr.refresh()
 
 		# App main loop
 		while True:
