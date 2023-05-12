@@ -241,7 +241,7 @@ class CppCompiler(Compiler):
 				arr_sizes += f"[{instruction_params[i]}]"
 
 			# Building the final line
-			self.instructions_list[line_number] = f"{self.var_types[instruction_params[0]]} {instruction_params[1]}{arr_sizes}"
+			self.instructions_list[line_number] = f"{self.var_types[instruction_params[0]]} {instruction_params[1]}{arr_sizes};"
 
 		# If the statement does not have all its parameters set
 		except IndexError:
