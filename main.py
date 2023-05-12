@@ -90,6 +90,7 @@ class App:
 		self.is_crash_reboot = False  # Whether the editor has been rebooted from a crash. Can only be used through a plugin's init() method, will always be False otherwise.
 		self.marked_lines = []  # Which lines are currently marked by the user
 		self.left_placement_shift = 0  # By how many columns the line numbers should be shifted to the right
+		self.top_placement_shift = 0  # By how many lines the top of the code should be shifted from the top
 		self.input_locked = False  # If True, will disable all keyboard input except for commands and plugins
 
 		# Changes the class variable of browse_files to be the config's class variable
@@ -693,7 +694,7 @@ class App:
 		Displays the text in current_text.
 		"""
 		self.cur = (
-			self.current_text[:self.current_index].count('\n') - self.min_display_line,
+			self.current_text[:self.current_index].count('\n') - self.min_display_line + self.top_placement_shift,
 			self.current_index - (self.current_text[:self.current_index].rfind('\n')) + self.get_lineno_length() - 1,
 			self.current_text[self.current_index]
 				if
@@ -703,19 +704,19 @@ class App:
 			" "
 		)
 		for i, line in enumerate(
-				self.current_text.split("\n")[self.min_display_line:self.min_display_line + (self.rows - 3)]
+				self.current_text.split("\n")[self.min_display_line:self.min_display_line + (self.rows - 3) - self.top_placement_shift]
 		):
 			line = line[self.min_display_char:]
 			# Getting the splitted line for syntax highlighting
 			splitted_line = line.split(" ")
 
 			# Writing the line to the screen
-			if self.get_lineno_length() + len(line) < self.cols:
+			if self.get_lineno_length() + len(line) < self.cols - self.left_placement_shift:
 				# If the line's length does not overflow off the screen, we write it entirely
-				self.stdscr.addstr(i, self.get_lineno_length(), line)
+				self.stdscr.addstr(i + self.top_placement_shift, self.get_lineno_length(), line)
 			else:
 				# If the line's length overflows off the screen, we write only the part that stays in the screen
-				self.stdscr.addstr(i, self.get_lineno_length(), line[:self.cols - self.get_lineno_length()])
+				self.stdscr.addstr(i + self.top_placement_shift, self.get_lineno_length(), line[:self.cols - self.get_lineno_length() - self.left_placement_shift])
 
 			# Tests the beginning of the line to add a color, syntax highlighting
 			self.syntax_highlighting(line, splitted_line, i)
@@ -774,16 +775,16 @@ class App:
 			elif key_name == self.command_symbol:
 				cols += 3
 
-		self.stdscr.refresh()
-
 		# Gets the amount of lines in the text
 		self.calculate_line_numbers()
 		# Puts the line numbers at the edge of the screen
-		for i in range(self.min_display_line, min(self.lines, self.min_display_line+(self.rows-3))):
+		for i in range(self.min_display_line, min(self.lines, self.min_display_line + (self.rows - 3) - self.top_placement_shift)):
 			style = curses.A_REVERSE
 			if i in self.marked_lines:  # Gives the line a different color if it marked
 				style |= curses.color_pair(self.color_pairs["statement"])
-			self.stdscr.addstr(i - self.min_display_line, self.left_placement_shift, str(i + 1).zfill(len(str(self.lines))), style)
+			self.stdscr.addstr(i - self.min_display_line + self.top_placement_shift, self.left_placement_shift, str(i + 1).zfill(len(str(self.lines))), style)
+
+		self.stdscr.refresh()
 
 
 	def reload_theme(self):
@@ -963,6 +964,7 @@ class App:
 		"""
 		# Caches the amount of needed spaces on the left side of the screen
 		minlen = self.get_lineno_length()
+		mintop = i + self.top_placement_shift
 
 		# Colors the statement
 		start_statement = splitted_line[0]
@@ -976,14 +978,14 @@ class App:
 			else:
 				c_pair = "variable"
 			# Overwrites the beginning of the line with the given color if possible
-			self.stdscr.addstr(i, minlen, start_statement, curses.color_pair(self.color_pairs[c_pair]))
+			self.stdscr.addstr(mintop, minlen, start_statement, curses.color_pair(self.color_pairs[c_pair]))
 
 		# Finds all '[' and ']' signs and gives them the statement color
 		for current_symbol in '[]':
 			symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == current_symbol)
 			for index in symbol_indexes:
 				self.stdscr.addstr(
-					i,
+					mintop,
 					minlen + index, line[index],
 					curses.color_pair(self.color_pairs["statement"])
 				)
@@ -994,14 +996,14 @@ class App:
 			if j % 2 == 0:
 				try:
 					self.stdscr.addstr(
-						i,
+						mintop,
 						minlen + index, line[index:quotes_indexes[j + 1] + 1],
 						curses.color_pair(self.color_pairs["strings"] if "=" not in splitted_line[1] else 5)
 					)
 				except IndexError:
 					if len(splitted_line) > 1:
 						self.stdscr.addstr(
-							i,
+							mintop,
 							minlen + index, line[index:],
 							curses.color_pair(self.color_pairs["strings"] if "=" not in splitted_line[1] else 5)
 						)
@@ -1010,14 +1012,14 @@ class App:
 		try:
 			if "=" in splitted_line[1]:
 				self.stdscr.addstr(
-					i, minlen + 1 + len(splitted_line[0]),
+					mintop, minlen + 1 + len(splitted_line[0]),
 					splitted_line[1],
 					curses.color_pair(self.color_pairs["statement"])
 				)
 
 			elif splitted_line[0] in self.color_control_flow["variable"] and splitted_line[2] == "=":
 				self.stdscr.addstr(
-					i, minlen + sum(len(e) + 1 for e in splitted_line[:2]),
+					mintop, minlen + sum(len(e) + 1 for e in splitted_line[:2]),
 					"=",
 					curses.color_pair(self.color_pairs["statement"])
 				)
@@ -1029,7 +1031,7 @@ class App:
 		symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "&")
 		for index in symbol_indexes:
 			self.stdscr.addstr(
-				i,
+				mintop,
 				minlen + index, line[index],
 				curses.color_pair(self.color_pairs["statement"])
 			)
@@ -1055,7 +1057,7 @@ class App:
 		for builtin_function in ("puissance", "racine", "aleatoire", "alea", "len"):
 			for builtin_function_index in find_all(line, f"{builtin_function}("):
 				self.stdscr.addstr(
-					i, minlen + builtin_function_index,
+					mintop, minlen + builtin_function_index,
 					builtin_function,
 					curses.color_pair(self.color_pairs["special_string"])
 				)
@@ -1066,7 +1068,7 @@ class App:
 			# Highlighting the function's return type; as statement if void or variable otherwise
 			if splitted_line[1] in (*self.color_control_flow["variable"], "void"):
 				self.stdscr.addstr(
-					i, minlen + 3,
+					mintop, minlen + 3,
 					splitted_line[1],
 					curses.color_pair(self.color_pairs["variable" if splitted_line[1] != "void" else "statement"])
 				)
@@ -1074,12 +1076,12 @@ class App:
 			# Or if it is a structure
 			elif splitted_line[1].startswith("struct"):
 				self.stdscr.addstr(
-					i, minlen + 3,
+					mintop, minlen + 3,
 					"struct",
 					curses.color_pair(self.color_pairs["instruction"])
 				)
 				self.stdscr.addstr(
-					i, minlen + 10,
+					mintop, minlen + 10,
 					splitted_line[1][7:],
 					curses.color_pair(self.color_pairs["special_string"])
 				)
@@ -1088,7 +1090,7 @@ class App:
 			for j in range(3, len(splitted_line), 2):
 				if splitted_line[j] in (*self.color_control_flow["variable"], "void"):
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])),
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
 					)
 
@@ -1096,25 +1098,25 @@ class App:
 				elif splitted_line[j].startswith("arr"):
 					# Highlighting the array type in red
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])),
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
 						"arr", curses.color_pair(self.color_pairs["statement"])
 					)
 					# Highlighting the underscore
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])) + 3,
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])) + 3,
 						"_", curses.color_pair(self.color_pairs["function"])
 					)
 					# Highlighting the var type in yellow
 					try:
 						self.stdscr.addstr(
-							i, minlen + 1 + len(" ".join(splitted_line[:j])) + 4,
+							mintop, minlen + 1 + len(" ".join(splitted_line[:j])) + 4,
 							splitted_line[j][4:4 + len(splitted_line[j].split("_")[1])], curses.color_pair(self.color_pairs["variable"])
 						)
 					except IndexError: pass
 					# Highlighting the underscore
 					try:
 						self.stdscr.addstr(
-							i, minlen + 1 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
+							mintop, minlen + 1 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
 							"_", curses.color_pair(self.color_pairs["function"])
 						)
 					except IndexError: pass
@@ -1122,11 +1124,11 @@ class App:
 				# If the argument is a structure
 				elif splitted_line[j].startswith("struct"):
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])),
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
 						"struct", curses.color_pair(self.color_pairs["instruction"])
 					)
 					self.stdscr.addstr(
-						i, minlen + 8 + len(" ".join(splitted_line[:j])),
+						mintop, minlen + 8 + len(" ".join(splitted_line[:j])),
 						splitted_line[j][7:],
 						curses.color_pair(self.color_pairs["special_string"])
 					)
@@ -1136,7 +1138,7 @@ class App:
 		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
 			if splitted_line[1] in self.color_control_flow["variable"]:
 				self.stdscr.addstr(
-					i, minlen + 4,
+					mintop, minlen + 4,
 					splitted_line[1],
 					curses.color_pair(self.color_pairs["variable"])
 				)
@@ -1145,7 +1147,7 @@ class App:
 				for j in range(3, len(splitted_line)):
 					if splitted_line[j].isdigit():
 						self.stdscr.addstr(
-							i, minlen + len(" ".join(splitted_line[:j])) + 1,
+							mintop, minlen + len(" ".join(splitted_line[:j])) + 1,
 							splitted_line[j],
 							curses.color_pair(self.color_pairs["special_string"])
 						)
@@ -1154,14 +1156,14 @@ class App:
 		elif splitted_line[0] == "const" and len(splitted_line) > 1:
 			if splitted_line[1] in self.color_control_flow["variable"]:
 				self.stdscr.addstr(
-					i, minlen + 6,
+					mintop, minlen + 6,
 					splitted_line[1],
 					curses.color_pair(self.color_pairs["variable"])
 				)
 
 			if len(splitted_line) > 3 and "=" in splitted_line[3]:
 				self.stdscr.addstr(
-					i, minlen + len(" ".join(splitted_line[:3])) + 1,
+					mintop, minlen + len(" ".join(splitted_line[:3])) + 1,
 					splitted_line[3],
 					curses.color_pair(self.color_pairs["statement"])
 				)# If the instruction is a function declaration, we highlight each types in the declaration
@@ -1170,7 +1172,7 @@ class App:
 		elif splitted_line[0] == "struct" and len(splitted_line) > 1:
 			# Highlighting the structure's name
 			self.stdscr.addstr(
-				i, minlen + 7,
+				mintop, minlen + 7,
 				splitted_line[1],
 				curses.color_pair(self.color_pairs["special_string"])
 			)
@@ -1179,7 +1181,7 @@ class App:
 			for j in range(2, len(splitted_line), 2):
 				if splitted_line[j] in self.color_control_flow["variable"]:
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])),
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])
 					)
 
@@ -1187,25 +1189,25 @@ class App:
 				elif splitted_line[j].startswith("arr"):
 					# Highlighting the array type in red
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])),
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
 						"arr", curses.color_pair(self.color_pairs["statement"])
 					)
 					# Highlighting the underscore
 					self.stdscr.addstr(
-						i, minlen + 1 + len(" ".join(splitted_line[:j])) + 3,
+						mintop, minlen + 1 + len(" ".join(splitted_line[:j])) + 3,
 						"_", curses.color_pair(self.color_pairs["function"])
 					)
 					# Highlighting the var type in yellow
 					try:
 						self.stdscr.addstr(
-							i, minlen + 1 + len(" ".join(splitted_line[:j])) + 4,
+							mintop, minlen + 1 + len(" ".join(splitted_line[:j])) + 4,
 							splitted_line[j][4:4 + len(splitted_line[j].split("_")[1])], curses.color_pair(self.color_pairs["variable"])
 						)
 					except IndexError: pass
 					# Highlighting the underscore
 					try:
 						self.stdscr.addstr(
-							i, minlen + 1 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
+							mintop, minlen + 1 + len(" ".join(splitted_line[:j])) + 4 + len(splitted_line[j].split("_")[1]),
 							"_", curses.color_pair(self.color_pairs["function"])
 						)
 					except IndexError: pass
@@ -1215,7 +1217,7 @@ class App:
 		elif splitted_line[0] == "init" and len(splitted_line) > 1:
 			# Highlighting the structure type
 			self.stdscr.addstr(
-				i, minlen + 5,
+				mintop, minlen + 5,
 				splitted_line[1],
 				curses.color_pair(self.color_pairs["special_string"])
 			)
@@ -1240,7 +1242,7 @@ class App:
 
 				# Overwrites the text
 				self.stdscr.addstr(
-					i, minlen + 5 + sum(len(e) + 1 for e in splitted_line[1:j]),
+					mintop, minlen + 5 + sum(len(e) + 1 for e in splitted_line[1:j]),
 					splitted_line[j],
 					flag
 				)
