@@ -710,7 +710,7 @@ class App:
 			splitted_line = line.split(" ")
 
 			# Writing the line to the screen
-			if self.get_lineno_length() + len(line) < self.cols - self.left_placement_shift:
+			if self.get_lineno_length() + len(line) < self.cols - self.left_placement_shift - 1:  # -1 is for the scrollbar
 				# If the line's length does not overflow off the screen, we write it entirely
 				self.stdscr.addstr(i + self.top_placement_shift, self.get_lineno_length(), line)
 			else:
@@ -773,6 +773,21 @@ class App:
 			# Adds a spacing between built-in and plugin commands
 			elif key_name == self.command_symbol:
 				cols += 3
+
+		# Calculates the scrollbar
+		total_lines_of_code = self.current_text.count("\n")
+		scrollbar_max_height = self.rows - 3 - self.top_placement_shift
+		if total_lines_of_code > scrollbar_max_height:
+			scrollbar_height = int(scrollbar_max_height / total_lines_of_code * scrollbar_max_height)
+			scrollbar_pos = self.top_placement_shift + int(self.min_display_line / total_lines_of_code * scrollbar_max_height)
+			for i in range(scrollbar_height):
+				if scrollbar_pos + i < self.rows - 3:
+					self.stdscr.addstr(
+						scrollbar_pos + i,
+						self.cols - 1,
+						" ",
+						curses.A_REVERSE
+					)
 
 		# Gets the amount of lines in the text
 		self.calculate_line_numbers()
