@@ -746,6 +746,46 @@ class App:
 		except curses.error: pass
 
 		# Adds the commands list at the bottom of the screen
+		self.display_commands_list()
+
+		# Calculates the scrollbar
+		self.calculate_scrollbar()
+
+		# Gets the amount of lines in the text
+		self.calculate_line_numbers()
+		# Puts the line numbers at the edge of the screen
+		for i in range(self.min_display_line, min(self.lines, self.min_display_line + (self.rows - 3) - self.top_placement_shift)):
+			style = curses.A_REVERSE
+			if i in self.marked_lines:  # Gives the line a different color if it marked
+				style |= curses.color_pair(self.color_pairs["statement"])
+			self.stdscr.addstr(i - self.min_display_line + self.top_placement_shift, self.left_placement_shift, str(i + 1).zfill(len(str(self.lines))), style)
+
+		self.stdscr.refresh()
+
+
+	def calculate_scrollbar(self):
+		"""
+		Calculate and display the scrollbar.
+		"""
+		total_lines_of_code = self.current_text.count("\n")
+		scrollbar_max_height = self.rows - 3 - self.top_placement_shift
+		if total_lines_of_code > scrollbar_max_height:
+			scrollbar_height = int(scrollbar_max_height / total_lines_of_code * scrollbar_max_height)
+			scrollbar_pos = self.top_placement_shift + int(
+				self.min_display_line / total_lines_of_code * scrollbar_max_height)
+			for i in range(scrollbar_height):
+				if scrollbar_pos + i < self.rows - 3:
+					self.stdscr.addstr(
+						scrollbar_pos + i,
+						self.cols - 1,
+						" ",
+						curses.A_REVERSE
+					)
+
+	def display_commands_list(self):
+		"""
+		Displays the list of commands at the bottom of the window.
+		"""
 		cols = 0
 		for key_name, (function, name, hidden) in self.commands.items():
 			if key_name != self.command_symbol and hidden is False:
@@ -755,7 +795,8 @@ class App:
 				if cols + len(generated_str) >= self.cols - 4:
 					try:
 						self.stdscr.addstr(self.rows - 2, cols, "...", curses.A_REVERSE)
-					except curses.error: pass
+					except curses.error:
+						pass
 					# We also display "..." beforehand.
 					break
 
@@ -773,33 +814,6 @@ class App:
 			# Adds a spacing between built-in and plugin commands
 			elif key_name == self.command_symbol:
 				cols += 3
-
-		# Calculates the scrollbar
-		total_lines_of_code = self.current_text.count("\n")
-		scrollbar_max_height = self.rows - 3 - self.top_placement_shift
-		if total_lines_of_code > scrollbar_max_height:
-			scrollbar_height = int(scrollbar_max_height / total_lines_of_code * scrollbar_max_height)
-			scrollbar_pos = self.top_placement_shift + int(self.min_display_line / total_lines_of_code * scrollbar_max_height)
-			for i in range(scrollbar_height):
-				if scrollbar_pos + i < self.rows - 3:
-					self.stdscr.addstr(
-						scrollbar_pos + i,
-						self.cols - 1,
-						" ",
-						curses.A_REVERSE
-					)
-
-		# Gets the amount of lines in the text
-		self.calculate_line_numbers()
-		# Puts the line numbers at the edge of the screen
-		for i in range(self.min_display_line, min(self.lines, self.min_display_line + (self.rows - 3) - self.top_placement_shift)):
-			style = curses.A_REVERSE
-			if i in self.marked_lines:  # Gives the line a different color if it marked
-				style |= curses.color_pair(self.color_pairs["statement"])
-			self.stdscr.addstr(i - self.min_display_line + self.top_placement_shift, self.left_placement_shift, str(i + 1).zfill(len(str(self.lines))), style)
-
-		self.stdscr.refresh()
-
 
 	def reload_theme(self):
 		"""
