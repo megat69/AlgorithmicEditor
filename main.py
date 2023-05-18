@@ -692,6 +692,10 @@ class App:
 		"""
 		Displays the text in current_text.
 		"""
+		# Calculates the size of the line numbers
+		self.calculate_line_numbers()
+
+		# Gets the position of the cursor on the window
 		self.cur = (
 			self.current_text[:self.current_index].count('\n') - self.min_display_line + self.top_placement_shift,
 			self.current_index - (self.current_text[:self.current_index].rfind('\n')) + self.get_lineno_length() - 1,
