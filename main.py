@@ -6,7 +6,7 @@ from functools import partial
 import os
 import importlib
 import json
-from typing import Union, Optional
+from typing import Union, Optional, Callable
 from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
@@ -66,6 +66,7 @@ class App:
 			"op": (self.options, self.get_translation("commands", "op"), False),
 			"h": (self.display_commands, self.get_translation("commands", "h"), False),
 			"z": (self.undo, self.get_translation("commands", "z"), False),
+			"a": (self.repeat_last_command, self.get_translation("commands", "a"), False),
 			# "t": (self.modify_tab_char, self.get_translation("commands", "t"), True),
 			# "j": (self.toggle_std_use, self.get_translation("commands", "j"), True),
 			# "st": (self.toggle_struct_use, self.get_translation("commands", "st"), True),
@@ -76,6 +77,7 @@ class App:
 			# To add the command symbol to the text
 			self.command_symbol: (partial(self.add_char_to_text, self.command_symbol), self.command_symbol, True)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
+		self.last_used_command: Optional[str] = None  # The prefix of the last command used
 		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
 		self.tab_char = "\t"  # The tab character
 		self.using_namespace_std = False  # Whether to use the std namespace during the C++ compilation
@@ -361,31 +363,46 @@ class App:
 
 			# We launch the command as many times as needed
 			for _ in range(repeat_count):
-				try:
-					# Remembering the current state of the text so the command can be undone
-					# However, not doing this if this is the undo command
-					if key != "z":
-						self.undo_actions.append(
-							{
-								"action_type": "command",
-								"current_text": self.current_text,
-								"current_index": self.current_index
-							}
-						)
+				self.execute_command(function, key)
 
-					# Actually launching the command
-					function()
-
-				# If a curses error happens, we warn the user and log the error
-				except curses.error as e:
-					self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
-					self.log(e)
-					print_exception(e)
-					# We also undo the action just in case
-					if key != "z":
-						self.undo()
 		# Add a few spaces to clear the command name
 		self.stdscr.addstr(self.rows - 1, 0, " " * 4)
+
+
+	def execute_command(self, function: Callable, key: str):
+		"""
+		Executes the given command.
+		:param function: A function to call (a command).
+		:param key: The prefix of the command.
+		"""
+		try:
+			# Remembering the current state of the text so the command can be undone
+			# However, not doing this if this is the undo command
+			if key != "z":
+				self.undo_actions.append(
+					{
+						"action_type": "command",
+						"current_text": self.current_text,
+						"current_index": self.current_index
+					}
+				)
+
+			# Actually launching the command
+			function()
+
+			# Keeps in mind the key used as being the last command
+			if key != "a":
+				self.last_used_command = key
+
+		# If a curses error happens, we warn the user and log the error
+		except curses.error as e:
+			self.stdscr.addstr(self.rows - 1, 5, self.get_translation("errors", "unknown"))
+			self.log(e)
+			print_exception(e)
+			# We also undo the action just in case
+			if key != "z":
+				self.undo()
+
 
 	def _init_plugins(self):
 		"""
@@ -1579,6 +1596,14 @@ class App:
 			self.marked_lines.remove(current_line_index)
 		else:
 			self.marked_lines.append(current_line_index)
+
+
+	def repeat_last_command(self):
+		"""
+		Repeats the last command.
+		"""
+		if self.last_used_command is not None:
+			self.execute_command(self.commands[self.last_used_command][0], self.last_used_command)
 
 
 	def compile(self, noshow:bool=False) -> Union[None, str]:

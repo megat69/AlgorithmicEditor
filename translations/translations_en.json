@@ -8,6 +8,7 @@
 		"qs": "Quicksave",
 		"o": "Open",
 		"z": "Undo",
+		"a": "Redo last command",
 		"p": "Compile to C++",
 		"op": "Options",
 		"h": "Commands list",
