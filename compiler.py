@@ -65,7 +65,9 @@ class Compiler:
 				fx_name(instruction_name, instruction_params, i)
 
 			# Defines a variable if wanted
-			elif instruction_name in self.var_types:
+			elif instruction_name in self.var_types or (
+				instruction_name[-1] == "*" and instruction_name[:-1] in self.var_types
+			):
 				self.define_var(line, i)
 
 			# Reassigns a variable if wanted

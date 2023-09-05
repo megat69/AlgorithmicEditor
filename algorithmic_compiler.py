@@ -5,13 +5,16 @@ from compiler import Compiler
 
 
 class AlgorithmicCompiler(Compiler):
-	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:list, stdscr, translations, translate_method, tab_char:str="\t"):
+	def __init__(self, instruction_names:dict, var_types:dict, other_instructions:list, stdscr, translations, translate_method, app, tab_char:str="\t"):
 		super().__init__(instruction_names, var_types, other_instructions, stdscr, translations, translate_method, tab_char)
 		self.fxtext = []
+		self.app = app
+		self.use_ptrs_and_malloc = self.app.use_ptrs_and_malloc
 
 
 	def prepare_new_compilation(self):
 		self.fxtext.clear()
+		self.use_ptrs_and_malloc = self.app.use_ptrs_and_malloc
 
 
 	def analyze_const(self, instruction_name:str, instruction_params:list, line_number:int):
@@ -22,7 +25,13 @@ class AlgorithmicCompiler(Compiler):
 	def define_var(self, instruction:list, line_number:int):
 		""" Noms, séparés, par, des, virgules : Type(s) """
 		# Finding the type of the variable
-		var_type = self.var_types[instruction[0]]
+		if instruction[0][-1] == "*":
+			if self.use_ptrs_and_malloc:
+				var_type = f"Pointeur sur {self.var_types[instruction[0][:-1]]}"
+			else:
+				return self.error(f"Error line {line_number + 1} : Use of pointers was disabled.")
+		else:
+			var_type = self.var_types[instruction[0]]
 
 		# If the third argument is an equals ('=') sign, we use the shorthand for quick variable assignation
 		if len(instruction) > 2 and instruction[2] == "=":

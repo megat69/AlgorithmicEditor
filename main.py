@@ -471,6 +471,7 @@ class App:
 			self.stdscr,
 			self.translations,
 			self.get_translation,
+			self,
 			self.tab_char
 		)
 		self.compilers["C++"] = CppCompiler(
