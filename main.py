@@ -1026,7 +1026,9 @@ class App:
 
 		# Colors the statement
 		start_statement = splitted_line[0]
-		if start_statement in tuple(sum(self.color_control_flow.values(), tuple())):
+		if start_statement in tuple(sum(self.color_control_flow.values(), tuple()))\
+				or (start_statement and start_statement[-1] == '*' and self.use_ptrs_and_malloc and
+				start_statement[:-1] in self.color_control_flow["variable"]):
 			if start_statement in self.color_control_flow["statement"]:
 				c_pair = "statement"
 			elif start_statement in self.color_control_flow["function"]:
@@ -1037,6 +1039,11 @@ class App:
 				c_pair = "variable"
 			# Overwrites the beginning of the line with the given color if possible
 			self.stdscr.addstr(mintop, minlen, start_statement, curses.color_pair(self.color_pairs[c_pair]))
+			if start_statement[-1] == '*':
+				self.stdscr.addstr(
+					mintop, minlen + len(start_statement) - 1,
+					'*', curses.color_pair(self.color_pairs["statement"])
+				)
 
 		# Finds all '[' and ']' signs and gives them the statement color
 		for current_symbol in '[]':
