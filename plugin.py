@@ -91,7 +91,7 @@ class Plugin:
 		return string
 
 
-	def add_command(self, character: str, function: Callable, description: str, hidden: bool = False):
+	def add_command(self, character: str, function: Callable[[], Any], description: str, hidden: bool = False):
 		"""
 		Adds a command to the app.
 		:param character: The character triggering the command. It is highly recommended to make it no more than one character.
@@ -104,7 +104,7 @@ class Plugin:
 		self.app.commands[character] = (function, description, hidden)
 
 
-	def add_option(self, name: str, current_value: Callable, callback: Callable):
+	def add_option(self, name: str, current_value: Callable[[], Any], callback: Callable[[], Any]):
 		"""
 		Adds a new option to the app that the user can access from the options command.
 		:param name: The name of the config option (preferably translated), as indicative as possible.
