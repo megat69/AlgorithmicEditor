@@ -6,7 +6,7 @@ from functools import partial
 import os
 import importlib
 import json
-from typing import Union, Optional, Callable
+from typing import Union, Optional, Callable, Any
 from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
@@ -369,7 +369,7 @@ class App:
 		self.stdscr.addstr(self.rows - 1, 0, " " * 4)
 
 
-	def execute_command(self, function: Callable, key: str):
+	def execute_command(self, function: Callable[[], Any], key: str):
 		"""
 		Executes the given command.
 		:param function: A function to call (a command).
