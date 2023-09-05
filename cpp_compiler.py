@@ -53,7 +53,13 @@ class CppCompiler(Compiler):
 	def define_var(self, instruction:list, line_number:int):
 		""" Noms, séparés, par, des, virgules : Type(s) """
 		# Finding the type of the variable
-		var_type = self.var_types[instruction[0]]
+		if instruction[0][-1] == "*":
+			if self.app.use_ptrs_and_malloc:
+				var_type = f"{self.var_types[instruction[0][:-1]]}*"
+			else:
+				return self.error(f"Error line {line_number + 1} : Use of pointers was disabled.")
+		else:
+			var_type = self.var_types[instruction[0]]
 
 		# If the third argument is an equals ('=') sign, we use the shorthand for quick variable assignation
 		if len(instruction) > 2 and instruction[2] == "=":
