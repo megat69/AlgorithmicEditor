@@ -66,7 +66,7 @@ class Compiler:
 
 			# Defines a variable if wanted
 			elif instruction_name in self.var_types or (
-				instruction_name[-1] == "*" and instruction_name[:-1] in self.var_types
+				instruction_name and instruction_name[-1] == "*" and instruction_name[:-1] in self.var_types
 			):
 				self.define_var(line, i)
 
