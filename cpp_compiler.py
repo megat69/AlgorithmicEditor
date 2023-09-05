@@ -427,7 +427,8 @@ class CppCompiler(Compiler):
 				("puissance(", "pow("),
 				("racine(", "sqrt("),
 				("aleatoire(", "rand("),
-				("alea(", "rand(")
+				("alea(", "rand("),
+				("NULL", "nullptr")
 		):
 			self.instructions_list[line_number] = self.instructions_list[line_number].replace(algo_function, cpp_function)
 
