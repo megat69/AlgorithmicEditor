@@ -18,7 +18,8 @@
 		"std_use": "Activer/Désactiver l'utilisation du namespace std",
 		"rlt": "Actualiser le thème",
 		"struct_use": "Activer/Désactiver l'utilisation du mot clé struct",
-		"modify_tab_char": "Modifier le caractère de tabulation"
+		"modify_tab_char": "Modifier le caractère de tabulation",
+		"use_ptrs_and_malloc": "Utiliser les pointeurs et les allocations mémoire"
 	},
 	"errors": {
 		"unknown": "Une erreur de curses est survenue",
@@ -96,6 +97,7 @@
 	"no": "Non",
 	"editor_clear_confirm": "Confirmer l'effacement du contenu de l'éditeur ?",
 	"toggle_namespace_std": "Utilisation du namespace std basculé sur {state} ",
+	"use_ptrs_and_malloc": "Utilisation des pointeurs et allocations mémoire basculé sur {state} ",
 	"toggle_struct_use": "Utilisation du mot-clé struct basculé sur {state} ",
 	"cancel": "Annuler",
 	"loaded_n_plugins": "{} plugins chargés",

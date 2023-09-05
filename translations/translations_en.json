@@ -18,7 +18,8 @@
 		"rlt": "Reload theme",
 		"std_use": "Toggle namespace std",
 		"struct_use": "Toggle struct keyword use",
-		"modify_tab_char": "Modify tab char"
+		"modify_tab_char": "Modify tab char",
+		"use_ptrs_and_malloc": "Use pointers and malloc"
 	},
 	"errors": {
 		"unknown": "A curses error occurred",
@@ -96,6 +97,7 @@
 	"no": "No",
 	"editor_clear_confirm": "Confirm clearing editor ?",
 	"toggle_namespace_std": "Toggled namespace std use to {state} ",
+	"use_ptrs_and_malloc": "Toggled pointers and memory allocations use to {state} ",
 	"toggle_struct_use": "Toggled struct keyword use to {state} ",
 	"cancel": "Cancel",
 	"loaded_n_plugins": "Loaded {} plugins",

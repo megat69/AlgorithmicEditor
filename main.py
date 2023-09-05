@@ -94,6 +94,7 @@ class App:
 		self.left_placement_shift = 0  # By how many columns the line numbers should be shifted to the right
 		self.top_placement_shift = 0  # By how many lines the top of the code should be shifted from the top
 		self.input_locked = False  # If True, will disable all keyboard input except for commands and plugins
+		self.use_ptrs_and_malloc = False  # If True, will enable the pointers and memory allocations
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -125,11 +126,18 @@ class App:
 		else:
 			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = self.undo_actions.maxlen - 1
 
+		# Whether to a=enable pointers and memory allocations based on the config
+		if "use_ptrs_and_malloc" in self.plugins_config["BASE_CONFIG"].keys():
+			self.use_ptrs_and_malloc = self.plugins_config["BASE_CONFIG"]["use_ptrs_and_malloc"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["use_ptrs_and_malloc"] = self.use_ptrs_and_malloc
+
 		# Generates the list of options the user has access to
 		self.options_list = [
 			(self.get_translation('commands', 'std_use'), lambda: self.using_namespace_std, self.toggle_std_use),
 			(self.get_translation('commands', 'struct_use'), lambda: self.use_struct_keyword, self.use_struct_keyword),
 			(self.get_translation('commands', 'modify_tab_char'), lambda: repr(self.tab_char), self.modify_tab_char),
+			(self.get_translation('commands', 'use_ptrs_and_malloc'), lambda: self.use_ptrs_and_malloc, self.toggle_use_ptrs_and_malloc),
 			(self.get_translation('language', 'language'), lambda: self.language, self.change_language),
 			(self.get_translation('change_max_undo_size', 'max_undo'),
 			 lambda: self.plugins_config['BASE_CONFIG']['max_undo_size'], self.change_max_undo_size),
@@ -1306,6 +1314,17 @@ class App:
 			"toggle_namespace_std", state=self.using_namespace_std
 		))
 		self.plugins_config["BASE_CONFIG"]["using_namespace_std"] = self.using_namespace_std
+
+
+	def toggle_use_ptrs_and_malloc(self):
+		"""
+		Toggles the use of pointers and memory allocations during the compilation..
+		"""
+		self.use_ptrs_and_malloc = not self.use_ptrs_and_malloc
+		self.stdscr.addstr(self.rows - 1, 4, self.get_translation(
+			"use_ptrs_and_malloc", state=self.use_ptrs_and_malloc
+		))
+		self.plugins_config["BASE_CONFIG"]["use_ptrs_and_malloc"] = self.use_ptrs_and_malloc
 
 
 	def toggle_struct_use(self):
