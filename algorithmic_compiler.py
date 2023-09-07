@@ -414,6 +414,9 @@ class AlgorithmicCompiler(Compiler):
 			instruction.insert(2, f"{instruction[0]} {instruction[1][:-1]}")
 		# Assigns the value to the variable
 		instruction[1] = "<-"
+		# If pointers are enabled and the user gets the address of the variable
+		if self.use_ptrs_and_malloc and instruction[2][0] == "&":
+			instruction[2] = "Adresse mémoire de " + instruction[2][1:]
 		self.instructions_list[line_number] = " ".join(instruction)
 
 	def final_trim(self, instruction_name:str, line_number:int):
