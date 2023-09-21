@@ -343,27 +343,37 @@ class App:
 		# Writes the command symbol to the command area row
 		self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
 		# Awaits the user's full command
-		key = input_text(self.stdscr, 1, self.rows - 1)
-		# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
-		repeat_count = 1
-		if key != "" and key[0].isdigit():
-			# Finds the number before the command
-			repeat_count_str = re.search(r'\d+', key).group()
-			repeat_count = int(repeat_count_str)
+		full_command = input_text(self.stdscr, 1, self.rows - 1)
 
-			# Removes the number from the command name so we can actually find the correct command
-			key = key[len(repeat_count_str):]
-		# If the command exists
-		if key in self.commands.keys():
-			# We get the command information
-			key_name, (function, name, hidden) = key, self.commands[key]
+		# Gets if multiple commands are chained together
+		if '+' in full_command:
+			command_items = full_command.split('+')
+		else:
+			command_items = [full_command]
 
-			# We add the full command name to the command area row
-			self.stdscr.addstr(self.rows - 1, 1, key_name)
+		# Executes each command one after the other
+		for command in command_items:
+			# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
+			repeat_count = 1
+			if command != "" and command[0].isdigit():
+				# Finds the number before the command
+				repeat_count_str = re.search(r'\d+', command).group()
+				repeat_count = int(repeat_count_str)
 
-			# We launch the command as many times as needed
-			for _ in range(repeat_count):
-				self.execute_command(function, key)
+				# Removes the number from the command name so we can actually find the correct command
+				command = command[len(repeat_count_str):]
+
+			# If the command exists
+			if command in self.commands.keys():
+				# We get the command information
+				key_name, (function, name, hidden) = command, self.commands[command]
+
+				# We add the full command name to the command area row
+				self.stdscr.addstr(self.rows - 1, 1, key_name)
+
+				# We launch the command as many times as needed
+				for _ in range(repeat_count):
+					self.execute_command(function, command)
 
 		# Add a few spaces to clear the command name
 		self.stdscr.addstr(self.rows - 1, 0, " " * 4)
