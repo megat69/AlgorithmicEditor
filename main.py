@@ -1043,11 +1043,12 @@ class App:
 		for current_symbol in '[]':
 			symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == current_symbol)
 			for index in symbol_indexes:
-				self.stdscr.addstr(
-					mintop,
-					minlen + index, line[index],
-					curses.color_pair(self.color_pairs["statement"])
-				)
+				if minlen + index < self.cols - 1:
+					self.stdscr.addstr(
+						mintop,
+						minlen + index, line[index],
+						curses.color_pair(self.color_pairs["statement"])
+					)
 
 		# Finds all strings between quotes (single or double) and highlights them green
 		quotes_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "\"")
