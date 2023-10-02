@@ -33,7 +33,8 @@
 	},
 	"commands_list": {
 		"commands_list": "Liste des commandes",
-		"plugin_commands": "Commandes de plugins"
+		"plugin_commands": "Commandes de plugins",
+		"builtin_commands": "Commandes par défaut"
 	},
 	"save": {
 		"save_browse_msg": [

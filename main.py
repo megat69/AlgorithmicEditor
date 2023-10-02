@@ -977,41 +977,21 @@ class App:
 		"""
 		Displays all the commands at the center of the screen.
 		"""
-		# Gets the middle screen coordinates
-		middle_y, middle_x = get_screen_middle_coords(self.stdscr)
-
-		# Creates the label
-		generated_str = f"----- {self.get_translation('commands_list', 'commands_list')} -----"
-		self.stdscr.addstr(
-			middle_y - len(self.commands) // 2 - 1,
-			middle_x - len(generated_str) // 2,
-			generated_str, curses.color_pair(1) | curses.A_REVERSE
+		commands = [
+			(f"':{shortcut}' : {cmd_name}", lambda: None)
+				if shortcut != self.command_symbol else
+			(f"-- {self.get_translation('commands_list', 'plugin_commands')} --", lambda: None)
+			for shortcut, (_, cmd_name, _) in self.commands.items()
+		]
+		commands.insert(0, (f"-- {self.get_translation('commands_list', 'builtin_commands')} --", lambda: None))
+		plugins_commands_index = list(self.commands.keys()).index(self.command_symbol)
+		commands.insert(plugins_commands_index + 1, ("", lambda: None))
+		plugins_commands_index += 2
+		display_menu(
+			self.stdscr, tuple(commands), label=f"----- {self.get_translation('commands_list', 'commands_list')} -----", clear=True,
+			allow_key_input=False, highlight_indexes=(0, plugins_commands_index),
+			highlight_pair=self.color_pairs["statement"]
 		)
-
-		# Remembering whether we're into the plugins section
-		in_plugins_section = False
-
-		# Displays each command
-		for i, (key_name, (function, name, hidden)) in enumerate(self.commands.items()):
-			if key_name != self.command_symbol:
-				generated_str = f"{self.command_symbol}{key_name} - {name}"
-			else:
-				generated_str = f"---- {self.get_translation('commands_list', 'plugin_commands')} : ----"
-				in_plugins_section = True
-
-			self.stdscr.addstr(
-				(middle_y - len(self.commands) // 2 + i + in_plugins_section) % (self.rows - 3),
-				middle_x - len(generated_str) // 2,
-				generated_str, (curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL) \
-					if key_name != self.command_symbol else curses.color_pair(1) | curses.A_REVERSE
-			)
-
-			if middle_y - len(self.commands) // 2 + i + in_plugins_section == self.rows - 4:
-				self.stdscr.getch()
-				self.stdscr.clear()
-
-		self.stdscr.getch()
-		self.stdscr.clear()
 
 
 	def syntax_highlighting(self, line, splitted_line, i):
