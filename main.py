@@ -1,6 +1,8 @@
 import curses, _curses
 import string
 import sys
+import traceback
+
 import pyperclip
 from functools import partial
 import os
@@ -1003,6 +1005,17 @@ class App:
 		)
 
 
+	def _type_in_var_types(self, name: str) -> bool:
+		"""
+		Returns whether the variable is from an existing basic type, or a pointer to an existing basic type.
+		:param name: The name of a type, e.g. 'int*'
+		"""
+		if not name: return False
+		if not self.use_ptrs_and_malloc and name[-1] == '*': return False
+		if name[-1] != '*': return name in self.color_control_flow["variable"]
+		else: return name[:-1] in self.color_control_flow["variable"]
+
+
 	def syntax_highlighting(self, line, splitted_line, i):
 		"""
 		Creates a syntax highlighting for the given line.
@@ -1016,9 +1029,7 @@ class App:
 
 		# Colors the statement
 		start_statement = splitted_line[0]
-		if start_statement in tuple(sum(self.color_control_flow.values(), tuple()))\
-				or (start_statement and start_statement[-1] == '*' and self.use_ptrs_and_malloc and
-				start_statement[:-1] in self.color_control_flow["variable"]):
+		if self._type_in_var_types(start_statement):
 			if start_statement in self.color_control_flow["statement"]:
 				c_pair = "statement"
 			elif start_statement in self.color_control_flow["function"]:
@@ -1073,12 +1084,67 @@ class App:
 					curses.color_pair(self.color_pairs["statement"])
 				)
 
-			elif splitted_line[0] in self.color_control_flow["variable"] and splitted_line[2] == "=":
+				# Adds support for the new keyword
+				if self.use_ptrs_and_malloc and splitted_line[2] == "new":
+					self.stdscr.addstr(
+						mintop, minlen + sum(len(e) + 1 for e in splitted_line[:2]),
+						"new",
+						curses.color_pair(self.color_pairs["statement"])
+					)
+
+					# Adds a way to highlight if the variable is a standard variable type
+					if "[" in splitted_line[3]:
+						var_type = splitted_line[3].split("[")[0]
+					else:
+						var_type = splitted_line[3]
+
+					if self._type_in_var_types(var_type):
+						self.stdscr.addstr(
+							mintop, minlen + sum(len(e) + 1 for e in splitted_line[:3]),
+							var_type,
+							curses.color_pair(self.color_pairs["variable"])
+						)
+						if var_type[-1] == '*':
+							self.stdscr.addstr(
+								mintop, minlen + sum(len(e) + 1 for e in splitted_line[:3]) + len(var_type) - 1,
+								'*',
+								curses.color_pair(self.color_pairs["statement"])
+							)
+
+			elif self._type_in_var_types(splitted_line[0]) and splitted_line[2] == "=":
 				self.stdscr.addstr(
 					mintop, minlen + sum(len(e) + 1 for e in splitted_line[:2]),
 					"=",
 					curses.color_pair(self.color_pairs["statement"])
 				)
+
+				# Adds support for the new keyword
+				if self.use_ptrs_and_malloc and splitted_line[3] == "new" and splitted_line[0][-1] == '*':
+					self.stdscr.addstr(
+						mintop, minlen + sum(len(e) + 1 for e in splitted_line[:3]),
+						"new",
+						curses.color_pair(self.color_pairs["statement"])
+					)
+
+					# Adds a way to highlight if the variable is a standard variable type
+					if "[" in splitted_line[4]:
+						var_type = splitted_line[4].split("[")[0]
+					else:
+						var_type = splitted_line[4]
+
+					if self._type_in_var_types(var_type):
+						self.stdscr.addstr(
+							mintop, minlen + sum(len(e) + 1 for e in splitted_line[:4]),
+							var_type,
+							curses.color_pair(self.color_pairs["variable"])
+						)
+						if var_type[-1] == '*':
+							self.stdscr.addstr(
+								mintop, minlen + sum(len(e) + 1 for e in splitted_line[:4]) + len(var_type) - 1,
+								'*',
+								curses.color_pair(self.color_pairs["statement"])
+							)
+
 
 		except IndexError:
 			pass  # If there is no space in the line
