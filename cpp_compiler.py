@@ -317,22 +317,28 @@ class CppCompiler(Compiler):
 				# Adds the parameter to the list of parameters
 				params.append("")
 
+				if self.app.use_ptrs_and_malloc and instruction_params[i][-1] == '*':
+					is_pointer = '*'
+					instruction_params[i] = instruction_params[i][:-1]
+				else:
+					is_pointer = ''
+
 				# Try block in case there is an IndexError
 				try:
 					# If the param is an array, we parse it correctly
 					if instruction_params[i].startswith("arr"):
 						current_array_param = instruction_params[i].split("_")
-						params[-1] += f"{self.var_types[current_array_param[1]]} {instruction_params[i + 1]}[{']['.join(current_array_param[2:])}]"
+						params[-1] += f"{self.var_types[current_array_param[1]]}{is_pointer} {instruction_params[i + 1]}[{']['.join(current_array_param[2:])}]"
 
 					# If the param is a structure, we parse it correctly
 					elif instruction_params[i].startswith("struct_"):
-						params[-1] += "struct " * self.use_struct_keyword + f"{instruction_params[i][7:]} {instruction_params[i + 1]}"
+						params[-1] += "struct " * self.use_struct_keyword + f"{instruction_params[i][7:]}{is_pointer} {instruction_params[i + 1]}"
 
 					# If the param is NOT an array
 					else:
 						# We add it to the params as the type, followed by the name, of whose we remove the
 						# first char if it is '&' (no datar mode in algorithmic)
-						params[-1] += self.var_types[instruction_params[i]] + " " + instruction_params[i + 1][instruction_params[i][0] == '&':]
+						params[-1] += self.var_types[instruction_params[i]] + is_pointer + " " + instruction_params[i + 1][instruction_params[i][0] == '&':]
 
 				# If an IndexError is encountered, we remove the last param from the params list and continue
 				except IndexError:
@@ -349,6 +355,12 @@ class CppCompiler(Compiler):
 		if instruction_params[0] != "void":
 			self.instructions_stack.append("fx")
 
+			if self.app.use_ptrs_and_malloc and instruction_params[0][-1] == '*':
+				is_pointer = '*'
+				instruction_params[0] = instruction_params[0][:-1]
+			else:
+				is_pointer = ''
+
 			# If the return type is not a structure
 			if not instruction_params[0].startswith("struct_"):
 				# We add the return type
@@ -358,6 +370,9 @@ class CppCompiler(Compiler):
 			else:
 				# We add the structure message followed by the return type
 				self.instructions_list[line_number] = "struct " * self.use_struct_keyword + instruction_params[0][7:]
+
+			# Check pointers
+			self.instructions_list[line_number] += is_pointer
 
 			# We write the line as a function
 			self.instructions_list[line_number] += f" {instruction_params[1]}({params}) " + "{"

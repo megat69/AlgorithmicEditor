@@ -256,6 +256,9 @@ class AlgorithmicCompiler(Compiler):
 
 				# Try block in case there is an IndexError
 				try:
+					if self.use_ptrs_and_malloc and instruction_params[i][-1] == '*':
+						params[-1] += "Pointeur sur "
+						instruction_params[i] = instruction_params[i][:-1]
 					# If the param is an array, we parse it correctly
 					if instruction_params[i].startswith("arr"):
 						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
@@ -287,6 +290,11 @@ class AlgorithmicCompiler(Compiler):
 			self.instructions_stack.append("fx")
 			# We write the line as a function
 			self.instructions_list[line_number] = f"Fonction {instruction_params[1]} ({params}) : "
+
+			# Pointers
+			if self.use_ptrs_and_malloc and instruction_params[0][-1] == '*':
+				self.instructions_list[line_number] += "Pointeur sur "
+				instruction_params[0] = instruction_params[0][:-1]
 
 			# If the return type is a structure
 			if instruction_params[0].startswith("struct_"):
