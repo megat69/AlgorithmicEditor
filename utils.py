@@ -102,6 +102,8 @@ def display_menu(
 		current_command_len = lambda: len(
 			_return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page: max_items_per_page * (current_page + 1)]
 		)
+		# Remembering the size of the full commands list
+		size_of_temp_list = len(_return_list_with_substrings(commands, string_to_search_for, allow_key_input))
 
 		# Displays the menu
 		for i, (command_index, command) in enumerate(
@@ -123,12 +125,12 @@ def display_menu(
 			element_y_position = screen_middle_y + i
 			# Moves the element up or down based on where it is in the list
 			element_y_position -= min(max_items_per_page, cmd_len) // 2
-			# Whatever this piece of code made at 1AM does that no amount of refactor seems to work better than
-			element_y_position += ((max_items_per_page * current_page + i == len(_return_list_with_substrings(
-				commands, string_to_search_for, allow_key_input)
-			) - 1) * (
-				space_out_last_option and ((not allow_key_input) or (allow_key_input and not bool(string_to_search_for))))
-			)
+			# If we want to space out the last option of the dropdown and that nothing is being searched
+			if space_out_last_option and ((not allow_key_input) or (allow_key_input and string_to_search_for == '')):
+				# If this is the last element of the list, we move it downward one line
+				if command_index == (size_of_temp_list - 1):
+					element_y_position += 1
+
 			# Pushes the element down further if we allow the key input
 			if allow_key_input:
 				element_y_position += 1
