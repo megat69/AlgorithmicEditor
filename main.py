@@ -163,7 +163,7 @@ class App:
 			)
 		}  # The number of the color pairs
 		self.color_control_flow = {
-			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const"),
+			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const", "delete"),
 			"function": ("fx", "fx_start", "return", "CODE_RETOUR", "struct"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
 			"instruction": ("print", "input", "arr", "init")
@@ -521,6 +521,15 @@ class App:
 			clear=False
 		)
 		os.remove(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME))
+
+
+	@property
+	def color_control_flow_fused(self):
+		return [
+			*self.color_control_flow["statement"],
+			*self.color_control_flow["function"],
+			*self.color_control_flow["instruction"]
+		]
 
 
 	def _declare_color_pairs(self):
@@ -1029,7 +1038,7 @@ class App:
 
 		# Colors the statement
 		start_statement = splitted_line[0]
-		if self._type_in_var_types(start_statement):
+		if start_statement in self.color_control_flow_fused or self._type_in_var_types(start_statement):
 			if start_statement in self.color_control_flow["statement"]:
 				c_pair = "statement"
 			elif start_statement in self.color_control_flow["function"]:
@@ -1367,6 +1376,15 @@ class App:
 					mintop, minlen + 5 + sum(len(e) + 1 for e in splitted_line[1:j]),
 					splitted_line[j],
 					flag
+				)
+
+		# If the instruction is a delete statement
+		elif self.use_ptrs_and_malloc and splitted_line[0] == "delete" and len(splitted_line) >= 2:
+			if splitted_line[1] == "arr":
+				self.stdscr.addstr(
+					mintop, minlen + 7,
+					"arr",
+					curses.color_pair(self.color_pairs["statement"])
 				)
 
 
