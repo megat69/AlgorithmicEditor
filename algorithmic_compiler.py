@@ -415,8 +415,26 @@ class AlgorithmicCompiler(Compiler):
 		# Assigns the value to the variable
 		instruction[1] = "<-"
 		# If pointers are enabled and the user gets the address of the variable
-		if self.use_ptrs_and_malloc and instruction[2][0] == "&":
-			instruction[2] = "Adresse mémoire de " + instruction[2][1:]
+		if self.use_ptrs_and_malloc:
+			if instruction[2][0] == "&":
+				instruction[2] = "Adresse mémoire de " + instruction[2][1:]
+			# NEW keyword
+			if instruction[2] == "new":
+				instruction[2] = "Réserver"
+				if len(instruction) > 3:
+					try:
+						# Adds the ability to make arrays
+						if "[" in instruction[3]:
+							var_type = instruction[3].split("[")[0]
+							rest = "[" + "[".join(instruction[3].split("[")[1:])
+						else:
+							var_type = instruction[3]
+							rest = ""
+						instruction[3] = self.var_types[var_type] + rest
+					except KeyError:
+						pass
+				else:
+					self.error(f"Error on line {line_number+1} : Cannot allocate nothing.")
 		self.instructions_list[line_number] = " ".join(instruction)
 
 	def final_trim(self, instruction_name:str, line_number:int):
