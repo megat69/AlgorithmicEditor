@@ -494,7 +494,7 @@ class App:
 				"char": "char"
 			},
 			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result",
-			 "return", "desc", "CODE_RETOUR", "init", "const"],
+			 "return", "desc", "CODE_RETOUR", "init", "const", "delete"],
 			self.stdscr,
 			self
 		)

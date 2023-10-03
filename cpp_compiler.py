@@ -284,6 +284,24 @@ class CppCompiler(Compiler):
 			self.instructions_list[line_number] = self.instructions_list[line_number][:-1]
 
 
+	def analyze_delete(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Analyzes the delete keyword. """
+		if self.app.use_ptrs_and_malloc:
+			if len(instruction_params) != 0:
+				if instruction_params[0] == "arr":
+					if len(instruction_params) == 2:
+						self.instructions_list[line_number] = f"delete[] {instruction_params[1]}"
+					else:
+						self.error(f"Error on line {line_number + 1} : Missing parameter 'var_name'.")
+				else:
+					self.instructions_list[line_number] = f"delete {instruction_params[0]}"
+			else:
+				self.error(f"Error on line {line_number+1} : Missing parameter 'var_name'.")
+		else:
+			self.error(f"Error on line {line_number + 1} : Unknown keyword 'delete'. "
+			           "Maybe you forgot to enable the use of pointers and malloc ?")
+
+
 	def analyze_fx(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Creates a function definition """
 		# Prevents a crash when extra spaces are at the end of the line
