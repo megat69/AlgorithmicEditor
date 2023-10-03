@@ -477,7 +477,7 @@ class App:
 				"char": "Caractère"
 			},
 			["print", "input", "end", "elif", "else", "fx_start", "vars", "precond", "data", "datar", "result",
-			 "return", "desc", "CODE_RETOUR", "init", "struct", "const"],
+			 "return", "desc", "CODE_RETOUR", "init", "struct", "const", "delete"],
 			self.stdscr,
 			self.translations,
 			self.get_translation,

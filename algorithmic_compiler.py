@@ -405,6 +405,25 @@ class AlgorithmicCompiler(Compiler):
 				self.instructions_list[line_number] += "\n" + self.tab_char * (len(self.instructions_stack) + 1)
 				self.instructions_list[line_number] += f"{instruction_params[1]}.{instruction_params[i]} <- {instruction_params[i + 1]}"
 
+
+	def analyze_delete(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Delete keyword. Syntax : delete <var> or delete arr <var>. """
+		if self.use_ptrs_and_malloc:
+			if len(instruction_params) != 0 and instruction_params[0] == "arr":
+				if len(instruction_params) == 2:
+					self.instructions_list[line_number] = f"Libérer tableau {instruction_params[1]}"
+				else:
+					self.error(f"Error on line {line_number + 1} : Missing parameter 'var_name'.")
+			else:
+				if len(instruction_params) != 0:
+					self.instructions_list[line_number] = f"Libérer {instruction_params[0]}"
+				else:
+					self.error(f"Error on line {line_number+1} : Missing parameter 'var_name'.")
+		else:
+			self.error(f"Error on line {line_number+1} : Unknown keyword 'delete'. "
+			            "Maybe you forgot to enable the use of pointers and malloc ?")
+
+
 	def var_assignation(self, instruction:list, line_number:int):
 		"""
 		Assigns/reassigns a variable.

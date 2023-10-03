@@ -271,6 +271,13 @@ class Compiler:
 		pass
 
 
+	def analyze_delete(self, instruction_name:str, instruction_params:list, line_number:int):
+		"""
+		Analyzes a structure initialization.
+		"""
+		raise NotImplementedError
+
+
 	def final_trim(self, instruction_name:str, line_number:int):
 		"""
 		Makes the final trim to the line.
