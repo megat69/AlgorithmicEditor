@@ -1197,7 +1197,7 @@ class App:
 		# If the instruction is a function declaration, we highlight each types in the declaration
 		if splitted_line[0] == "fx" and len(splitted_line) > 1:
 			# Highlighting the function's return type; as statement if void or variable otherwise
-			if splitted_line[1] in (*self.color_control_flow["variable"], "void"):
+			if splitted_line[1] == "void" or self._type_in_var_types(splitted_line[1]):
 				self.stdscr.addstr(
 					mintop, minlen + 3,
 					splitted_line[1],
@@ -1219,7 +1219,7 @@ class App:
 
 			# Highlighting each argument's type
 			for j in range(3, len(splitted_line), 2):
-				if splitted_line[j] in (*self.color_control_flow["variable"], "void"):
+				if splitted_line[j] == "void" or self._type_in_var_types(splitted_line[1]):
 					self.stdscr.addstr(
 						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
 						splitted_line[j], curses.color_pair(self.color_pairs["variable"])

@@ -256,9 +256,16 @@ class AlgorithmicCompiler(Compiler):
 
 				# Try block in case there is an IndexError
 				try:
+					# Pointers
 					if self.use_ptrs_and_malloc and instruction_params[i][-1] == '*':
 						params[-1] += "Pointeur sur "
 						instruction_params[i] = instruction_params[i][:-1]
+
+					# Constants
+					if instruction_params[i].startswith("const_"):
+						params[-1] += "Constante "
+						instruction_params[i] = instruction_params[i][6:]
+
 					# If the param is an array, we parse it correctly
 					if instruction_params[i].startswith("arr"):
 						params[-1] += f"Tableau[{']['.join(instruction_params[i].split('_')[2:])}] de " \
