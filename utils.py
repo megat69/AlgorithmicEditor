@@ -5,6 +5,7 @@ import curses
 import os
 from functools import partial
 from math import ceil
+from typing import Tuple
 
 
 def _return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> tuple:
@@ -13,28 +14,36 @@ def _return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> t
 	:param lst: A tuple of commands for the display_menu function.
 	:param substring: A string to look for, that has to be in the menu item's name.
 	:param enabled: Whether to enable the function. If false, will return lst.
-	:return: A tuple of commands for the display_menu function.
+	:return: A tuple of 2-tuples of commands for the display_menu function in the form (index, command).
 	"""
 	if not enabled:
-		return lst
+		return tuple((i, e) for i, e in enumerate(lst))
 	else:
 		new_lst = []
-		for element in lst:
+		for i, element in enumerate(lst):
 			if substring.lower() in element[0].lower():
-				new_lst.append(element)
+				new_lst.append((i, element))
 		return tuple(new_lst)
 
 
-def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True, space_out_last_option: bool = False, allow_key_input: bool = False):
+def display_menu(
+		stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True,
+		space_out_last_option: bool = False, allow_key_input: bool = False, highlight_indexes: Tuple[int, ...] = tuple(),
+		highlight_pair: int = None
+):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
 	:param stdscr: The standard screen.
 	:param commands: A tuple of commands.
-	:param default_selected_element: The menu element selected by default. 0 by default. It is composed of tuples of 2 elements : the command name, and the function to call upon selection.
+	:param default_selected_element: The menu element selected by default. 0 by default. It is composed of
+		tuples of 2 elements : the command name, and the function to call upon selection.
 	:param label: Displays a title above the menu. None by default.
 	:param clear: Whether to clear the screen before creating the menu. True by default.
 	:param space_out_last_option: Adds a newline before the last option of the menu.
-	:param allow_key_input: If true, allows the user to type in a string. The menu will only show the elements containing the string.
+	:param allow_key_input: If true, allows the user to type in a string. The menu will only show the elements
+		containing the string.
+	:param highlight_indexes: A tuple of indexes from the commands tuple that should be highlighted in instruction color
+	:param highlight_pair: The index of the color pair to use for highlighting.
 	"""
 	# Gets the middle of the screen coordinates
 	screen_middle_y, screen_middle_x = get_screen_middle_coords(stdscr)
@@ -93,26 +102,45 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 		current_command_len = lambda: len(
 			_return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page: max_items_per_page * (current_page + 1)]
 		)
+		# Remembering the size of the full commands list
+		size_of_temp_list = len(_return_list_with_substrings(commands, string_to_search_for, allow_key_input))
 
 		# Displays the menu
-		for i, command in enumerate(
+		for i, (command_index, command) in enumerate(
 			# Only displays the menu elements from the current page
-				_return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
+			_return_list_with_substrings(commands, string_to_search_for, allow_key_input)[max_items_per_page * current_page : max_items_per_page * (current_page + 1)]
 		):
 			# Checking for the horizontal size
 			if len(command[0]) > cols - 5:
 				command[0] = command[0][:cols - 5] + "..."
+
+			# Gets the styling of the menu
+			styling = curses.A_NORMAL
+			if highlight_pair is not None and command_index in highlight_indexes:
+				styling |= curses.color_pair(highlight_pair)
+			if i == selected_element:  # Reverses the color if the item is selected
+				styling |= curses.A_REVERSE
+
+			# -- Gets the y position of the element --
+			element_y_position = screen_middle_y + i
+			# Moves the element up or down based on where it is in the list
+			element_y_position -= min(max_items_per_page, cmd_len) // 2
+			# If we want to space out the last option of the dropdown and that nothing is being searched
+			if space_out_last_option and ((not allow_key_input) or (allow_key_input and string_to_search_for == '')):
+				# If this is the last element of the list, we move it downward one line
+				if command_index == (size_of_temp_list - 1):
+					element_y_position += 1
+
+			# Pushes the element down further if we allow the key input
+			if allow_key_input:
+				element_y_position += 1
+
 			# Displays the menu item
 			stdscr.addstr(
-				screen_middle_y - min(max_items_per_page, cmd_len) // 2 + i + \
-				((max_items_per_page * current_page + i == len(_return_list_with_substrings(
-					commands, string_to_search_for, allow_key_input)
-				) - 1) * (
-					space_out_last_option and ((not allow_key_input) or (allow_key_input and not bool(string_to_search_for))))
-				) + allow_key_input,
+				element_y_position,
 				screen_middle_x - len(command[0]) // 2,
 				command[0],
-				curses.A_NORMAL if i != selected_element else curses.A_REVERSE  # Reverses the color if the item is selected
+				styling
 			)
 
 		# Displays at the bottom right how many pages are available
@@ -173,7 +201,7 @@ def display_menu(stdscr, commands: tuple, default_selected_element: int = 0, lab
 
 	# Calls the function from the appropriate item
 	try:
-		return _return_list_with_substrings(commands, string_to_search_for, allow_key_input)[selected_element + current_page * max_items_per_page][1]()
+		return _return_list_with_substrings(commands, string_to_search_for, allow_key_input)[selected_element + current_page * max_items_per_page][1][1]()
 	except IndexError:
 		return 0
 

@@ -351,27 +351,37 @@ class App:
 		# Writes the command symbol to the command area row
 		self.stdscr.addstr(self.rows - 1, 0, self.command_symbol)
 		# Awaits the user's full command
-		key = input_text(self.stdscr, 1, self.rows - 1)
-		# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
-		repeat_count = 1
-		if key != "" and key[0].isdigit():
-			# Finds the number before the command
-			repeat_count_str = re.search(r'\d+', key).group()
-			repeat_count = int(repeat_count_str)
+		full_command = input_text(self.stdscr, 1, self.rows - 1)
 
-			# Removes the number from the command name so we can actually find the correct command
-			key = key[len(repeat_count_str):]
-		# If the command exists
-		if key in self.commands.keys():
-			# We get the command information
-			key_name, (function, name, hidden) = key, self.commands[key]
+		# Gets if multiple commands are chained together
+		if '+' in full_command:
+			command_items = full_command.split('+')
+		else:
+			command_items = [full_command]
 
-			# We add the full command name to the command area row
-			self.stdscr.addstr(self.rows - 1, 1, key_name)
+		# Executes each command one after the other
+		for command in command_items:
+			# Gets the repeat count (e.g. ":5z" will repeat ":z" 5 times)
+			repeat_count = 1
+			if command != "" and command[0].isdigit():
+				# Finds the number before the command
+				repeat_count_str = re.search(r'\d+', command).group()
+				repeat_count = int(repeat_count_str)
 
-			# We launch the command as many times as needed
-			for _ in range(repeat_count):
-				self.execute_command(function, key)
+				# Removes the number from the command name so we can actually find the correct command
+				command = command[len(repeat_count_str):]
+
+			# If the command exists
+			if command in self.commands.keys():
+				# We get the command information
+				key_name, (function, name, hidden) = command, self.commands[command]
+
+				# We add the full command name to the command area row
+				self.stdscr.addstr(self.rows - 1, 1, key_name)
+
+				# We launch the command as many times as needed
+				for _ in range(repeat_count):
+					self.execute_command(function, command)
 
 		# Add a few spaces to clear the command name
 		self.stdscr.addstr(self.rows - 1, 0, " " * 4)
@@ -976,41 +986,21 @@ class App:
 		"""
 		Displays all the commands at the center of the screen.
 		"""
-		# Gets the middle screen coordinates
-		middle_y, middle_x = get_screen_middle_coords(self.stdscr)
-
-		# Creates the label
-		generated_str = f"----- {self.get_translation('commands_list', 'commands_list')} -----"
-		self.stdscr.addstr(
-			middle_y - len(self.commands) // 2 - 1,
-			middle_x - len(generated_str) // 2,
-			generated_str, curses.color_pair(1) | curses.A_REVERSE
+		commands = [
+			(f"':{shortcut}' : {cmd_name}", lambda: None)
+				if shortcut != self.command_symbol else
+			(f"-- {self.get_translation('commands_list', 'plugin_commands')} --", lambda: None)
+			for shortcut, (_, cmd_name, _) in self.commands.items()
+		]
+		commands.insert(0, (f"-- {self.get_translation('commands_list', 'builtin_commands')} --", lambda: None))
+		plugins_commands_index = list(self.commands.keys()).index(self.command_symbol)
+		commands.insert(plugins_commands_index + 1, ("", lambda: None))
+		plugins_commands_index += 2
+		display_menu(
+			self.stdscr, tuple(commands), label=f"----- {self.get_translation('commands_list', 'commands_list')} -----", clear=True,
+			allow_key_input=False, highlight_indexes=(0, plugins_commands_index),
+			highlight_pair=self.color_pairs["statement"]
 		)
-
-		# Remembering whether we're into the plugins section
-		in_plugins_section = False
-
-		# Displays each command
-		for i, (key_name, (function, name, hidden)) in enumerate(self.commands.items()):
-			if key_name != self.command_symbol:
-				generated_str = f"{self.command_symbol}{key_name} - {name}"
-			else:
-				generated_str = f"---- {self.get_translation('commands_list', 'plugin_commands')} : ----"
-				in_plugins_section = True
-
-			self.stdscr.addstr(
-				(middle_y - len(self.commands) // 2 + i + in_plugins_section) % (self.rows - 3),
-				middle_x - len(generated_str) // 2,
-				generated_str, (curses.A_REVERSE if i % 2 == 0 else curses.A_NORMAL) \
-					if key_name != self.command_symbol else curses.color_pair(1) | curses.A_REVERSE
-			)
-
-			if middle_y - len(self.commands) // 2 + i + in_plugins_section == self.rows - 4:
-				self.stdscr.getch()
-				self.stdscr.clear()
-
-		self.stdscr.getch()
-		self.stdscr.clear()
 
 
 	def syntax_highlighting(self, line, splitted_line, i):
@@ -1049,11 +1039,12 @@ class App:
 		for current_symbol in '[]':
 			symbol_indexes = tuple(i for i, ltr in enumerate(line) if ltr == current_symbol)
 			for index in symbol_indexes:
-				self.stdscr.addstr(
-					mintop,
-					minlen + index, line[index],
-					curses.color_pair(self.color_pairs["statement"])
-				)
+				if minlen + index < self.cols - 1:
+					self.stdscr.addstr(
+						mintop,
+						minlen + index, line[index],
+						curses.color_pair(self.color_pairs["statement"])
+					)
 
 		# Finds all strings between quotes (single or double) and highlights them green
 		quotes_indexes = tuple(i for i, ltr in enumerate(line) if ltr == "\"")

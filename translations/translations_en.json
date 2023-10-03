@@ -34,7 +34,8 @@
 	},
 	"commands_list": {
 		"commands_list": "Commands list",
-		"plugin_commands": "Plugin commands"
+		"plugin_commands": "Plugin commands",
+		"builtin_commands": "Built-in commands"
 	},
 	"save": {
 		"save_browse_msg": [
