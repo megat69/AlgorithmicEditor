@@ -13,6 +13,7 @@ if hasattr(__main__, "App"):
 else:
 	AppType = Any
 
+
 class Plugin:
 	_next_pair_number = 10
 
@@ -57,7 +58,6 @@ class Plugin:
 		"""
 		pass
 
-
 	def translate(self, *keys: str, language: str = None, **format_keys) -> str:
 		"""
 		Gives you the translation of the string found at the key with the given language.
@@ -90,7 +90,6 @@ class Plugin:
 		# We return the given string
 		return string
 
-
 	def add_command(self, character: str, function: Callable[[], Any], description: str, hidden: bool = False):
 		"""
 		Adds a command to the app.
@@ -103,7 +102,6 @@ class Plugin:
 		# If a command with the same prefix exists, it replaces it
 		self.app.commands[character] = (function, description, hidden)
 
-
 	def add_option(self, name: str, current_value: Callable[[], Any], callback: Callable[[], Any]):
 		"""
 		Adds a new option to the app that the user can access from the options command.
@@ -113,7 +111,6 @@ class Plugin:
 		"""
 		# If a command with the same prefix exists, it replaces it
 		self.app.options_list.append((name, current_value, callback))
-
 
 	def create_pair(self, fg: int, bg: int) -> int:
 		"""
@@ -126,7 +123,6 @@ class Plugin:
 		Plugin._next_pair_number += 1
 		return Plugin._next_pair_number - 1
 
-
 	def get_config(self, key: str, default: Any) -> Any:
 		"""
 		Returns the element of the config at the given key. If 'key' does not exist in config, sets the value of 'key' to the given 'default' and returns 'default'.
@@ -137,4 +133,3 @@ class Plugin:
 		if key not in self.config:
 			self.config[key] = default
 		return self.config[key]
-
