@@ -18,12 +18,13 @@ if len(sys.argv) >= 2 and sys.argv[1] == "--filetype":
 	except ImportError:
 		os.system("pip install pyuac")
 		os.system("python setup.py --filetype")
+		sys.exit(1)
 	else:
 		if isUserAdmin():
 			associate_file_type()
+			sys.exit(0)
 		else:
-			runAsAdmin([sys.executable, "--filetype"])
-	sys.exit()
+			sys.exit(3 + runAsAdmin([sys.executable, "--filetype"]))
 
 PLUGINS_STARTER_PACK = (
 	("autocomplete", {"fr": "Ajoute de l'autocomplétion", "en": "Adds autocompletion"}),
