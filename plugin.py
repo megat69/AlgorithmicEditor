@@ -114,7 +114,7 @@ class Plugin:
 
 	def create_pair(self, fg: int, bg: int) -> int:
 		"""
-		Creates a new color pair with the given colors, and returns its ID.
+		Creates a new color pair with the given colors, and returns its ID. UNAVAILABLE IN __init__ !
 		:param fg: A curses color.
 		:param bg: A curses color.
 		:return: The ID of the color pair.
