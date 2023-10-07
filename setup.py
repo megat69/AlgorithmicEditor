@@ -17,11 +17,12 @@ if len(sys.argv) >= 2 and sys.argv[1] == "--filetype":
 		from pyuac import isUserAdmin, runAsAdmin
 	except ImportError:
 		os.system("pip install pyuac")
-		os.system("python setup.py")
-	if isUserAdmin():
-		associate_file_type()
+		os.system("python setup.py --filetype")
 	else:
-		runAsAdmin([sys.executable, "--filetype"])
+		if isUserAdmin():
+			associate_file_type()
+		else:
+			runAsAdmin([sys.executable, "--filetype"])
 	sys.exit()
 
 PLUGINS_STARTER_PACK = (
