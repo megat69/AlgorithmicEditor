@@ -1083,6 +1083,7 @@ class App:
 							minlen + index, line[index:],
 							curses.color_pair(self.color_pairs["strings"] if "=" not in splitted_line[1] else 5)
 						)
+				except curses.error: pass
 
 		# Finds all equal signs to highlight them in statement color
 		try:
