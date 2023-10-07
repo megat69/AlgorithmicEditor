@@ -1,7 +1,29 @@
 import os, platform
 import sys
 
+def associate_file_type():
+	# Writes the bat file launching the file
+	with open("AlgoEditorOpen.bat", "w", encoding="utf-8") as f:
+		f.write(f"MODE con:cols=197 lines=45\ncmd /k python \"{os.getcwd()}/main.py\" --file \"%1\"")
+
+	# Runs the commands to create the default extension
+	os.system(f"ftype AlgoEditorFile=\"{os.getcwd()}/AlgoEditorOpen.bat\" %1")
+	os.system("assoc .algo=AlgoEditorFile")
+
+
 os.chdir(os.path.dirname(__file__))
+if len(sys.argv) >= 2 and sys.argv[1] == "--filetype":
+	try:
+		from pyuac import isUserAdmin, runAsAdmin
+	except ImportError:
+		os.system("pip install pyuac")
+		os.system("python setup.py")
+	if isUserAdmin():
+		associate_file_type()
+	else:
+		runAsAdmin([sys.executable, "--filetype"])
+	sys.exit()
+
 PLUGINS_STARTER_PACK = (
 	("autocomplete", {"fr": "Ajoute de l'autocomplétion", "en": "Adds autocompletion"}),
 	("copy", {"fr": "Permet de copier", "en": "Enables copying"}),
@@ -74,6 +96,7 @@ if pip_prefix == "":
 print(translations[language]["requirements_install"])
 if platform.system() == "Windows":
 	os.system(f"{pip_prefix} install -r requirements-windows.txt")
+	from pyuac import isUserAdmin, runAsAdmin
 else:
 	os.system(f"{pip_prefix} install -r requirements.txt")
 
@@ -118,15 +141,12 @@ if install_plugin_repo:
 # If the user is on Windows, we ask them if they want to associate the '.algo' filetype with the editor
 # This action needs setup.py to be run as administrator to function.
 if platform.system() == "Windows":
-	associate_filetypes = input("\n"*2 + translations[language]["associate_filetype"]) != "n"
+	associate_filetypes = input("\n" * 2 + translations[language]["associate_filetype"]) != "n"
 	if associate_filetypes:
-		# Writes the bat file launching the file
-		with open("AlgoEditorOpen.bat", "w", encoding="utf-8") as f:
-			f.write(f"MODE con:cols=197 lines=45\ncmd /k python \"{os.getcwd()}/main.py\" --file \"%1\"")
-
-		# Runs the commands to create the default extension
-		os.system(f"ftype AlgoEditorFile=\"{os.getcwd()}/AlgoEditorOpen.bat\" %1")
-		os.system("assoc .algo=AlgoEditorFile")
+		if not isUserAdmin():
+			runAsAdmin(cmdLine=[sys.executable, "--filetype"])
+		else:
+			associate_file_type()
 
 # Prints the line saying the setup finished
 print(translations[language]["setup_finished"])
