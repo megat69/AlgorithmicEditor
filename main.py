@@ -13,6 +13,7 @@ from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
 import re
+import datetime
 
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
@@ -505,11 +506,16 @@ class App:
 		"""
 		If a crash file exists, asks the user if they want to recover.
 		"""
+		CRASH_FILE_PATH = os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME)
 		def recover_crash_data():
-			with open(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME), "r", encoding="utf-8") as f:
+			with open(CRASH_FILE_PATH, "r", encoding="utf-8") as f:
 				self.current_text = f.read()
 			self.display_text()
 			self.is_crash_reboot = True
+
+		modify_time = os.path.getmtime(CRASH_FILE_PATH)
+		modify_date = datetime.datetime.fromtimestamp(modify_time)
+		dateD_H_str = modify_date.strftime("%d/%m/%Y %H:%M:%S")
 
 		display_menu(
 			self.stdscr,
@@ -517,10 +523,10 @@ class App:
 				("Yes", recover_crash_data),
 				("No", lambda: None)
 			),
-			label=self.get_translation("crash_recovery"),
+			label=self.get_translation("crash_recovery", date=dateD_H_str),
 			clear=False
 		)
-		os.remove(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME))
+		os.remove(CRASH_FILE_PATH)
 
 
 	@property

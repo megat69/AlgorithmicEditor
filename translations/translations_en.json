@@ -91,7 +91,7 @@
 			}
 		}
 	},
-	"crash_recovery": "Data has been found from the last crash. Do you want to recover it ?",
+	"crash_recovery": "Data has been found from the last crash ({date}). Do you want to recover it ?",
 	"loaded_plugin": "Loaded plugin {plugin_name}",
 	"theme_reloaded": "The theme was reloaded.",
 	"yes": "Yes",
