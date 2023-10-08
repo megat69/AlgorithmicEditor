@@ -91,7 +91,7 @@
 			}
 		}
 	},
-	"crash_recovery": "Des données du document ont été trouvées après le dernier crash. Voulez-vous les récupérer ?",
+	"crash_recovery": "Des données du document ont été trouvées après le dernier crash ({date}). Voulez-vous les récupérer ?",
 	"loaded_plugin": "Plugin {plugin_name} chargé",
 	"theme_reloaded": "Le thème a été mis à jour.",
 	"yes": "Oui",
