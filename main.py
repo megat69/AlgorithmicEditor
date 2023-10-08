@@ -1615,6 +1615,7 @@ class App:
 		"""
 		Simply shows a message to the user welcoming him to the app.
 		"""
+		self.stdscr.clear()
 		for i, line in enumerate(self.get_translation("welcome_page")):
 			self.stdscr.addstr(
 				5 + i,
@@ -1636,7 +1637,8 @@ class App:
 					self.command_symbol,
 					curses.color_pair(self.color_pairs["statement"])
 				)
-
+		self.stdscr.getch()
+		self.stdscr.clear()
 
 
 	def change_language(self):
