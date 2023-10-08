@@ -1234,7 +1234,7 @@ class App:
 					)
 
 				# If the argument's type is array
-				elif splitted_line[j].startswith("arr"):
+				elif splitted_line[j].startswith("arr") or splitted_line[j].startswith("tab"):
 					# Highlighting the array type in red
 					self.stdscr.addstr(
 						mintop, minlen + 1 + len(" ".join(splitted_line[:j])),
@@ -1274,7 +1274,7 @@ class App:
 
 
 		# If the instruction is an array, we highlight the array's type and its size
-		elif splitted_line[0] == "arr" and len(splitted_line) > 1:
+		elif splitted_line[0] in ("arr", "tab") and len(splitted_line) > 1:
 			if splitted_line[1] in self.color_control_flow["variable"]:
 				self.stdscr.addstr(
 					mintop, minlen + 4,
