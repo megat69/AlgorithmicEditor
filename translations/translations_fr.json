@@ -110,5 +110,6 @@
 		"Rappelez-vous qu'a n'importe quel moment, vous pouvez utiliser la touche '{command_symbol}' pour entrer une commande !",
 		"",
 		"Ce logiciel est gratuit et open source sur GitHub : https://github.com/megat69/AlgorithmicEditor"
-	]
+	],
+	"skip_welcome_page": "Ne pas afficher le message de bienvenue"
 }

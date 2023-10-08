@@ -98,6 +98,7 @@ class App:
 		self.top_placement_shift = 0  # By how many lines the top of the code should be shifted from the top
 		self.input_locked = False  # If True, will disable all keyboard input except for commands and plugins
 		self.use_ptrs_and_malloc = False  # If True, will enable the pointers and memory allocations
+		self.skip_welcome_page = False  # If True, will skip the welcome message on startup
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -129,11 +130,17 @@ class App:
 		else:
 			self.plugins_config["BASE_CONFIG"]["max_undo_size"] = self.undo_actions.maxlen - 1
 
-		# Whether to a=enable pointers and memory allocations based on the config
+		# Whether to enable pointers and memory allocations based on the config
 		if "use_ptrs_and_malloc" in self.plugins_config["BASE_CONFIG"].keys():
 			self.use_ptrs_and_malloc = self.plugins_config["BASE_CONFIG"]["use_ptrs_and_malloc"]
 		else:
 			self.plugins_config["BASE_CONFIG"]["use_ptrs_and_malloc"] = self.use_ptrs_and_malloc
+
+		# Whether to skip the welcome message
+		if "skip_welcome_page" in self.plugins_config["BASE_CONFIG"].keys():
+			self.skip_welcome_page = self.plugins_config["BASE_CONFIG"]["skip_welcome_page"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["skip_welcome_page"] = self.skip_welcome_page
 
 		# Generates the list of options the user has access to
 		self.options_list = [
@@ -142,6 +149,7 @@ class App:
 			(self.get_translation('commands', 'modify_tab_char'), lambda: repr(self.tab_char), self.modify_tab_char),
 			(self.get_translation('commands', 'use_ptrs_and_malloc'), lambda: self.use_ptrs_and_malloc, self.toggle_use_ptrs_and_malloc),
 			(self.get_translation('language', 'language'), lambda: self.language, self.change_language),
+			(self.get_translation('skip_welcome_page'), lambda: self.skip_welcome_page, self.toggle_skip_welcome_page),
 			(self.get_translation('change_max_undo_size', 'max_undo'),
 			 lambda: self.plugins_config['BASE_CONFIG']['max_undo_size'], self.change_max_undo_size),
 		]  # The list of options the user has access to ; Follows the scheme <name> <current_state> <callback_trigger>
@@ -201,7 +209,7 @@ class App:
 		self._init_plugins()
 
 		# If the app had not previously crashed, we display the welcome page
-		if self.is_crash_reboot is False:
+		if self.is_crash_reboot is False and not self.skip_welcome_page:
 			self.show_welcome_page()
 
 		# Displays the text
@@ -1427,6 +1435,14 @@ class App:
 			"toggle_struct_use", state=self.use_struct_keyword
 		))
 		self.plugins_config["BASE_CONFIG"]["use_struct_keyword"] = self.use_struct_keyword
+
+
+	def toggle_skip_welcome_page(self):
+		"""
+		Toggles whether to show the startup welcome message.
+		"""
+		self.skip_welcome_page = not self.skip_welcome_page
+		self.plugins_config["BASE_CONFIG"]["skip_welcome_page"] = self.skip_welcome_page
 
 
 	def log(self, *args, **kwargs):
