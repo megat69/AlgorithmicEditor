@@ -167,7 +167,7 @@ class App:
 			"statement": ("if", "else", "end", "elif", "for", "while", "switch", "case", "default", "const", "delete"),
 			"function": ("fx", "fx_start", "return", "CODE_RETOUR", "struct"),
 			"variable": ('int', 'float', 'string', 'bool', 'char'),
-			"instruction": ("print", "input", "arr", "init")
+			"instruction": ("print", "input", "arr", "tab", "init")
 		}  # What each type of statement corresponds to
 		self.theme_scheme = self._theme_parser["SCHEME"].get("scheme", "DARK")
 		self.default_bg = curses.COLOR_BLACK
@@ -466,6 +466,7 @@ class App:
 				"while": "Tant Que",
 				"switch": "Selon",
 				"arr": "Tableau",
+				"tab": "Tableau",
 				"case": "Cas",
 				"default": "Autrement",
 				"fx": "Fonction",
@@ -488,7 +489,7 @@ class App:
 			self.tab_char
 		)
 		self.compilers["C++"] = CppCompiler(
-			('for', 'if', 'while', 'switch', 'arr', 'case', 'default', 'fx', 'proc', 'struct'),
+			('for', 'if', 'while', 'switch', 'arr', 'tab', 'case', 'default', 'fx', 'proc', 'struct'),
 			{
 				"int": "int",
 				"float": "float",

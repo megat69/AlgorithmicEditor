@@ -212,6 +212,11 @@ class AlgorithmicCompiler(Compiler):
 		self.instructions_stack.append("vars")
 
 
+	def analyze_tab(self, instruction_name:str, instruction_params:list, line_number:int):
+		""" Name : tableau [ size ] de type Type """
+		self.analyze_arr(instruction_name, instruction_params, line_number)
+
+
 	def analyze_arr(self, instruction_name:str, instruction_params:list, line_number:int):
 		""" Name : tableau [ size ] de type Type """
 		try:
