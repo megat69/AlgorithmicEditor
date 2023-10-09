@@ -125,7 +125,10 @@ class Plugin:
 
 	def get_config(self, key: str, default: Any) -> Any:
 		"""
-		Returns the element of the config at the given key. If 'key' does not exist in config, sets the value of 'key' to the given 'default' and returns 'default'.
+		Returns the element of the config at the given key.
+			If 'key' does not exist in config, sets the value of 'key' to the given 'default' and returns
+			'default'.
+			This method CANNOT BE USED IN __INIT__ !
 		:param key: The key of the config element you want to get.
 		:param default: The value to assign to 'key' and return if 'key' is not in the config.
 		:return: The value of the config at the given key, or the value of 'default' if 'key' is not in the config.
