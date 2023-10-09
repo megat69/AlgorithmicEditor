@@ -1709,16 +1709,18 @@ class App:
 		while do_loop:
 			display_menu(
 				self.stdscr,
-				(
+				(*sorted([
 					*[  # Renders the text for each option
 						(f"{option[0]} : {option[1]()}", option[2])
 						for option in self.options_list
-					],
-					(self.get_translation("quit", "save_and_quit"), end_loop),
+					]
+				], key=lambda e: e[0]),
+					(self.get_translation("quit", "save_and_quit"), end_loop)
 				),
 				label = "-- Options --",
 				space_out_last_option = True,
-				allow_key_input = True
+				allow_key_input = True,
+				align_left = True
 			)
 
 

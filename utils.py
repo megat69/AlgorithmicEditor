@@ -29,7 +29,7 @@ def _return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> t
 def display_menu(
 		stdscr, commands: tuple, default_selected_element: int = 0, label: str = None, clear: bool = True,
 		space_out_last_option: bool = False, allow_key_input: bool = False, highlight_indexes: Tuple[int, ...] = tuple(),
-		highlight_pair: int = None
+		highlight_pair: int = None, align_left: bool = False
 ):
 	"""
 	Displays a menu at the center of the screen, with every option chosen by the user.
@@ -44,6 +44,8 @@ def display_menu(
 		containing the string.
 	:param highlight_indexes: A tuple of indexes from the commands tuple that should be highlighted in instruction color
 	:param highlight_pair: The index of the color pair to use for highlighting.
+	:param align_left: Whether to align the commands on the left side. False by default. Last option is still centered
+		if space_out_last_option is True.
 	"""
 	# Gets the middle of the screen coordinates
 	screen_middle_y, screen_middle_x = get_screen_middle_coords(stdscr)
@@ -130,15 +132,24 @@ def display_menu(
 				# If this is the last element of the list, we move it downward one line
 				if command_index == (size_of_temp_list - 1):
 					element_y_position += 1
+					is_last_element = True
+				else:
+					is_last_element = False
+			else:
+				is_last_element = False
 
 			# Pushes the element down further if we allow the key input
 			if allow_key_input:
 				element_y_position += 1
 
 			# Displays the menu item
+			if align_left and (is_last_element is False or space_out_last_option is False):
+				element_x_position = int(cols * 0.3)
+			else:
+				element_x_position = screen_middle_x - len(command[0]) // 2
 			stdscr.addstr(
 				element_y_position,
-				screen_middle_x - len(command[0]) // 2,
+				element_x_position,
 				command[0],
 				styling
 			)
