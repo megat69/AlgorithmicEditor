@@ -4,6 +4,7 @@ The Plugin class should be inherited from, rather than used as-is.
 """
 import curses
 from typing import Callable, Type, Any
+import inspect
 
 # Imports the main.py file. If another file is used as top-level import, the program will crash.
 import __main__
@@ -119,6 +120,8 @@ class Plugin:
 		:param bg: A curses color.
 		:return: The ID of the color pair.
 		"""
+		if inspect.stack()[1].function == "__init__":  # If the method's caller is an __init__ method, we error out
+			raise SyntaxError("Cannot call 'create_pair' in an __init__() method ! Try the init() method instead.")
 		curses.init_pair(Plugin._next_pair_number, fg, bg)
 		Plugin._next_pair_number += 1
 		return Plugin._next_pair_number - 1
@@ -133,6 +136,8 @@ class Plugin:
 		:param default: The value to assign to 'key' and return if 'key' is not in the config.
 		:return: The value of the config at the given key, or the value of 'default' if 'key' is not in the config.
 		"""
+		if inspect.stack()[1].function == "__init__":  # If the method's caller is an __init__ method, we error out
+			raise SyntaxError("Cannot call 'get_config' in an __init__() method ! Try the init() method instead.")
 		if key not in self.config:
 			self.config[key] = default
 		return self.config[key]
