@@ -1707,11 +1707,13 @@ class App:
 			do_loop = False
 
 		while do_loop:
+			size = int(self.cols * 0.3)
+			get_size = lambda op: int(self.cols * 0.65) - size - len(op)
 			display_menu(
 				self.stdscr,
 				(*sorted([
 					*[  # Renders the text for each option
-						(f"{option[0]} : {option[1]()}", option[2])
+						(f"{option[0]}{' '*get_size(option[0])} : {option[1]()}", option[2])
 						for option in self.options_list
 					]
 				], key=lambda e: e[0]),
