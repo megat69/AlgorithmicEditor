@@ -223,7 +223,18 @@ class App:
 			self.rows, self.cols = self.stdscr.getmaxyx()
 
 			# Key input
-			key = self.stdscr.getkey()
+			self.stdscr.nodelay(True)
+			try:
+				key = self.stdscr.getkey()
+			except _curses.error:
+				continue
+			finally:
+				# Calls the plugins fixed_update function
+				for plugin in self.plugins.values():
+					if hasattr(plugin[1], "fixed_update"):
+						plugin[1].fixed_update()
+
+			self.stdscr.nodelay(False)
 
 			# If the undo is full, dumping the earliest element of queue
 			if len(self.undo_actions) == self.undo_actions.maxlen:

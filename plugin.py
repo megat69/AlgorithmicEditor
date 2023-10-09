@@ -59,6 +59,13 @@ class Plugin:
 		"""
 		pass
 
+	def fixed_update(self):
+		"""
+		Gets called every frame. Avoid using if unnecessary.
+		WARNING: Both `getch()` and `getkey()` will be non-blocking functions !
+		"""
+		pass
+
 	def translate(self, *keys: str, language: str = None, **format_keys) -> str:
 		"""
 		Gives you the translation of the string found at the key with the given language.
