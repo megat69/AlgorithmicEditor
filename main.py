@@ -406,7 +406,7 @@ class App:
 					self.execute_command(function, command)
 
 		# Add a few spaces to clear the command name
-		self.stdscr.addstr(self.rows - 1, 0, " " * 4)
+		self.stdscr.addstr(self.rows - 1, 0, " " * (len(full_command) + 1))
 
 
 	def execute_command(self, function: Callable[[], Any], key: str):
