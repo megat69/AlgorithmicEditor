@@ -196,6 +196,10 @@ def display_menu(
 			if key == "\b":
 				if string_to_search_for != "":
 					string_to_search_for = string_to_search_for[:-1]
+
+			elif key == "\x1b":  # Escape key deletes the search
+				string_to_search_for = ""
+
 			else:
 				string_to_search_for += key
 			selected_element = 0
