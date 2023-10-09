@@ -216,7 +216,9 @@ def display_menu(
 
 	# Calls the function from the appropriate item
 	try:
-		return _return_list_with_substrings(commands, string_to_search_for, allow_key_input)[selected_element + current_page * max_items_per_page][1][1]()
+		# Returns the value given by the appropriate command's execution
+		return _return_list_with_substrings(commands, string_to_search_for, allow_key_input)\
+			[selected_element + current_page * max_items_per_page][1][1]()
 	except IndexError:
 		return 0
 
