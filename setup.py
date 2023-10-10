@@ -24,7 +24,7 @@ if len(sys.argv) >= 2 and sys.argv[1] == "--filetype":
 			associate_file_type()
 			sys.exit(0)
 		else:
-			sys.exit(3 + runAsAdmin([sys.executable, "--filetype"]))
+			sys.exit(3 + runAsAdmin([sys.executable, "setup.py", "--filetype"]))
 
 PLUGINS_STARTER_PACK = (
 	("autocomplete", {"fr": "Ajoute de l'autocomplétion", "en": "Adds autocompletion"}),
@@ -146,7 +146,7 @@ if platform.system() == "Windows":
 	associate_filetypes = input("\n" * 2 + translations[language]["associate_filetype"]) != "n"
 	if associate_filetypes:
 		if not isUserAdmin():
-			runAsAdmin(cmdLine=[sys.executable, "--filetype"])
+			runAsAdmin(cmdLine=[sys.executable, "setup.py", "--filetype"])
 		else:
 			associate_file_type()
 
