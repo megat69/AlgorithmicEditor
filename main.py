@@ -208,6 +208,14 @@ class App:
 		# Initializes each plugin, if they have an init function
 		self._init_plugins()
 
+		# Deletes the given commands
+		if "--delete-commands" in sys.argv:
+			commands_to_delete = sys.argv[sys.argv.index("--delete-commands") + 1].split(":")
+			for e in commands_to_delete:
+				try:
+					del self.commands[e]
+				except KeyError: pass
+
 		# If the app had not previously crashed, we display the welcome page
 		if self.is_crash_reboot is False and not self.skip_welcome_page:
 			self.show_welcome_page()
