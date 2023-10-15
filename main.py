@@ -358,11 +358,13 @@ class App:
 			elif key == "KEY_F(4)":
 				self.commands["q"][0]()
 			elif key == "KEY_SEND":  # The key used to type '<', for some reason
-				self.add_char_to_text("<")
+				self.add_char_to_text('<')
 			elif key == "CTL_END":  # The key used to type '>', for some reason
-				self.add_char_to_text(">")
+				self.add_char_to_text('>')
 			elif key == "SHF_PADSLASH":  # The key used to type '!', for some reason
-				self.add_char_to_text("!")
+				self.add_char_to_text('!')
+			elif key == "PADENTER":
+				self.add_char_to_text('\n')
 			"""elif key == "KEY_HOME":
 				self.min_display_char -= 1
 				if self.min_display_char < 0:

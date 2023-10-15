@@ -75,7 +75,7 @@ def display_menu(
 	string_to_search_for = ""
 
 	# Looping until the user selects an item
-	while key not in ("\n", "\t"):
+	while key not in ('\n', '\t', "PADENTER"):
 		# Displays the menu title
 		if label is not None:
 			# Checking for the horizontal size
@@ -190,7 +190,7 @@ def display_menu(
 					selected_element = current_command_len() - 1
 			stdscr.clear()
 
-		elif key in ("\n", "\t"): pass
+		elif key in ('\n', '\t', "PADENTER"): pass
 
 		elif allow_key_input:
 			if key == "\b":
@@ -248,7 +248,7 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 	if position_y is None: position_y = stdscr.getmaxyx()[0] - 1
 
 	# Loops until the user presses Enter
-	while key != "\n":
+	while key not in ('\n', "PADENTER"):
 		# Awaits for a keypress
 		key = stdscr.getkey()
 
@@ -268,7 +268,7 @@ def input_text(stdscr, position_x: int = 0, position_y: int = None) -> str:
 		elif key == "CTL_END":  # Fix for '<' character
 			final_text += ">"
 
-		elif key.startswith("KEY_") or (key.startswith("^") and key != "^") or key == "\n":
+		elif key.startswith("KEY_") or (key.startswith("^") and key != "^") or key in ('\n', "PADENTER"):
 			# Does nothing if it is a special key
 			pass
 
