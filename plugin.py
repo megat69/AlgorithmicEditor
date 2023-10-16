@@ -18,12 +18,16 @@ else:
 class Plugin:
 	_next_pair_number = 10
 
-	def __init__(self, app: AppType):
+	def __init__(self, app: AppType, suppress_warnings: bool = False):
 		self.app: __main__.App = app  # An instance of the app
 		self.plugin_name: str = ""  # The name of the plugin
 		self.config: dict = {}  # The config data of the plugin
 		self.translations: dict = {}  # The translations of your app
 		self.was_initialized: bool = False  # Whether the init() method was called. If True, will not call the method. If False, will turn to True upon call of init().
+
+		# Checks whether the class is a singleton, and raises a warning if it is not
+		if f"_{type(self).__name__}__singleton" not in dir(type(self)) and not suppress_warnings:
+			print(f"WARNING: Plugin {type(self).__name__} is not a singleton ! Are you sure it is intended to be this way ?")
 
 	def init(self):
 		"""
