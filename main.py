@@ -8,7 +8,7 @@ from functools import partial
 import os
 import importlib
 import json
-from typing import Union, Optional, Callable, Any
+from typing import Union, Optional, Callable, Any, List
 from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
@@ -182,6 +182,19 @@ class App:
 		self.default_fg = curses.COLOR_WHITE
 
 		# Loads all the plugins
+		self.authorized_plugins_list: Optional[List[str]] = None  # A list of the plugins authorized to load, or None if any plugin in the plugins folder can load
+		if "--authorized-plugins" in sys.argv:
+			arg = sys.argv[sys.argv.index("--authorized-plugins") + 1]
+
+			# If it is the path to a file
+			if arg.startswith("f:"):
+				with open(arg[2:], 'r', encoding="utf-8") as f:
+					# Each plugin name will be on a new line
+					self.authorized_plugins_list = f.read().split('\n')
+			else:
+				# Each plugin name will be separated by a ':'
+				self.authorized_plugins_list = arg.split(':')
+
 		self.plugins = self.load_plugins()  # A dict containing all the plugins as list of [module, instance]
 
 
@@ -940,8 +953,9 @@ class App:
 		# Lists all the plugin files inside the plugins folder
 		for plugin in os.listdir(os.path.join(os.path.dirname(__file__), "plugins")):
 			if plugin.startswith("__") or os.path.isdir(os.path.join(os.path.dirname(__file__), "plugins", plugin)) \
-					or not plugin.endswith(".py"):
-				continue  # Python folders/files
+					or not plugin.endswith(".py") or (
+					self.authorized_plugins_list is not None and plugin[:-3] not in self.authorized_plugins_list):
+				continue  # Python folders/files/unauthorized plugins
 
 			# Cleaning the name
 			plugin = plugin.replace(".py", "")
