@@ -210,7 +210,16 @@ class App:
 
 		# Deletes the given commands
 		if "--delete-commands" in sys.argv:
-			commands_to_delete = sys.argv[sys.argv.index("--delete-commands") + 1].split(":")
+			commands_to_delete_arg = sys.argv[sys.argv.index("--delete-commands") + 1]
+
+			# If the commands to delete are stored in a file
+			if commands_to_delete_arg.startswith("f:"):
+				with open(commands_to_delete_arg[2:], 'r', encoding="utf-8") as f:
+					commands_to_delete_arg = f.read()
+
+			# Splits the commands into a list of commands to delete
+			commands_to_delete = commands_to_delete_arg.split(":")
+
 			for e in commands_to_delete:
 				try:
 					del self.commands[e]
