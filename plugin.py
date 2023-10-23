@@ -3,7 +3,7 @@ Contains the Plugin base class, which allows developers to create their own plug
 The Plugin class should be inherited from, rather than used as-is.
 """
 import curses
-from typing import Callable, Type, Any
+from typing_extensions import Callable, Type, Any
 import inspect
 
 # Imports the main.py file. If another file is used as top-level import, the program will crash.

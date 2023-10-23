@@ -5,7 +5,7 @@ import curses
 import os
 from functools import partial
 from math import ceil
-from typing import Tuple
+from typing_extensions import Tuple
 
 
 def _return_list_with_substrings(lst: tuple, substring: str, enabled: bool) -> tuple:
