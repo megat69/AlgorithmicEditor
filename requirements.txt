@@ -1,2 +1,3 @@
 pyperclip
 fast_autocomplete[levenshtein]
+typing-extensions>=4.8.0

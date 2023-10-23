@@ -3,3 +3,4 @@ pyperclip
 fast_autocomplete[levenshtein]
 pywin32
 pyuac==0.0.3
+typing-extensions>=4.8.0
