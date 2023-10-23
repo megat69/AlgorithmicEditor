@@ -578,7 +578,10 @@ class App:
 			label=self.get_translation("crash_recovery", date=dateD_H_str),
 			clear=False
 		)
-		os.remove(CRASH_FILE_PATH)
+		try:
+			os.remove(CRASH_FILE_PATH)
+		except FileNotFoundError:
+			pass
 
 
 	@property
