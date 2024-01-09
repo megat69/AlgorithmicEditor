@@ -100,6 +100,7 @@ class App:
 		self.input_locked = False  # If True, will disable all keyboard input except for commands and plugins
 		self.use_ptrs_and_malloc = False  # If True, will enable the pointers and memory allocations
 		self.skip_welcome_page = False  # If True, will skip the welcome message on startup
+		self.invert_vertical_slider_direction = False  # If True, the keys to move the vertical slider will be inverted
 
 		# Changes the class variable of browse_files to be the config's class variable
 		if self.plugins_config["BASE_CONFIG"]["default_save_location"] != "":
@@ -143,6 +144,12 @@ class App:
 		else:
 			self.plugins_config["BASE_CONFIG"]["skip_welcome_page"] = self.skip_welcome_page
 
+		# Whether to skip the welcome message
+		if "invert_vertical_slider_direction" in self.plugins_config["BASE_CONFIG"].keys():
+			self.invert_vertical_slider_direction = self.plugins_config["BASE_CONFIG"]["invert_vertical_slider_direction"]
+		else:
+			self.plugins_config["BASE_CONFIG"]["invert_vertical_slider_direction"] = self.invert_vertical_slider_direction
+
 		# Generates the list of options the user has access to
 		self.options_list = [
 			(self.get_translation('commands', 'std_use'), lambda: self.using_namespace_std, self.toggle_std_use),
@@ -153,6 +160,8 @@ class App:
 			(self.get_translation('skip_welcome_page'), lambda: self.skip_welcome_page, self.toggle_skip_welcome_page),
 			(self.get_translation('change_max_undo_size', 'max_undo'),
 			 lambda: self.plugins_config['BASE_CONFIG']['max_undo_size'], self.change_max_undo_size),
+			(self.get_translation('invert_vertical_slider_direction'), lambda: self.invert_vertical_slider_direction,
+			 self.toggle_vertical_slider_direction)
 		]  # The list of options the user has access to ; Follows the scheme <name> <current_state> <callback_trigger>
 
 
@@ -369,12 +378,15 @@ class App:
 				while self.current_index < len(self.current_text) and self.current_text[
 					self.current_index] in string.ascii_letters:
 					self.current_index += 1
-			elif key == "KEY_NPAGE":
-				self.min_display_line -= 1
+			elif key in ("KEY_NPAGE", "KEY_PPAGE"):  # Move vertical slider up/down
+				increment = 1
+				if key == "KEY_NPAGE":
+					increment *= -1
+				if self.invert_vertical_slider_direction:
+					increment *= -1
+				self.min_display_line += increment
 				if self.min_display_line < 0:
 					self.min_display_line = 0
-			elif key == "KEY_PPAGE":
-				self.min_display_line += 1
 				if self.min_display_line > self.lines - 1:
 					self.min_display_line = self.lines - 1
 			elif key == "KEY_F(1)":
@@ -1496,6 +1508,14 @@ class App:
 		"""
 		self.skip_welcome_page = not self.skip_welcome_page
 		self.plugins_config["BASE_CONFIG"]["skip_welcome_page"] = self.skip_welcome_page
+
+
+	def toggle_vertical_slider_direction(self):
+		"""
+		Toggles whether to show the startup welcome message.
+		"""
+		self.invert_vertical_slider_direction = not self.invert_vertical_slider_direction
+		self.plugins_config["BASE_CONFIG"]["invert_vertical_slider_direction"] = self.invert_vertical_slider_direction
 
 
 	def log(self, *args, **kwargs):

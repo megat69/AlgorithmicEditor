@@ -111,5 +111,6 @@
 		"",
 		"This software is free and open source on GitHub : https://github.com/megat69/AlgorithmicEditor"
 	],
-	"skip_welcome_page": "Skip welcome message"
+	"skip_welcome_page": "Skip welcome message",
+	"invert_vertical_slider_direction": "Invert vertical slider direction"
 }
