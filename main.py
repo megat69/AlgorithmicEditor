@@ -19,6 +19,7 @@ import datetime
 from algorithmic_compiler import AlgorithmicCompiler
 from cpp_compiler import CppCompiler
 from utils import display_menu, input_text, get_screen_middle_coords, browse_files
+from custom_types import CommandType, OptionType
 
 
 # Constants
@@ -59,27 +60,31 @@ class App:
 		self.current_index = 0  # The current index of the cursor
 		self.command_symbol = ":"  # The symbol triggering a command
 		self.commands = {
-			"q": (self.quit, self.get_translation("commands", "q"), False),
-			"q!": (partial(self.quit, True), self.get_translation("commands", "q!"), True),
-			"qs!": (partial(self.quit, True, True), self.get_translation("commands", "qs!"), True),
-			"s": (self.save, self.get_translation("commands", "s"), False),
-			"qs": (partial(self.save, quick_save=True), self.get_translation("commands", "qs"), False),
-			"o": (self.open, self.get_translation("commands", "o"), False),
-			"c": (self.compile, self.get_translation("commands", "c"), False),
-			"p": (self.compile_to_cpp, self.get_translation("commands", "p"), False),
-			"op": (self.options, self.get_translation("commands", "op"), False),
-			"h": (self.display_commands, self.get_translation("commands", "h"), False),
-			"z": (self.undo, self.get_translation("commands", "z"), False),
-			"a": (self.repeat_last_command, self.get_translation("commands", "a"), False),
-			# "t": (self.modify_tab_char, self.get_translation("commands", "t"), True),
-			# "j": (self.toggle_std_use, self.get_translation("commands", "j"), True),
-			# "st": (self.toggle_struct_use, self.get_translation("commands", "st"), True),
-			"cl": (self.clear_text, self.get_translation("commands", "cl"), True),
-			"is": (self.insert_text, self.get_translation("commands", "is"), True),
-			"rlt": (self.reload_theme, self.get_translation("commands", "rlt"), True),
-			"m": (self.mark_line, self.get_translation("commands", "m"), True),
+			"q": CommandType(self.quit, self.get_translation("commands", "q"), False),
+			"q!": CommandType(partial(self.quit, True), self.get_translation("commands", "q!"), True),
+			"qs!": CommandType(partial(self.quit, True, True), self.get_translation("commands", "qs!"), True),
+			"s": CommandType(self.save, self.get_translation("commands", "s"), False),
+			"qs": CommandType(partial(self.save, quick_save=True), self.get_translation("commands", "qs"), False),
+			"o": CommandType(self.open, self.get_translation("commands", "o"), False),
+			"c": CommandType(self.compile, self.get_translation("commands", "c"), False),
+			"p": CommandType(self.compile_to_cpp, self.get_translation("commands", "p"), False),
+			"op": CommandType(self.options, self.get_translation("commands", "op"), False),
+			"h": CommandType(self.display_commands, self.get_translation("commands", "h"), False),
+			"z": CommandType(self.undo, self.get_translation("commands", "z"), False),
+			"a": CommandType(self.repeat_last_command, self.get_translation("commands", "a"), False),
+			# "t": CommandType(self.modify_tab_char, self.get_translation("commands", "t"), True),
+			# "j": CommandType(self.toggle_std_use, self.get_translation("commands", "j"), True),
+			# "st": CommandType(self.toggle_struct_use, self.get_translation("commands", "st"), True),
+			"cl": CommandType(self.clear_text, self.get_translation("commands", "cl"), True),
+			"is": CommandType(self.insert_text, self.get_translation("commands", "is"), True),
+			"rlt": CommandType(self.reload_theme, self.get_translation("commands", "rlt"), True),
+			"m": CommandType(self.mark_line, self.get_translation("commands", "m"), True),
 			# To add the command symbol to the text
-			self.command_symbol: (partial(self.add_char_to_text, self.command_symbol), self.command_symbol, True)
+			self.command_symbol: CommandType(
+				partial(self.add_char_to_text, self.command_symbol),
+				self.command_symbol,
+				True
+			)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
 		self.last_used_command: Optional[str] = None  # The prefix of the last command used
 		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
@@ -152,15 +157,15 @@ class App:
 
 		# Generates the list of options the user has access to
 		self.options_list = [
-			(self.get_translation('commands', 'std_use'), lambda: self.using_namespace_std, self.toggle_std_use),
-			(self.get_translation('commands', 'struct_use'), lambda: self.use_struct_keyword, self.use_struct_keyword),
-			(self.get_translation('commands', 'modify_tab_char'), lambda: repr(self.tab_char), self.modify_tab_char),
-			(self.get_translation('commands', 'use_ptrs_and_malloc'), lambda: self.use_ptrs_and_malloc, self.toggle_use_ptrs_and_malloc),
-			(self.get_translation('language', 'language'), lambda: self.language, self.change_language),
-			(self.get_translation('skip_welcome_page'), lambda: self.skip_welcome_page, self.toggle_skip_welcome_page),
-			(self.get_translation('change_max_undo_size', 'max_undo'),
+			OptionType(self.get_translation('commands', 'std_use'), lambda: self.using_namespace_std, self.toggle_std_use),
+			OptionType(self.get_translation('commands', 'struct_use'), lambda: self.use_struct_keyword, self.use_struct_keyword),
+			OptionType(self.get_translation('commands', 'modify_tab_char'), lambda: repr(self.tab_char), self.modify_tab_char),
+			OptionType(self.get_translation('commands', 'use_ptrs_and_malloc'), lambda: self.use_ptrs_and_malloc, self.toggle_use_ptrs_and_malloc),
+			OptionType(self.get_translation('language', 'language'), lambda: self.language, self.change_language),
+			OptionType(self.get_translation('skip_welcome_page'), lambda: self.skip_welcome_page, self.toggle_skip_welcome_page),
+			OptionType(self.get_translation('change_max_undo_size', 'max_undo'),
 			 lambda: self.plugins_config['BASE_CONFIG']['max_undo_size'], self.change_max_undo_size),
-			(self.get_translation('invert_vertical_slider_direction'), lambda: self.invert_vertical_slider_direction,
+			OptionType(self.get_translation('invert_vertical_slider_direction'), lambda: self.invert_vertical_slider_direction,
 			 self.toggle_vertical_slider_direction)
 		]  # The list of options the user has access to ; Follows the scheme <name> <current_state> <callback_trigger>
 
@@ -390,9 +395,9 @@ class App:
 				if self.min_display_line > self.lines - 1:
 					self.min_display_line = self.lines - 1
 			elif key == "KEY_F(1)":
-				self.commands["h"][0]()
+				self.commands["h"].command()
 			elif key == "KEY_F(4)":
-				self.commands["q"][0]()
+				self.commands["q"].command()
 			elif key == "KEY_SEND":  # The key used to type '<', for some reason
 				self.add_char_to_text('<')
 			elif key == "CTL_END":  # The key used to type '>', for some reason
@@ -402,9 +407,9 @@ class App:
 			elif key == "PADENTER":
 				self.add_char_to_text('\n')
 			elif len(key) == 1 and ord(key) == 15:  # CTRL+O to open a file
-				self.commands['o'][0]()
+				self.commands['o'].command()
 			elif len(key) == 1 and ord(key) == 26:  # CTRL+Z to undo
-				self.commands['z'][0]()
+				self.commands['z'].command()
 			"""elif key == "KEY_HOME":
 				self.min_display_char -= 1
 				if self.min_display_char < 0:
@@ -1775,7 +1780,7 @@ class App:
 				self.stdscr,
 				(*sorted([
 					*[  # Renders the text for each option
-						(f"{option[0]}{' '*get_size(option[0])} : {option[1]()}", option[2])
+						(f"{option.name}{' '*get_size(option.name)} : {option.current_state()}", option.callback_trigger)
 						for option in self.options_list
 					]
 				], key=lambda e: e[0]),
@@ -1808,7 +1813,7 @@ class App:
 		Repeats the last command.
 		"""
 		if self.last_used_command is not None:
-			self.execute_command(self.commands[self.last_used_command][0], self.last_used_command)
+			self.execute_command(self.commands[self.last_used_command].command, self.last_used_command)
 
 
 	def compile(self, noshow:bool=False) -> Union[None, str]:

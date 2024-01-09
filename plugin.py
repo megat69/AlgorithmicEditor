@@ -7,6 +7,8 @@ import typing_extensions
 from typing import Callable, Type, Any
 import inspect
 
+from custom_types import CommandType, OptionType
+
 # Imports the main.py file. If another file is used as top-level import, the program will crash.
 import __main__
 
@@ -113,7 +115,7 @@ class Plugin:
 			the screen). False by default.
 		"""
 		# If a command with the same prefix exists, it replaces it
-		self.app.commands[character] = (function, description, hidden)
+		self.app.commands[character] = CommandType(function, description, hidden)
 
 	def add_option(self, name: str, current_value: Callable[[], Any], callback: Callable[[], Any]):
 		"""
@@ -123,7 +125,7 @@ class Plugin:
 		:param callback: A function to be called when the user chooses to change the config for the new option.
 		"""
 		# If a command with the same prefix exists, it replaces it
-		self.app.options_list.append((name, current_value, callback))
+		self.app.options_list.append(OptionType(name, current_value, callback))
 
 	def create_pair(self, fg: int, bg: int) -> int:
 		"""
