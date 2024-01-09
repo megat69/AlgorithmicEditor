@@ -391,6 +391,8 @@ class App:
 				self.add_char_to_text('\n')
 			elif len(key) == 1 and ord(key) == 15:  # CTRL+O to open a file
 				self.commands['o'][0]()
+			elif len(key) == 1 and ord(key) == 26:  # CTRL+Z to undo
+				self.commands['z'][0]()
 			"""elif key == "KEY_HOME":
 				self.min_display_char -= 1
 				if self.min_display_char < 0:
