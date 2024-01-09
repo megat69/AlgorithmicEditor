@@ -309,7 +309,8 @@ class App:
 		:param key: The key pressed by the user.
 		"""
 		# If the key IS a backspace character, we remove the last character from the text
-		if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or len(key) != 1:
+		if key in ("\b", "\0") or key.startswith("KEY_") or key.startswith("CTL_") or key.startswith("ALT_") \
+				or len(key) != 1 or (len(key) == 1 and ord(key) <= 26):
 			if key in ("KEY_BACKSPACE", "\b", "\0"):
 				if self.current_index > 0:
 					# Makes the action undoable
