@@ -3,7 +3,8 @@ Contains the Plugin base class, which allows developers to create their own plug
 The Plugin class should be inherited from, rather than used as-is.
 """
 import curses
-from typing_extensions import Callable, Type, Any
+import typing_extensions
+from typing import Callable, Type, Any
 import inspect
 
 # Imports the main.py file. If another file is used as top-level import, the program will crash.
@@ -19,7 +20,7 @@ class Plugin:
 	_next_pair_number = 10
 
 	def __init__(self, app: AppType, suppress_warnings: bool = False):
-		self.app: __main__.App = app  # An instance of the app
+		self.app: AppType = app  # An instance of the app
 		self.plugin_name: str = ""  # The name of the plugin
 		self.config: dict = {}  # The config data of the plugin
 		self.translations: dict = {}  # The translations of your app

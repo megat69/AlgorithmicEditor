@@ -8,7 +8,8 @@ from functools import partial
 import os
 import importlib
 import json
-from typing_extensions import Union, Optional, Callable, Any, List
+import typing_extensions
+from typing import Union, Optional, Callable, Any, List
 from configparser import ConfigParser
 from collections import deque
 from traceback import print_exception
