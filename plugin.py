@@ -159,3 +159,14 @@ class Plugin:
 		if key not in self.config:
 			self.config[key] = default
 		return self.config[key]
+
+	def bind_control(self, letter: str, command_prefix: str) -> None:
+		"""
+		Binds a command to a control keybind.
+		:param letter: A single letter for the CTRL keybind.
+		:param command_prefix: The prefix for the command to bind.
+		:exception SyntaxError: If letter is different than one character, raises a SyntaxError.
+		"""
+		if len(letter) != 1:
+			raise SyntaxError(f"Control bind letter should only be one character, not {letter} ({len(letter)} characters)")
+		self.app.command_bind_controls[letter] = command_prefix

@@ -86,6 +86,11 @@ class App:
 				True
 			)
 		}  # A dictionary of all the commands, either built-in or plugin-defined.
+		self.command_bind_controls = {
+			'o': 'o',
+			's': 'qs',
+			'z': 'z',
+		}  # Binds a CTRL+Letter keybind to a command. Key is a letter and value is a command prefix.
 		self.last_used_command: Optional[str] = None  # The prefix of the last command used
 		self.instructions_list = []  # The list of instructions for compilation, is only used by the compilation functions
 		self.tab_char = "\t"  # The tab character
@@ -406,10 +411,23 @@ class App:
 				self.add_char_to_text('!')
 			elif key == "PADENTER":
 				self.add_char_to_text('\n')
-			elif len(key) == 1 and ord(key) == 15:  # CTRL+O to open a file
-				self.commands['o'].command()
-			elif len(key) == 1 and ord(key) == 26:  # CTRL+Z to undo
-				self.commands['z'].command()
+			elif len(key) == 1 and ord(key) <= 26:
+				# Finds which letter was pressed alongside CTRL
+				bound_letter = chr(ord('a') + ord(key) - 1)
+
+				# Looks for the letter in the binds
+				bound_command = self.command_bind_controls.get(bound_letter)
+
+				# If there is a bound command for this control, runs the command
+				if bound_command is not None:
+					self.commands[bound_command].command()
+
+				# If no command is bound for this control, prints it to the user
+				else:
+					self.stdscr.addstr(
+						self.rows - 1, 0,
+						self.get_translation("errors", "no_control_bound", letter=bound_letter)
+					)
 			"""elif key == "KEY_HOME":
 				self.min_display_char -= 1
 				if self.min_display_char < 0:
@@ -1905,8 +1923,11 @@ def generate_crash_file(app:App, *args):
 	:param app: The application instance.
 	"""
 	# Saves a crash file with the contents of the current code
-	with open(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME), "w", encoding="utf-8") as f:
-		f.write(app.current_text)
+	try:
+		with open(os.path.join(os.path.dirname(__file__), CRASH_FILE_NAME), "w", encoding="utf-8") as f:
+			f.write(app.current_text)
+	except Exception:
+		return None
 
 	# If the app has loaded plugins, we call their on_crash function
 	if hasattr(app, "plugins"):
