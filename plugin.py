@@ -81,6 +81,8 @@ class Plugin:
 		:param language: The language to be used to translate. If None (default), the app's language.
 		:param format_keys: Parameters that would be used in the str.format() method.
 		:return: The translated string.
+		:exception KeyError: If the specified keys are not found in both the specified/default language and english,
+			a KeyError is raised.
 		"""
 		# Tries to reach the correct translation
 		try:
@@ -133,6 +135,7 @@ class Plugin:
 		:param fg: A curses color.
 		:param bg: A curses color.
 		:return: The ID of the color pair.
+		:exception SyntaxError: A SyntaxError is raised if called from the function's __init__ method.
 		"""
 		if inspect.stack()[1].function == "__init__":  # If the method's caller is an __init__ method, we error out
 			raise SyntaxError("Cannot call 'create_pair' in an __init__() method ! Try the init() method instead.")
@@ -149,6 +152,7 @@ class Plugin:
 		:param key: The key of the config element you want to get.
 		:param default: The value to assign to 'key' and return if 'key' is not in the config.
 		:return: The value of the config at the given key, or the value of 'default' if 'key' is not in the config.
+		:exception SyntaxError: A SyntaxError is raised if called from the function's __init__ method.
 		"""
 		if inspect.stack()[1].function == "__init__":  # If the method's caller is an __init__ method, we error out
 			raise SyntaxError("Cannot call 'get_config' in an __init__() method ! Try the init() method instead.")
