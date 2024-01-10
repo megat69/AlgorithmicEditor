@@ -24,7 +24,8 @@
 	"errors": {
 		"unknown": "A curses error occurred",
 		"color_pair_creation_error": "Error in theme pair_{i} : Pairs in should be composed of two colors separated by a comma (',') ; found {current_pair}",
-		"not_curses_color": "Error in theme pair_{i} color {color} : {current_pair_element} is not a curses color."
+		"not_curses_color": "Error in theme pair_{i} color {color} : {current_pair_element} is not a curses color.",
+		"no_control_bound": "No control bound for the letter '{letter}'"
 	},
 	"quit": {
 		"quit_without_save": "Quit without Saving",

@@ -24,7 +24,8 @@
 	"errors": {
 		"unknown": "Une erreur de curses est survenue",
 		"color_pair_creation_error": "Erreur dans l'attribut pair_{i} du thème : Les paires doivent être composées de deux couleurs séparées par une virgule (',') ; {current_pair} éléments trouvés",
-		"not_curses_color": "Erreur dans la paire pair_{i}, couleur {color} : {current_pair_element} n'est pas une couleur définie par curses."
+		"not_curses_color": "Erreur dans la paire pair_{i}, couleur {color} : {current_pair_element} n'est pas une couleur définie par curses.",
+		"no_control_bound": "Aucun contrôle ajouté pour la lettre '{letter}'"
 	},
 	"quit": {
 		"quit_without_save": "Quitter sans enregistrer",
